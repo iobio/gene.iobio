@@ -31,14 +31,14 @@
       padding-right: 3px
 .gnomad-pop-entry-label
    display: inline-block
-   width: 40px
+   width: 70px
    color: $app-color
    font-size: 13px
 
 .gnomad-pop-entry-value
     display: inline-block
     margin-left: 5px
-    width: 40px
+    width: 60px
     font-size: 13px
 
 </style>
@@ -61,7 +61,7 @@
       </v-btn>
 
       <div class="gnomad-pop-info" style="padding: 20px;"  >
-        <div class="gnomad-pop-entry"  v-for="(pop, popKey) in selectedVariant.gnomAD.pop">            
+        <div class="gnomad-pop-entry"  v-for="(pop, popKey) in selectedVariant.gnomAD.genomes.pop">
             <span class="gnomad-pop-entry-label">
                 {{ popKey }}</span>
             <span class="gnomad-pop-entry-value">

@@ -9,16 +9,11 @@ class GlobalApp {
     this.tour                  = "";
     this.completedTour         = "";
 
-    this.version               = "4.10";
+    this.version                = "4.11";
 
-    this.GREEN_IOBIO           = "nv-green.iobio.io/";  // Must always stay at green to accommodate VEP service
-
-    this.DEFAULT_IOBIO_BACKEND  = "backend.iobio.io"
-    this.launchedFromUtahMosaic = false;
     this.IOBIO_SERVICES         = null;
     this.HTTP_SERVICES          = null;
 
-    this.isClinvarOffline      = false;          // is clinvar offline?  (Pull from clinvar hosted from URL?)
     this.accessNCBIGeneSummary = true;           // is it okay to access NCBI web resources to obtain the refseq gene summary?  In cases where the server and client are COMPLETELY offline, set this to false.
 
     this.useOnDemand           = true;           // use on demand tabix and samtools
@@ -42,28 +37,11 @@ class GlobalApp {
                                     'dev': "https://s3.amazonaws.com/gene.iobio.config/site-config-dev.json" };
     this.clinvarGenesUrl       =  "https://s3.amazonaws.com/gene.iobio.config/clinvar-counts.txt";
 
-    // Get clinvar annotations from 'eutils' or 'vcf'
-    this.clinvarSource         = "vcf";
-
     // get hgvs, rsid annotation for all variants
     this.getVariantIdsForGene = false;
 
-    // get gnomad extra info (on demand)
-    this.gnomADExtra          = true;
-    // get gnomad extra info for all variants
-    this.gnomADExtraAll       = true;
-
-    // how should we get the gnomad extra info?  'merge annots' or 'cust vep'
-    this.GNOMAD_METHOD_MERGE_ANNOTS   = "gnomad_merge_annots";
-    this.GNOMAD_METHOD_CUSTOM_VEP     = "gnomad_custom_vep";
-    this.gnomADExtraMethod            = this.GNOMAD_METHOD_MERGE_ANNOTS;
-
-
     // How many genes can be analyzed in one session.  Set to null if no limitation.
     this.maxGeneCount         = null;
-
-    // Should vep retrieve allele frequencies (for gnomad exomes)
-    this.vepAF                = true ;
 
     // What browser cache implementation is used: 'localStorage' or 'indexedDB'
     this.BROWSER_CACHE_LOCAL_STORAGE = 'localStorage';
@@ -92,55 +70,49 @@ class GlobalApp {
 
     this.gnomADRenameChr = {
        genomes: {
-        'GRCh37': {'none': null,     
+        'GRCh37': {'none': null,
                    'chr':  'removeChr'},
-        'GRCh38': {'none': 'addChr', 
+        'GRCh38': {'none': 'addChr',
                    'chr':  null}
       },
       exomes: {
-        'GRCh37': {'none': null,     
+        'GRCh37': {'none': null,
                    'chr':  'removeChr'},
-        'GRCh38': {'none': null, 
+        'GRCh38': {'none': null,
                    'chr':  'removeChr'}
       }
     }
 
   }
 
-  initBackendSource(iobioSource) {
-      this.IOBIO_SERVICES = (this.useSSL ? "https://" : "http://") + iobioSource + "/";
-      this.HTTP_SERVICES  = (this.useSSL ? "https://" : "http://") + iobioSource + "/";;
-      if (this.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') >= 0 && this.IOBIO_SERVICES.indexOf("gru-dev") < 0) {
-        this.launchedFromUtahMosaic = true;
+  initServices(iobioSource) {
+      if (process.env.USE_SSL) {
+        this.useSSL = process.env.USE_SSL === 'true' ? true : false;
       }
 
-      this.geneInfoServer            = this.HTTP_SERVICES + "geneinfo/";
-      this.geneToPhenoServer         = this.HTTP_SERVICES + "gene2pheno/";
-      this.phenolyzerOnlyServer      = this.HTTP_SERVICES + "phenolyzer/";
-      this.genomeBuildServer         = this.HTTP_SERVICES + "genomebuild/"
-      this.hpoLookupUrl              = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
-
-
-
-      this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   iobioSource + "email/";
+      if (process.env.VUE_APP_VERSION) {
+        this.version = process.VUE_APP_VERSION;
+      }
+      
+      if (iobioSource) {
+        this.IOBIO_SERVICES = (this.useSSL ? "https://" : "http://") + iobioSource;
+        this.HTTP_SERVICES  = (this.useSSL ? "https://" : "http://") + iobioSource;
+  
+  
+        this.geneInfoServer            = this.HTTP_SERVICES + "/geneinfo/";
+        this.geneToPhenoServer         = this.HTTP_SERVICES + "/gene2pheno/";
+        this.phenolyzerOnlyServer      = this.HTTP_SERVICES + "/phenolyzer/";
+        this.genomeBuildServer         = this.HTTP_SERVICES + "/genomebuild/"
+        this.hpoLookupUrl              = this.HTTP_SERVICES + "/hpo/hot/lookup/?term=";
+  
+  
+        this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   iobioSource + "email/";
+      } else {
+        throw new Error("Unable to initialize backend services. IOBIO server not specified.")
+      }
+    
   }
 
-  initServices(useMosaicBackend) {
-
-    if (process.env.USE_SSL) {
-      this.useSSL = process.env.USE_SSL === 'true' ? true : false;
-    }
-
-    // These are the public services.
-    if (useMosaicBackend && process.env.IOBIO_BACKEND_MOSAIC ) {
-      this.initBackendSource(process.env.IOBIO_BACKEND_MOSAIC)
-    } else if (process.env.IOBIO_BACKEND) {
-      this.initBackendSource(process.env.IOBIO_BACKEND)
-    } else {
-      console.log("No backend specified")
-    }
-
-  }
 
   getCloseMessage() {
     if (this.isDirty) {
@@ -151,11 +123,28 @@ class GlobalApp {
   }
 
   getClinvarUrl(build) {
-    return this.IOBIO_SERVICES + 'static/clinvar/' + build + '/clinvar.vcf.gz';
+    return this.IOBIO_SERVICES + '/static/clinvar/' + build + '/clinvar.vcf.gz';
   }
 
   getRevelUrl(build) {
     return './vep-cache/' + build + '_revel_all_chromosomes_for_vep.tsv.gz';
+  }
+
+  getVepRsId(variant) {
+    var rsId = null;
+    if (variant.vepVariationIds) {
+      for (var key in variant.vepVariationIds) {
+        if (key != 0 && key != '') {
+          var tokens = key.split("&");
+          tokens.forEach( function(id) {
+            if (id.indexOf("rs") == 0) {
+              rsId = id;
+            }
+          });
+        }
+      }
+    }
+    return rsId;
   }
 
 
@@ -181,11 +170,11 @@ class GlobalApp {
     var gnomADSource = {
       genomes: {
         'GRCh37': 'v2.1',
-        'GRCh38': 'v3.1'
+        'GRCh38': 'v4'
       },
       exomes: {
         'GRCh37': 'v2.1',
-        'GRCh38': 'v2.1 liftover'
+        'GRCh38': 'v4'
       }
     }
     var theUrl = gnomADSource[sequencingScope][build];
@@ -193,7 +182,7 @@ class GlobalApp {
     return theUrl;
   }
 
-  
+
   getGnomADFields(build, sequencingScope="genomes") {
     var gnomADFields = {
       genomes: {
@@ -212,7 +201,7 @@ class GlobalApp {
     let self = this;
     let renameCommand = null;
     let prefix = refName.indexOf('chr') == 0 ? 'chr' : 'none';
-    
+
     let action = self.gnomADRenameChr[sequencingScope][build][prefix];
     if (action && action == 'addChr') {
       renameCommand = refName + " chr" + refName;
@@ -226,7 +215,7 @@ class GlobalApp {
     let self = this;
     let renameCommand = null;
     let prefix = refName.indexOf('chr') == 0 ? 'chr' : 'none';
-    
+
     let action = self.gnomADRenameChr[sequencingScope][build][prefix];
     if (action && action == 'addChr') {
       return "chr" + refName;

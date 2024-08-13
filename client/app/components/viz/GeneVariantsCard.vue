@@ -144,7 +144,7 @@
 				</div>
 			</div>
 
-      <div v-if="aliases" id="aliases">
+      <div id="aliases" v-if="!isBasicMode && !isSimpleMode && aliases">
         <div class="mr-2"id="alias-label">Aliases</div>
         <div id="alias-text">{{ aliases }}</div>
       </div>
@@ -174,7 +174,7 @@
 
 		</div>
 
-    <div v-if="isOMIMPermitted || (selectedGene && cohortModel && !isSimpleMode && !isBasicMode)" 
+    <div v-if="isOMIMPermitted || (selectedGene && cohortModel && !isSimpleMode && !isBasicMode)"
       style="display:flex;justify-content:flex-start;margin-top:5px">
 
       <!-- Gene:Phenotypes -->
@@ -203,10 +203,10 @@
        :geneModel="cohortModel.geneModel">
       </gene-omim-table>
 
-     
+
 
     </div>
-    
+
     <patient-gene-phenotype-dialog
          v-if="cohortModel && cohortModel.isLoaded"
          :showDialog="showPatientGenePhenotypeDialog"
@@ -274,7 +274,8 @@
                 regionBuffer: null,
                 noData: null,
                 showPatientGenePhenotypeDialog: false,
-                showPubMedDialog: false
+                showPubMedDialog: false,
+                aliases: null
             }
         },
         methods: {
@@ -283,6 +284,11 @@
                 if(this.noData){
                     this.$emit("no-data-warning");
                 }
+            },
+
+            populateData: function() {
+              this.populateTranscriptData();
+              this.promisePopulateAliases();
             },
 
             //assume that no data is loaded, and analyze transcript inside of GeneVariantsCard
@@ -299,6 +305,21 @@
                 })
 
               }
+            },
+
+            promisePopulateAliases: function() {
+              let self = this;
+              self.aliases = ""
+              self.cohortModel.geneModel.promiseGetKnownGene(self.selectedGene.gene_name)
+              .then(function(knownGeneEntry) {
+                if (knownGeneEntry && knownGeneEntry.aliases && knownGeneEntry.aliases.length > 0) {
+                  // Add a space after the comma for word wrapping
+                  self.aliases =  knownGeneEntry.aliases.split(",").join(", ");
+                }
+              })
+              .catch(function(error) {
+                console.log(error)
+              })
             },
 
             formatCanonicalTranscript: function() {
@@ -320,16 +341,6 @@
             }, 100)
         },
         computed: {
-          aliases: function(){
-            let knownGene = this.cohortModel.geneModel.getKnownGene(this.selectedGene.gene_name)
-            let aliases = knownGene['aliases'];
-            if (aliases && aliases.length > 0) {
-              // Add a space after the comma for word wrapping
-              return aliases.split(",").join(", ");
-            } else {
-              return null;
-            }
-          }
         },
         watch: {
 
@@ -345,11 +356,11 @@
 
             selectedGene: function(){
               if(this.sampleModels.length === 0) {
-                if(this.selectedGene && 
-                  this.selectedGene.gene_name && 
-                  this.analyzedTranscript && 
+                if(this.selectedGene &&
+                  this.selectedGene.gene_name &&
+                  this.analyzedTranscript &&
                   this.selectedGene.gene_name !== this.analyzedTranscript.gene_name) {
-                    this.populateTranscriptData();
+                    this.populateData();
                 }
               }
             }
@@ -372,7 +383,7 @@
         },
         mounted: function() {
             this.regionBuffer = this.cohortModel.geneModel.geneRegionBuffer;
-            this.populateTranscriptData();
+            this.populateData();
         },
         created: function() {
         }

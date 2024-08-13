@@ -244,7 +244,7 @@ export default class Bam {
         baiFile     = fileSelection.files[0];
         rootBaiFile = baiTokens0[1];
       }
-    } 
+    }
 
     if (bamFile == null || baiFile == null) {
       callback(false, 'You must select BOTH  a compressed bam file and an index (.bai) file (or a cram file and an index .crai file)');
@@ -533,7 +533,7 @@ export default class Bam {
         });
 
         cmd.run();
-      });     
+      });
     })
 
 
@@ -541,7 +541,7 @@ export default class Bam {
 
 
 
-  promiseFreebayesJointCall(geneObject, transcript, bams, isRefSeq, fbArgs, vepAF, sampleNames, gnomADExtra=false, decompose=false) {
+  promiseFreebayesJointCall(geneObject, transcript, bams, isRefSeq, fbArgs, sampleNames, decompose=false) {
     var me = this;
 
     return new Promise(function(resolve, reject) {
@@ -559,7 +559,7 @@ export default class Bam {
         .then(function() {
 
 
-          var cmd = me.endpoint.freebayesJointCall(bamSources, trRefName, regionStart, regionEnd, isRefSeq, fbArgs, vepAF, sampleNames, gnomADExtra, decompose);
+          var cmd = me.endpoint.freebayesJointCall(bamSources, trRefName, regionStart, regionEnd, isRefSeq, fbArgs, sampleNames, decompose);
 
           var variantData = "";
           cmd.on('data', function(data) {
@@ -606,7 +606,7 @@ export default class Bam {
     let me = this;
     return new Promise(function(resolve, reject) {
 
-      me._initializeBamSource(bams, refName, regionStart, regionEnd, bamSources, idx, 
+      me._initializeBamSource(bams, refName, regionStart, regionEnd, bamSources, idx,
       function() {
         resolve();
       },
@@ -685,15 +685,15 @@ export default class Bam {
 
           cmd.on('end', function() {
             resolve( {
-              'geneCoverage': geneCoverageData, 
-              'refName': trRefName, 
-              'geneObject': geneObject, 
+              'geneCoverage': geneCoverageData,
+              'refName': trRefName,
+              'geneObject': geneObject,
               'transcript': transcript
             });
           });
           cmd.on('error', function(error) {
             let msg = "Could not get gene coverage for gene <pre>" + geneObject.gene_name + "</pre> from region: <pre>" + refName + ':' + regionStart + '-' + regionEnd + "</pre> Bam index file may be invalid.  Make sure that the bam index file is properly formatted and accessible.";
-            reject(msg)    
+            reject(msg)
           });
           cmd.run();
         });

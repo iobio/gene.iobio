@@ -130,7 +130,7 @@ class Util {
           if (filterModel.isLowCoverage(feature.geneCoverage[relationship])) {
             cutoffHeading = "<span>Cutoff not met</span>"
           }
-          html += "<div style='margin-top:4px'>" + "<span style='display:inline-block;width:80px'>Coverage</span>" + cutoffHeading 
+          html += "<div style='margin-top:4px'>" + "<span style='display:inline-block;width:80px'>Coverage</span>" + cutoffHeading
                +  coverageRow('min',    feature.geneCoverage[relationship].min, covFields)
                +  coverageRow('median', feature.geneCoverage[relationship].median, covFields)
                +  coverageRow('mean',   feature.geneCoverage[relationship].mean, covFields)
@@ -439,7 +439,7 @@ class Util {
     return out;
   }
 
-  getRsId(variant) {
+  getVepRsId(variant) {
     var rsId = null;
     if (variant.vepVariationIds) {
       for (var key in variant.vepVariationIds) {
@@ -560,7 +560,7 @@ class Util {
       isIEedge = winNav.userAgent.indexOf("Edge") > -1,
       isIOSChrome = winNav.userAgent.match("CriOS");
 
-    var isChrome = /Chrome/.test(window.navigator.userAgent) && /Google Inc/.test(window.navigator.vendor);  
+    var isChrome = /Chrome/.test(window.navigator.userAgent) && /Google Inc/.test(window.navigator.vendor);
 
     if(isChrome) {
       return true;
@@ -834,6 +834,7 @@ class Util {
       HGVScLoading: false,
       HGVSpLoading: false,
       revel: "",
+
       rsId: "",
       dbSnpUrl: "",
       dbSnpLink: "",
@@ -865,13 +866,6 @@ class Util {
       info.zygosity = "Heterozygous";
     } else if (variant.zygosity && variant.zygosity.toLowerCase() == 'hom') {
       info.zygosity = "Homozygous";
-    }
-
-    if (variant.af1000G) {
-      info.af1000G =  +variant.af1000G >= 0 ? me.globalApp.utility.round(+variant.af1000G * 100, 2) + "%" : "";
-    }
-    if (variant.afgnomAD) {
-      info.afgnomAD =  +variant.afgnomAD >= 0 ? me.globalApp.utility.round(+variant.afgnomAD * 100, 2) + "%" : "";
     }
 
 
@@ -927,7 +921,6 @@ class Util {
     }
 
 
-    
     for (var key in variant.vepREVEL) {
       if (info.revel.length > 0) {
           info.revel += ", ";
@@ -935,7 +928,7 @@ class Util {
       info.revel += key;
     }
 
-    info.rsId = me.globalApp.utility.getRsId(variant);
+    info.rsId = me.getVepRsId(variant)
     if (info.rsId && info.rsId != '') {
       info.dbSnpUrl   = "http://www.ncbi.nlm.nih.gov/snp/" + info.rsId ;
       info.dbSnpLink =  '<a href="' + info.dbSnpUrl + '" target="_dbsnp"' + '>' + info.rsId  + '</a>';

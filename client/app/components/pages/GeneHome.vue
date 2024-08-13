@@ -29,7 +29,7 @@
   -webkit-box-shadow: none !important
   margin-right: auto
   margin-left: auto
-  border-radius: 4px 
+  border-radius: 4px
 
   .v-snack__content
     min-height:     80px !important
@@ -39,8 +39,8 @@
     font-weight:    400   !important
     padding-top:    20px  !important
     padding-bottom: 20px  !important
-    padding-left:   20px  !important 
-    padding-right:  20px   !important     
+    padding-left:   20px  !important
+    padding-right:  20px   !important
     color: white !important
 
     span
@@ -319,7 +319,7 @@ main.content.clin, main.v-content.clin
       :settingsCoverageOnly="settingsCoverageOnly"
       :settingsGeneSourceOnly="settingsGeneSourceOnly"
       :analysisModel="analysisModel"
-      @input="onGeneNameEntered"
+      @gene-name-entered="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
       @apply-genes="onApplyGenes"
@@ -490,7 +490,7 @@ main.content.clin, main.v-content.clin
         @transcriptSelected="onTranscriptSelected"
         @gene-region-zoom="onGeneRegionZoom"
         @gene-region-zoom-reset="onGeneRegionZoomReset"
-        @show-settings-for-gene-source="onShowSettingsForGeneSource(true)">    
+        @show-settings-for-gene-source="onShowSettingsForGeneSource(true)">
       </transcript-card>
 
       <variant-all-card
@@ -554,7 +554,7 @@ main.content.clin, main.v-content.clin
 
 
         <variant-detail-card
-          ref="variantInspectRef"
+          ref="variantDetailRef"
           v-if="cohortModel && cohortModel.isLoaded && isBasicMode"
           :isBasicMode="isBasicMode"
           :isEduMode="isEduMode"
@@ -612,7 +612,7 @@ main.content.clin, main.v-content.clin
           :selectedVariantMosaic="selectedMosaic"
           :mosaicVariant="mosaicVariant"
           :selectedVariantAllAnnots="selectedAll"
-          
+
           @show-pileup-for-variant="onShowPileupForVariant"
           @apply-variant-interpretation="onApplyVariantInterpretation"
           @apply-variant-notes="onApplyVariantNotes"
@@ -758,7 +758,6 @@ import GenesCard from '../viz/GenesCard.vue'
 import CoverageThresholdCard from '../viz/CoverageThresholdCard.vue'
 import GeneVariantsCard from '../viz/GeneVariantsCard.vue'
 import FeatureMatrixCard from '../viz/FeatureMatrixCard.vue'
-import VariantCard from '../viz/VariantCard.vue'
 import VariantAllCard from '../viz/VariantAllCard.vue'
 import AppTour from '../viz/AppTour.vue'
 
@@ -780,10 +779,8 @@ import FreebayesSettings from '../../models/FreebayesSettings.js'
 import Glyph from '../../partials/Glyph.js'
 import VariantTooltip from '../../partials/VariantTooltip.js'
 
-import allGenesData from '../../../data/genes.json'
 import genePanels from '../../../data/gene_panels.json'
 import acmgBlacklist from '../../../data/ACMG_blacklist.json'
-import SplitPane from '../partials/SplitPane.vue'
 import ScrollButton from '../partials/ScrollButton.vue'
 import OptionalTracksCard from '../partials/OptionalTracksCard.vue'
 
@@ -810,8 +807,6 @@ export default {
       VariantInspectCard,
       VariantDetailCard,
       FeatureMatrixCard,
-      VariantCard,
-      SplitPane,
       AppTour,
       SaveAnalysisPopup,
       pileup: VuePileup,
@@ -839,7 +834,6 @@ export default {
     paramSampleUuid:       null,
     paramIsPedigree:       null,
     paramSource:           null,
-    paramIobioSource:      null,
     paramAnalysisId:       null,
     paramGeneSetId:        null,
     paramClientApplicationId: null,
@@ -941,7 +935,7 @@ export default {
       },
 
 
-      allGenes: allGenesData,
+      //allGenes: allGenesData,
       genePanels: genePanels,
       acmgBlacklist: acmgBlacklist,
       blacklistedGeneSelected: false,
@@ -1169,7 +1163,7 @@ export default {
       let theModels = [];
       if (this.models && this.models.length > 0) {
         theModels = self.models.filter(function(model) {
-          return model.relationship === 'proband' && 
+          return model.relationship === 'proband' &&
                  (model.isLoaded() || model.isBamReadyToLoad());
         })
       }
@@ -1206,15 +1200,15 @@ export default {
         }
       }
     },
-    
+
     selectedVariant: function() {
       let self = this;
-      if (this.launchedFromHub && this.selectedVariant && this.selectedMosaic && this.selectedMosaic.length > 0) {
+      if (this.launchedFromHub && this.selectedVariant ) {
         this.promiseGetMosaicVariant(self.selectedVariant)
         .then((mosaicVariant) => {
           if(mosaicVariant){
             self.mosaicVariant = mosaicVariant;
-          }    
+          }
         })
         .catch((error) => {
           console.error(error);
@@ -1260,216 +1254,236 @@ export default {
       }
 
       self.setAppMode();
-
-      self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp, self.launchedFromHub, 
-        { DEFAULT_BUILD: self.isEduMode ? 'GRCh37' : 'GRCh38' });
-
-      self.promiseAddCacheHelperListeners()
+      
+      // Determine the iobio backend server that gene.iobio should make requests to.
+      // Only continue with initialization if this succeeds.
+      self.promisePointToIobioBackend()
       .then(function() {
-        return self.cacheHelper.promiseClearOlderCache();
-      })
-      .then(function() {
-        return self.promiseLoadSiteConfig();
-      })
-      .then(function() {
-        let glyph = new Glyph();
-        let translator = new Translator(self.globalApp, glyph);
-        let genericAnnotation = new GenericAnnotation(glyph);
+        self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp, self.launchedFromHub,
+          { DEFAULT_BUILD: self.isEduMode ? 'GRCh37' : 'GRCh38' });
 
-        self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage, 
-          self.launchedFromHub, self.genePanels);
-        self.geneModel.geneSource = self.forMyGene2 ? "refseq" : "gencode";
-        self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
-        self.geneModel.setAllKnownGenes(self.allGenes);
-        self.geneModel.translator = translator;
-
-
-        // Instantiate helper class than encapsulates IOBIO commands
-        let endpoint = new EndpointCmd(self.globalApp,
-          self.cacheHelper.launchTimestamp,
-          self.genomeBuildHelper,
-          self.globalApp.utility.getHumanRefNames);
-
-        self.variantExporter = new VariantExporter(self.globalApp);
-
-        self.cohortModel = new CohortModel(
-          self.globalApp,
-          self.isEduMode,
-          self.isBasicMode,
-          endpoint,
-          genericAnnotation,
-          translator,
-          self.geneModel,
-          self.variantExporter,
-          self.cacheHelper,
-          self.genomeBuildHelper,
-          self.launchedFromClin,
-          new FreebayesSettings());
-
-        self.cohortModel.on("alertIssued", function(type, message, genes, details, options) {
-          self.addAlert(type, message, genes, details, options)
-        })
-
-        self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
-          self.geneModel.promiseGetCachedGeneObject(dangerSummary.geneName)
-          .then(function(theGeneObject) {
-            if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
-              self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
-            }
-          })
-          .catch(function(error) {
-            console.log(error.message)
-          })
-        })
-        self.geneModel.on("alertIssued", function(type, message, genes, details, options) {
-          self.addAlert(type, message, genes, details, options)
-        })
-        self.geneModel.on("alertRetracted", function(type, partialMessage, genes) {
-          self.onRetractAppAlert(type, partialMessage, genes)
-        })
-
-        self.cacheHelper.cohort = self.cohortModel;
-
-        self.variantExporter.cohort = self.cohortModel;
-
-        self.appLoaderLabel = "Initializing"
-        self.showAppLoader = true;
-
-
-        self.featureMatrixModel = new FeatureMatrixModel(self.globalApp, self.cohortModel, self.isEduMode, self.isBasicMode, self.isSimpleMode, self.tourNumber);
-        self.featureMatrixModel.init();
-        self.cohortModel.featureMatrixModel = self.featureMatrixModel;
-
-        self.variantTooltip = new VariantTooltip(
-          self.globalApp,
-          self.isEduMode,
-          self.isBasicMode,
-          self.tourNumber,
-          genericAnnotation,
-          glyph,
-          translator,
-          self.cohortModel.annotationScheme,
-          self.genomeBuildHelper);
-
-        self.filterModel = new FilterModel(self.globalApp, self.cohortModel.affectedInfo, self.isBasicMode, self.isFullAnalysis);
-        self.cohortModel.filterModel = self.filterModel;
-        self.filterModel.on("variantFlagged", function(variant) {
-          if (self.launchedFromHub) {
-            self.promiseInitMosaicVariantInterpretation(variant)
-            .then(function(mosaicInterpretation) {
-              if (mosaicInterpretation && mosaicInterpretation != 'none') {
-                // Only initialize the interpretation to the mosaic interpretation if 
-                // it hasn't been entered in yet
-                if (variant.interpretation == null || variant.interpretation == '' || variant.interpretation == 'not-reviewed') {
-                  variant.interpretation = mosaicInterpretation;
-                  if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
-                    self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
-                  }
-                }
-              }
-            })
-          }
-        })
-
-        self.analysisModel = new AnalysisModel(self.globalApp, self.geneModel, 
-          self.cohortModel, self.cacheHelper, self.genomeBuildHelper, 
-          self.filterModel)
-        self.analysisModel.on("showInProgress", function(message) {
-          self.onShowInProgress(message);
-        })
-        self.analysisModel.on("hideInProgress", function() {
-          self.onHideInProgress();
-        })
-        self.analysisModel.on("specifyFilesForAnalysis", function(msg) {
-          self.showFilesForAnalysis = true;
-          self.filesDialogInfoMessage = msg;
-        })
-        self.analysisModel.on("phenolyzerTopGenesSet", function(top) {
-          self.onPhenolyzerTopChanged(top)
-        })
-        self.analysisModel.on("appAlertsSet", function(appAlerts) {
-          self.onAppAlertsSet(appAlerts)
-        })
-
-        self.promiseInitFromUrl()
+        self.promiseAddCacheHelperListeners()
         .then(function() {
-          if (self.isEduMode && self.tourNumber) {
-            self.showAppLoader = false;
-            self.$refs.appTourRef.startTour(self.tourNumber);
+          return self.cacheHelper.promiseClearOlderCache();
+        })
+        .then(function() {
+          return self.promiseLoadSiteConfig();
+        })
+        .then(function() {
+          let glyph = new Glyph();
+          let translator = new Translator(self.globalApp, glyph);
+          let genericAnnotation = new GenericAnnotation(glyph);
+
+          self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage,
+            self.launchedFromHub, self.genePanels);
+          self.geneModel.geneSource = self.forMyGene2 ? "refseq" : "gencode";
+          self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
+          self.geneModel.translator = translator;
+          if (self.isEduMode) {
+            self.geneModel.phenolyzerTopGenesToKeep = 5;
           }
 
-          if (self.launchedFromHub) {
-            self.promiseInitFromMosaic()
-            .then(function() {
-              self.addAlert("info", "gene.iobio inititalized from Mosaic")
-              self.showAppLoader = false;
-              if (callback) {
-                callback();
-              }
 
+          // Instantiate helper class than encapsulates IOBIO commands
+          let endpoint = new EndpointCmd(self.globalApp,
+            self.cacheHelper.launchTimestamp,
+            self.genomeBuildHelper,
+            self.globalApp.utility.getHumanRefNames,
+            self.launchedFromHub);
+
+          self.variantExporter = new VariantExporter(self.globalApp);
+
+          self.cohortModel = new CohortModel(
+            self.globalApp,
+            self.isEduMode,
+            self.isBasicMode,
+            endpoint,
+            genericAnnotation,
+            translator,
+            self.geneModel,
+            self.variantExporter,
+            self.cacheHelper,
+            self.genomeBuildHelper,
+            self.launchedFromClin,
+            new FreebayesSettings());
+
+          self.cohortModel.on("alertIssued", function(type, message, genes, details, options) {
+            self.addAlert(type, message, genes, details, options)
+          })
+
+          self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
+            self.geneModel.promiseGetCachedGeneObject(dangerSummary.geneName)
+            .then(function(theGeneObject) {
+              if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
+                self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
+              }
             })
             .catch(function(error) {
-              self.addAlert("error", "Unable to initialize from Mosaic. " + error)
-              self.showAppLoader = false;
-              if (callback) {
-                callback();
-              }
+              console.log(error.message)
             })
+          })
+          self.geneModel.on("alertIssued", function(type, message, genes, details, options) {
+            self.addAlert(type, message, genes, details, options)
+          })
+          self.geneModel.on("alertRetracted", function(type, partialMessage, geneName) {
+            self.onRetractAppAlert(type, partialMessage, [geneName])
+          })
+          self.geneModel.on("selectGene", function(geneName) {
+            self.onGeneSelected(geneName)
+          })
+          self.geneModel.on("removeGene", function(geneName) {
+            self.removeGeneImpl(geneName)
+          })
 
-          } else {
-            if (self.geneModel.sortedGeneNames.length > 0 && self.cohortModel.sampleModels.length == 0) {
-              let warning = "No data has been loaded. Click on the load button to specify the data files."
-              self.onShowSnackbar({message: warning, timeout: 8000, 'close': true});
-              self.showAppLoader = false;
-              if (callback) {
-                callback();
-              }
-            } else {
-              self.models = self.cohortModel.sampleModels;
 
-              if (self.analysis && self.analysis.payload && self.analysis.payload.variants && self.analysis.payload.variants.length > 0) {
-                // do nothing -- variants already loaded
-              } else if (self.selectedGene && Object.keys(self.selectedGene).length > 0 && self.selectedGene.gene_name != "") {
-                self.promiseLoadData()
-                .then(function() {
-                  self.showLeftPanelWhenFlaggedVariants();
-                  self.showAppLoader = false;
-                  if (callback) {
-                    callback();
+          self.cacheHelper.cohort = self.cohortModel;
+
+          self.variantExporter.cohort = self.cohortModel;
+
+          self.appLoaderLabel = "Initializing"
+          self.showAppLoader = true;
+
+
+          self.featureMatrixModel = new FeatureMatrixModel(self.globalApp, self.cohortModel, self.isEduMode, self.isBasicMode, self.isSimpleMode, self.tourNumber);
+          self.featureMatrixModel.init();
+          self.cohortModel.featureMatrixModel = self.featureMatrixModel;
+
+          self.variantTooltip = new VariantTooltip(
+            self.globalApp,
+            self.isEduMode,
+            self.isBasicMode,
+            self.tourNumber,
+            genericAnnotation,
+            glyph,
+            translator,
+            self.cohortModel.annotationScheme,
+            self.genomeBuildHelper);
+
+          self.filterModel = new FilterModel(self.globalApp, self.cohortModel.affectedInfo, self.isBasicMode, self.isFullAnalysis);
+          self.cohortModel.filterModel = self.filterModel;
+          self.filterModel.on("variantFlagged", function(variant) {
+            if (self.launchedFromHub) {
+              self.promiseInitMosaicVariantInterpretation(variant)
+              .then(function(mosaicInterpretation) {
+                if (mosaicInterpretation && mosaicInterpretation != 'none') {
+                  // Only initialize the interpretation to the mosaic interpretation if
+                  // it hasn't been entered in yet
+                  if (variant.interpretation == null || variant.interpretation == '' || variant.interpretation == 'not-reviewed') {
+                    variant.interpretation = mosaicInterpretation;
+                    if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
+                      self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
+                    }
                   }
-                })
-                .catch(function(error) {
-                  self.showAppLoader = false;
-                  self.addAlert("error", error, self.selectedGene)
-                })
-              } else {
-                if  (self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length === 0 ) {
-                  let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
-                  self.onShowSnackbar( {message: theMessage, timeout: 10000, close:true});
-                  self.bringAttention = 'gene';
                 }
+              })
+            }
+          })
 
-                if (!self.isEduMode && !self.isBasicMode && !self.isSimpleMode && !self.launchedFromHub && !self.launchedFromClin && !self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length === 0 ) {
-                  self.showWelcome = true;
-                }
+          self.analysisModel = new AnalysisModel(self.globalApp, self.geneModel,
+            self.cohortModel, self.cacheHelper, self.genomeBuildHelper,
+            self.filterModel)
+          self.analysisModel.on("showInProgress", function(message) {
+            self.onShowInProgress(message);
+          })
+          self.analysisModel.on("hideInProgress", function() {
+            self.onHideInProgress();
+          })
+          self.analysisModel.on("specifyFilesForAnalysis", function(msg) {
+            self.showFilesForAnalysis = true;
+            self.filesDialogInfoMessage = msg;
+          })
+          self.analysisModel.on("phenolyzerTopGenesSet", function(top) {
+            self.onPhenolyzerTopChanged(top)
+          })
+          self.analysisModel.on("appAlertsSet", function(appAlerts) {
+            self.onAppAlertsSet(appAlerts)
+          })
+
+          self.promiseInitFromUrl()
+          .then(function() {
+            if (self.isEduMode && self.tourNumber) {
+              self.showAppLoader = false;
+              self.$refs.appTourRef.startTour(self.tourNumber);
+            }
+
+            if (self.launchedFromHub) {
+              self.promiseInitFromMosaic()
+              .then(function() {
+                self.addAlert("info", "gene.iobio inititalized from Mosaic")
                 self.showAppLoader = false;
-
                 if (callback) {
                   callback();
                 }
-              }
 
+              })
+              .catch(function(error) {
+                self.addAlert("error", "Unable to initialize from Mosaic. " + error)
+                self.showAppLoader = false;
+                if (callback) {
+                  callback();
+                }
+              })
+
+            } else {
+              self.models = self.cohortModel.sampleModels;
+              if (self.geneModel.sortedGeneNames.length > 0 && self.cohortModel.sampleModels.length == 0) {
+                let warning = "No data has been loaded. Click on the load button to specify the data files."
+                self.onShowSnackbar({message: warning, timeout: 8000, 'close': true});
+                self.showAppLoader = false;
+                self.showLeftPanelForGenes();
+                if (callback) {
+                  callback();
+                }
+              } else {
+
+
+                if (self.analysis && self.analysis.payload && self.analysis.payload.variants && self.analysis.payload.variants.length > 0) {
+                  // do nothing -- variants already loaded
+                } else if (self.selectedGene && Object.keys(self.selectedGene).length > 0 && self.selectedGene.gene_name != "") {
+                  self.promiseLoadData()
+                  .then(function() {
+                    self.showLeftPanelWhenFlaggedVariants();
+                    self.showAppLoader = false;
+                    if (callback) {
+                      callback();
+                    }
+                  })
+                  .catch(function(error) {
+                    self.showAppLoader = false;
+                    self.addAlert("error", error, self.selectedGene)
+                  })
+                } else {
+                  if  (self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length === 0 ) {
+                    let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
+                    self.onShowSnackbar( {message: theMessage, timeout: 10000, close:true});
+                    self.bringAttention = 'gene';
+                  }
+
+                  if (!self.isEduMode && !self.isBasicMode && !self.isSimpleMode && !self.launchedFromHub && !self.launchedFromClin && !self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length === 0 ) {
+                    self.showWelcome = true;
+                  }
+                  self.showAppLoader = false;
+
+                  if (callback) {
+                    callback();
+                  }
+                }
+
+              }
             }
+
+          })
+
+        },
+        function() {
+          if (callback) {
+            callback();
           }
 
         })
-
-      },
-      function() {
-        if (callback) {
-          callback();
-        }
-
+      })
+      .catch(function(error) {
+        
       })
 
     },
@@ -1536,7 +1550,9 @@ export default {
 
         self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession(self.paramClientApplicationId);
         self.hubSession.globalApp = self.globalApp;
-        let isPedigree = !!(self.paramIsPedigree && self.paramIsPedigree === 'true');
+
+        // There is a bug where the is_pedigree url parameter is not provided when a gene is not entered on the Mosaic launch
+        let isPedigree = self.paramIsPedigree && self.paramIsPedigree === 'true'
 
 
 
@@ -1566,7 +1582,7 @@ export default {
             self.user = self.hubSession.user;
           }
           self.analysisModel.setHubSession(self.hubSession)
-          return self.analysisModel.promiseGetAnalysis(self.paramAnalysisId, 
+          return self.analysisModel.promiseGetAnalysis(self.paramAnalysisId,
             self.projectId, self.paramSampleId, self.paramIsPedigree)
 
         })
@@ -1595,6 +1611,11 @@ export default {
             }
 
         }).then(function() {
+            return self.cohortModel.promiseValidateBuild(self.paramBuild, self.cohortModel.mode)
+        }).then(function(data) {
+          if (!data.isValidBuild) {
+            self.addAlert('error', data.message)
+          }
           return self.promiseLoadVariantAnnotationsMap()
         })
         .then(function() {
@@ -1612,38 +1633,18 @@ export default {
         })
         .then(function() {
           if (self.geneSet && self.geneSet.genes && self.geneSet.genes.length > 0) {
-            self.addAlert("info", 'loading gene set <pre>' + self.geneSet.name + "</pre>")
-            let genePromises = [];
-            self.geneSet.genes.forEach(function(geneName) {
-              if (self.geneModel.isKnownGene(geneName)) {
-                genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
-              }
-              //self.analysis.payload.genes.push(geneName);
-              self.delaySave = 1000;
-            })
-           return Promise.all(genePromises)
+            self.addAlert("info", 'loading gene set <pre>' + self.geneSet.name + "</pre>");
+            return self.geneModel.promiseAddGenesOrAliases(self.geneSet.genes);
           } else {
-            return Promise.resolve();
+            return Promise.resolve(true);
           }
         })
         .then(function() {
-          if (self.analysis.payload.genes && self.analysis.payload.genes.length > 0) {
-            let genePromises = [];
-            let unknownGenes = [];
-            self.analysis.payload.genes.forEach(function(geneName) {
-              if (self.geneModel.isKnownGene(geneName)) {
-                genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
-              } else {
-                unknownGenes.push(geneName);
-              }
-            })
-            if (unknownGenes.length > 0) {
-              self.addAlert("warning", "Bypassing unknown genes" + unknownGenes.join(", "))
-              alertify.alert( "Warning", "Bypassing unknown genes " + unknownGenes.join(", "))
-            } 
-            return Promise.all(genePromises);
+          if (self.analysis && self.analysis.payload && self.analysis.payload.genes) {
+            let removeInvalidGenes = false;
+            return self.geneModel.promiseAddGenesOrAliases(self.analysis.payload.genes)
           } else {
-            return Promise.resolve();
+            return Promise.resolve(true);
           }
         })
         .then(function() {
@@ -1696,55 +1697,16 @@ export default {
                 resolve();
               } else {
                 if (self.geneModel.geneNames.length > 0) {
-                  self.geneModel.promiseGetCachedGeneObject(self.geneModel.geneNames[0])
-                  .then(function(theGeneObject) {
-                    let transcript = self.geneModel.getCanonicalTranscript(theGeneObject);
-                    self.promiseLoadGene(self.geneModel.geneNames[0], transcript)
-                    .then(function() {
-                      self.showLeftPanelForGenes();
-                      self.cacheHelper.analyzeAll(self.cohortModel);
-                      resolve();
-                    })
-                    .catch(function(error) {
-                      reject(error)
-                    })
-                  })
-                  .catch(function(error) {
-
-                    // The gene that was selected doesn't have any transcripts for the source and
-                    // build. We are adding a gene that is an alias for the gene to user selected.
-                    // This new gene has transcripts for the source and build.
-                    if (error.hasOwnProperty('useDifferentGene')) {
-                      self.removeGeneImpl(self.geneModel.geneNames[0]);
-                      setTimeout(function() {
-                        self.onGeneSelected(error.useDifferentGene)
-                        self.showLeftPanelForGenes();
-
-                        setTimeout(function() {
-                          self.addAlert(error.hasOwnProperty('alertType') ? error.alertType : 'error',
-                                        error.hasOwnProperty('message') ? error.message : error,
-                                        error.useDifferentGene,
-                                        null,
-                                        error.hasOwnProperty("options") ? error.options : null)
-
-                        let msg = error.hasOwnProperty('message') ? error.message : error;
-                        resolve();
-
-                        }, 1000)
-                      },1000)
-                    } else {
-                      reject(error)
-                    }
-
-
-                  })
+                  self.showLeftPanelForGenes();
+                  self.cacheHelper.analyzeAll(self.cohortModel);
+                  resolve();
                 } else {
                   let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
                   self.onShowSnackbar( {message: theMessage, timeout: 10000, close:true});
                   self.bringAttention = 'gene';
                   resolve();
                 }
-              } 
+              }
             }
 
           }
@@ -1756,6 +1718,7 @@ export default {
         })
       })
     },
+
 
     clearAppAlerts: function(type) {
       let self = this;
@@ -1777,7 +1740,7 @@ export default {
       matching.forEach(function(alertToRemove) {
         let index = self.appAlerts.indexOf(alertToRemove);
         if (index >= 0) {
-          self.appAlertCounts[alertToRemove.type] -= 1 
+          self.appAlertCounts[alertToRemove.type] -= 1
           self.appAlertCounts.total -= 1;
 
           self.appAlerts.splice(index, 1)
@@ -1799,7 +1762,7 @@ export default {
       matching.forEach(function(alertToRemove) {
         let index = self.appAlerts.indexOf(alertToRemove);
         if (index >= 0) {
-          self.appAlertCounts[alertToRemove.type] -= 1 
+          self.appAlertCounts[alertToRemove.type] -= 1
           self.appAlertCounts.total -= 1;
 
           self.appAlerts.splice(index, 1)
@@ -1811,8 +1774,8 @@ export default {
       let self = this;
 
       let matching = self.appAlerts.filter(function(alert) {
-        if (alert.type == type && 
-            alert.message.indexOf(partialMessage) >= 0 && 
+        if (alert.type == type &&
+            alert.message.indexOf(partialMessage) >= 0 &&
             alert.genes == genes) {
           return true;
         } else {
@@ -1822,7 +1785,7 @@ export default {
       matching.forEach(function(alertToRemove) {
         let index = self.appAlerts.indexOf(alertToRemove);
         if (index >= 0) {
-          self.appAlertCounts[alertToRemove.type] -= 1 
+          self.appAlertCounts[alertToRemove.type] -= 1
           self.appAlertCounts.total -= 1;
 
           self.appAlerts.splice(index, 1)
@@ -1830,14 +1793,14 @@ export default {
           // We have removed the alert for appAlerts. Now remove it
           // from the gene-to-alerts map.
           if (genes) {
-            genes.split(", ").forEach(function(geneName) {
+            genes.forEach(function(geneName) {
               let alertsForGene = self.geneToAppAlerts[geneName]
               let indexToRemove = null;
-              // Remove alert from array in gene to alerts map 
+              // Remove alert from array in gene to alerts map
               for (let idx = 0; idx < alertsForGene.length; idx++) {
                 let theAlert = alertsForGene[idx];
-                if (theAlert.type == type && 
-                    theAlert.message.indexOf(partialMessage) >= 0 && 
+                if (theAlert.type == type &&
+                    theAlert.message.indexOf(partialMessage) >= 0 &&
                     theAlert.genes == genes) {
                   indexToRemove = idx;
                   break;
@@ -1854,7 +1817,7 @@ export default {
       if (matching.length > 0) {
         if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
           self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
-        }  
+        }
       }
     },
 
@@ -1864,15 +1827,15 @@ export default {
     onAlertPanelHidden: function() {
     },
 
-    addAlert: function(type, message, genes=null, details=null, options) {
+    addAlert: function(type, message, geneNamesString=null, details=null, options) {
       let self = this;
 
-      let matching = self._getMatchingAlerts(type, message, genes, details)
+      let matching = self._getMatchingAlerts(type, message, geneNamesString, details)
 
       let alert = null;
       if (matching.length == 0) {
         let pad2 = function(n) { return n < 10 ? '0' + n : n }
-        let pad3 = function(n) { 
+        let pad3 = function(n) {
           if (n < 10) {
             return '00' + n;
           } else if (n < 100) {
@@ -1882,44 +1845,61 @@ export default {
           }
         }
         let date = new Date();
-        let timestamp = date.getFullYear().toString() 
-         + pad2(date.getMonth() + 1) 
+        let timestamp = date.getFullYear().toString()
+         + pad2(date.getMonth() + 1)
          + pad2( date.getDate())
-         + pad2( date.getHours() ) 
-         + pad2( date.getMinutes() ) 
+         + pad2( date.getHours() )
+         + pad2( date.getMinutes() )
          + pad2( date.getSeconds() )
          + pad3( date.getMilliseconds() );
 
-        alert = {'type': type, 
-        'message': message, 
-        'genes': genes, 
-        'timestamp': timestamp, 
-        'key': timestamp + "-" + this.appAlerts.length, 
+        alert = {'type': type,
+        'message': message,
+        'genes': geneNamesString,
+        'timestamp': timestamp,
+        'key': timestamp + "-" + this.appAlerts.length,
         'showDetails': false,
         'selected': type == 'error' || (options && options.selectAlert) ? true : false}
         if (details) {
           alert.details = details;
         }
-        
+
         this.appAlerts.push(alert)
 
-        if (genes && genes.length > 0) {
-          genes.split(", ").forEach(function(theGeneName) {
-            let theAlerts = self.geneToAppAlerts[theGeneName];
-            if (theAlerts == null) {
-              theAlerts = [];
-              self.geneToAppAlerts[theGeneName] = theAlerts;
+        if (geneNamesString && geneNamesString.length > 0) {
+          let geneNameList = null;
+          if (typeof geneNamesString === 'string')  {
+            if (geneNamesString.indexOf(", ") >= 0) {
+              geneNameList = geneNamesString.split(", ");
+            } else if (geneNamesString.indexOf(",") >= 0) {
+              geneNameList = geneNamesString.split(",");
+            } else {
+              geneNameList = [geneNamesString.trim()];
             }
-            theAlerts.push(alert)
-          }) 
+          } else if (Array.isArray(geneNamesString)) {
+            // Handle the case where caller sent in an array of gene names
+            // rather than a genes string (comma delimited)
+            geneNameList = geneNamesString;
+          }
+          if (geneNameList) {
+            geneNameList.forEach(function(geneName) {
+              let theGeneName = geneName.toUpperCase();
+              let theAlerts = self.geneToAppAlerts[theGeneName];
+              if (theAlerts == null) {
+                theAlerts = [];
+                self.geneToAppAlerts[theGeneName] = theAlerts;
+              }
+              theAlerts.push(alert)
+            })
+          }
           if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
             self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
-          }         
+          }
         }
 
-        this.appAlertCounts[type] += 1 
+        this.appAlertCounts[type] += 1
         this.appAlertCounts.total += 1
-        
+
       } else if (matching.length > 0) {
         alert = matching[0]
         if (alert && (type == 'error' || (options && options.selectAlert)))  {
@@ -1944,16 +1924,16 @@ export default {
       if (alertsForGene) {
         alertsForGene.forEach(function(alertToSelect) {
 
-          // Find the location of the alert to select 
+          // Find the location of the alert to select
           let itemToSelect = null;
           let itemsToDeselect = [];
           for (let i = 0; i < self.appAlerts.length; i++) {
             let theAlert = self.appAlerts[i];
-            if (alertToSelect && 
+            if (alertToSelect &&
                 alertToSelect.type != 'info' &&
-                theAlert.type == alertToSelect.type && 
+                theAlert.type == alertToSelect.type &&
                 theAlert.message == alertToSelect.message &&
-                theAlert.genes == alertToSelect.genes && 
+                theAlert.genes == alertToSelect.genes &&
                 theAlert.details == alertToSelect.details) {
               itemToSelect = {'index': i, 'alert': theAlert}
             } else   {
@@ -1974,11 +1954,11 @@ export default {
           if (itemToSelect) {
             let clonedAlert = $.extend({}, itemToSelect.alert)
             clonedAlert.selected = true;
-            self.appAlerts.splice(itemToSelect.index, 1, clonedAlert)  
+            self.appAlerts.splice(itemToSelect.index, 1, clonedAlert)
 
-            self._refreshGeneToAlerts(clonedAlert)            
+            self._refreshGeneToAlerts(clonedAlert)
           }
-          // Deselect the alerts. We clone them so that the AlertPanel 
+          // Deselect the alerts. We clone them so that the AlertPanel
           // can react to this change
           itemsToDeselect.forEach(function(itemToDeselect) {
             let clonedAlert = $.extend({}, itemToDeselect.alert);
@@ -2000,9 +1980,9 @@ export default {
       let detailsString = details && Array.isArray(details) ? details.join(",") : "";
       return self.appAlerts.filter(function(alert) {
         let alertDetailString = alert.details && Array.isArray(alert.details) ? alert.details.join(",") : "";
-        if (alert.type == type && 
+        if (alert.type == type &&
             alert.message == message &&
-            alert.genes == genes && 
+            alert.genes == genes &&
             alertDetailString == detailsString) {
           return true;
         } else {
@@ -2016,24 +1996,24 @@ export default {
       let itemsToDeselect = []
       let itemToSelect = null;
 
-      // Find the location of the alert to select and the 
+      // Find the location of the alert to select and the
       // locations of the alerts to deselect
       for (let i = 0; i < self.appAlerts.length; i++) {
         let theAlert = self.appAlerts[i];
-        if (alertToSelect && 
-            theAlert.type == alertToSelect.type && 
+        if (alertToSelect &&
+            theAlert.type == alertToSelect.type &&
             theAlert.message == alertToSelect.message &&
-            theAlert.genes == alertToSelect.genes && 
+            theAlert.genes == alertToSelect.genes &&
             theAlert.details == alertToSelect.details) {
           itemToSelect = {'index': i, 'alert': theAlert}
         } else {
           if (theAlert.selected) {
             itemsToDeselect.push({'index': i, 'alert': theAlert});
-          }          
+          }
         }
       }
 
-      // Deselect the alerts. We clone them so that the AlertPanel 
+      // Deselect the alerts. We clone them so that the AlertPanel
       // can react to this change
       itemsToDeselect.forEach(function(itemToDeselect) {
         let clonedAlert = $.extend({}, itemToDeselect.alert);
@@ -2043,12 +2023,12 @@ export default {
         self._refreshGeneToAlerts(clonedAlert)
       })
 
-      // Select the alert. We clone this alert so that AlertPanel 
+      // Select the alert. We clone this alert so that AlertPanel
       // can react to this change.
       if (itemToSelect) {
         let clonedAlert = $.extend({}, alertToSelect)
         clonedAlert.selected = true;
-        self.appAlerts.splice(itemToSelect.index, 1, clonedAlert)  
+        self.appAlerts.splice(itemToSelect.index, 1, clonedAlert)
 
         self._refreshGeneToAlerts(clonedAlert)
       }
@@ -2064,15 +2044,15 @@ export default {
 
           if (alertsForGene) {
             alertsForGene.forEach(function(a) {
-              if (a.type == clonedAlert.type && 
+              if (a.type == clonedAlert.type &&
                   a.message == clonedAlert.message &&
-                  a.genes == clonedAlert.genes && 
+                  a.genes == clonedAlert.genes &&
                   a.details == clonedAlert.details) {
                 a.selected = clonedAlert.selected
               }
-            })          
+            })
           }
-        })        
+        })
       }
 
     },
@@ -2137,20 +2117,20 @@ export default {
               importedVariant.mosaic_id        = variant.mosaic_id;
 
               // Initialize the variant interpretation to the Mosaic variant annotation
-              // called 'Intepretation'. This is stored as the display name, so we use 
+              // called 'Intepretation'. This is stored as the display name, so we use
               // a mapping to get back to the interpretation code (e.g. 'Signficant' = 'sig')
-              if (interpretationAnnot && 
-                variant.hasOwnProperty(interpretationAnnot.uid) && 
-                variant[interpretationAnnot.uid].length > 0) {
+              if (interpretationAnnot &&
+                variant.hasOwnProperty(interpretationAnnot.fieldName) &&
+                variant[interpretationAnnot.fieldName].length > 0) {
 
-                let label = variant[interpretationAnnot.uid][0];
+                let label = variant[interpretationAnnot.fieldName][0];
                 if (self.interpretationMapReversed[label]) {
                   importedVariant.interpretation = self.interpretationMapReversed[label]
                 }
               }
 
               variantsToAdd.push(importedVariant);
-              
+
             } else {
               let message = "Bypassing variant <pre>chr " + variant.chr + ", position " + variant.pos + "</pre> because the gene symbol was not provided.";
               bypassedMessages.push(message)
@@ -2163,11 +2143,11 @@ export default {
               self.addAlert("error", "None of the <pre>" + bypassedCount + "</pre> variants were loaded because the variants were missing gene name." )
 
             } else {
-              self.addAlert("warning", 
-                "<pre>" + bypassedCount + "</pre> variant" + (bypassedCount > 1 ? 's ' : ' ') + "bypassed due to missing information.", 
+              self.addAlert("warning",
+                "<pre>" + bypassedCount + "</pre> variant" + (bypassedCount > 1 ? 's ' : ' ') + "bypassed due to missing information.",
                 null, bypassedMessages)
             }
-          } 
+          }
 
           if (variantsToAdd.length > 0) {
             self.cohortModel.importFlaggedVariants('json', variantsToAdd,
@@ -2176,14 +2156,14 @@ export default {
                 self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
                 self.showLeftPanelForGenes();
               }
-              resolve();  
-              self.addAlert("info", "Importing <pre>" + variantCount + "</pre> variants.")    
+              resolve();
+              self.addAlert("info", "Importing <pre>" + variantCount + "</pre> variants.")
             },
             function() {
               self.promiseSelectFirstFlaggedVariant();
             })
           } else {
-            self.addAlert("warning", "No variants belong to selected sample.")
+            self.addAlert("warning", "No variants belong to selected sample.", null, null, {'selectAlert': true, 'showAlertPanel': true})
             resolve();
           }
         } else {
@@ -2227,19 +2207,9 @@ export default {
                 self.showLeftPanelForGenes();
               }
             } else {
-              if (self.selectedVariant == null) {
-                setTimeout(function() {
-                  self.promiseSelectFirstFlaggedVariant()
-
-                }, 2000)
-              }
-              else if(self.launchedFromClin){
-
+              setTimeout(function() {
                 self.promiseSelectFirstFlaggedVariant()
-                    .then(function () {
-                      self.$refs.navRef.onShowVariantsTab();
-                    })
-              }
+              }, 2000)
             }
           }
         });
@@ -2361,6 +2331,7 @@ export default {
 
       return new Promise(function(resolve, reject) {
 
+
         if (self.models && self.models.length > 0 && !(self.cohortModel.isSfariProject && self.blacklistedGeneSelected)) {
             self.cardWidth = $('#genes-card').innerWidth();
             var options = {'getKnownVariants': self.showKnownVariantsCard,
@@ -2415,7 +2386,7 @@ export default {
           return self.cohortModel.promiseJointCallVariants(self.selectedGene,
             self.selectedTranscript,
             self.cohortModel.getCurrentTrioVcfData(),
-            {checkCache: false, isBackground: false, gnomADExtra: self.globalApp.gnomADExtra, decompose: true})
+            {checkCache: false, isBackground: false, decompose: true})
         })
         .catch(function(error) {
           self.addAlert("error", error, theGene)
@@ -2495,7 +2466,7 @@ export default {
             }
           } else {
             setTimeout(function() {
-              self.promiseSelectFirstFlaggedVariant()            
+              self.promiseSelectFirstFlaggedVariant()
             },1500)
           }
 
@@ -2591,6 +2562,10 @@ export default {
 
     onGeneNameEntered: function(geneName) {
       let self = this;
+      self.showLeftPanelForGenes();
+      self.genesAdded = null;
+      let newGene = self.geneModel.sortedGeneNames.indexOf(geneName) < 0
+
       if(self.launchedFromClin){
         let geneArr = self.geneModel.getCandidateGenes();
         geneArr.push(geneName);
@@ -2600,19 +2575,13 @@ export default {
       self.deselectVariant();
       self.setDirty(true);
       self.activeGeneVariantTab = "0";
-      // self.showLeftPanelForGenes();
-      if(self.launchedFromFiles) {
-        self.showLeftPanelForGenes();
-      }
       self.promiseLoadGene(geneName)
       .then(function() {
-        if(self.launchedFromFiles) {
-          self.showLeftPanelForGenes();
-          if (self.cohortModel.isLoaded) {
-            self.promiseSelectFirstFlaggedVariant();
-          }
-
+        if (newGene) {
+          self.genesAdded = [geneName];
+          self.promiseSelectFirstFlaggedVariant({'selectAnyVariant': false, 'selectGeneAsFallback': false});
         }
+
         self.onSendGenesToClin();
         self.setUrlGeneParameters();
       })
@@ -2754,7 +2723,7 @@ export default {
       this.showWelcome = false;
       self.blacklistedGeneSelected = self.acmgBlacklist[geneName] != null;
 
-      // Show the alert side panel if this gene has errors or is currently 
+      // Show the alert side panel if this gene has errors or is currently
       // selected; otherwise, hide the alert side panel.
       let criticalAlerts = self._getCriticalAlertsForGene(geneName);
       if (self.$refs.navRef) {
@@ -2767,6 +2736,7 @@ export default {
 
 
       return new Promise(function(resolve, reject) {
+        let theGeneName = geneName;
         if (self.forMyGene2) {
           if (!self.closeIntro) {
             setTimeout(function() {
@@ -2781,17 +2751,22 @@ export default {
         if (self.featureMatrixModel) {
           self.featureMatrixModel.clearRankedVariants();
         }
-        self.geneModel.promiseAddGeneName(geneName)
-        .then(function(justAdded) {
-          if (justAdded && self.launchedFromHub) {
-            return self.promiseUpdateAnalysisGenesData();
+        self.geneModel.promiseAddGeneOrAlias(geneName, false)
+        .then(function(result) {
+          let thePromise = null;
+          if (result.success && result.added && self.launchedFromHub) {
+            thePromise = self.promiseUpdateAnalysisGenesData();
           } else {
-            self.selectedGene = {gene_name: ''};
-            return Promise.resolve();
+            thePromise = Promise.resolve();
           }
+          if (result.success && result.geneName != theGeneName) {
+            theGeneName = result.geneName;
+          }
+          self.selectedGene = {gene_name: ''};
+          return thePromise;
         })
         .then(function() {
-           return self.geneModel.promiseGetGeneObject(geneName)
+           return self.geneModel.promiseGetCachedGeneObject(theGeneName)
         }).then(function(theGeneObject) {
           if (self.bringAttention === 'gene') {
             self.bringAttention = null;
@@ -2847,10 +2822,12 @@ export default {
         .catch(function(error) {
           console.log('Bypassing gene ' + geneName)
           console.log(error.hasOwnProperty('message') ? error.message : error)
-
+          let msg = error.hasOwnProperty('message') ? error.message : error;
+          reject(msg)
           // The gene that was selected doesn't have any transcripts for the source and
           // build. We are adding a gene that is an alias for the gene to user selected.
           // This new gene has transcripts for the source and build.
+          /*
           if (error.hasOwnProperty('useDifferentGene')) {
             self.removeGeneImpl(geneName);
             setTimeout(function() {
@@ -2863,8 +2840,8 @@ export default {
                               null,
                               error.hasOwnProperty("options") ? error.options : null)
 
-              let msg = error.hasOwnProperty('message') ? error.message : error;
-              reject(msg)
+                let msg = error.hasOwnProperty('message') ? error.message : error;
+                reject(msg)
 
               }, 1000)
             },1000)
@@ -2878,6 +2855,7 @@ export default {
               let msg = error.hasOwnProperty('message') ? error.message : error;
               reject(msg)
           }
+          */
 
 
         })
@@ -2910,8 +2888,15 @@ export default {
     onGenomeBuildSelected: function(buildName) {
       let self = this;
 
+      self.cohortModel.promiseValidateBuild(buildName, self.cohortModel.mode)
+      .then(function(data) {
+        if (!data.isValidBuild) {
+          self.addAlert('error', 'The genome build change to ' + buildName + ' resulted in a problem.  ' + data.message)
+        }
+      })
+      
       self.addAlert('info', 'Genome build <pre>' + buildName + '</pre> selected.');
-      self.onShowSnackbar({message: 'Genes will be reanalyzed based on genome build '  
+      self.onShowSnackbar({message: 'Genes will be reanalyzed based on genome build '
         + buildName, timeout: 3000});
 
       self.genomeBuildHelper.setCurrentBuild(buildName)
@@ -2924,7 +2909,7 @@ export default {
         self.showLeftPanelForGenes()
 
         if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
-          self.onAnalyzeAll()     
+          self.onAnalyzeAll()
         }
       })
     },
@@ -2933,9 +2918,9 @@ export default {
       self.geneModel.geneSource = theGeneSource;
 
       self.addAlert('info', 'Gene source <pre>' + theGeneSource + '</pre> selected.');
-      self.onShowSnackbar({message: 'Genes will be re-analyzed based on ' 
+      self.onShowSnackbar({message: 'Genes will be re-analyzed based on '
           + theGeneSource + ' transcripts', timeout: 3000});
-      
+
       self.promiseClearCache()
       .then(function() {
         return self.promiseResetAllGenes()
@@ -2947,7 +2932,7 @@ export default {
         self.showLeftPanelForGenes()
 
         if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
-          self.onAnalyzeAll()     
+          self.onAnalyzeAll()
         }
       })
 
@@ -2959,7 +2944,7 @@ export default {
       if (analyzeCodingVariantsOnly) {
         self.addAlert('info', 'Analyze coding variants only set switched <pre>on</pre>.');
 
-        self.onShowSnackbar({message: 'Genes will be re-analyzed to only annotate variants in coding regions ', timeout: 3000});        
+        self.onShowSnackbar({message: 'Genes will be re-analyzed to only annotate variants in coding regions ', timeout: 3000});
       } else {
           self.addAlert('info', 'Analyze coding variants only set switched <pre>off</pre>');
           self.onShowSnackbar({message: 'Genes will be re-analyzed to only annotate all variants in genes, including intronic regions ', timeout: 3000});
@@ -2973,7 +2958,7 @@ export default {
         self.showLeftPanelForGenes()
 
         if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
-          self.onAnalyzeAll()     
+          self.onAnalyzeAll()
         }
       })
 
@@ -3223,7 +3208,6 @@ export default {
             'vepPolyPhen',
             'vepRegs',
             'regulatory',
-            'vepAf',
             'highestImpactVep',
             'highestSIFT',
             'highestPolyphen',
@@ -3404,7 +3388,7 @@ export default {
       } else {
         return new Promise(function(resolve) {
           self.clearFilter();
-          let geneToSelect   = $.extend(self.selectedGene);
+          let geneNameToSelect   = self.selectedGene && self.selectedGene.hasOwnProperty('gene_name') && self.selectedGene.gene_name ? self.selectedGene.gene_name : null;
           self.selectedGene = {};
           self.selectedTranscript = null;
           self.selectedVariant = null;
@@ -3425,9 +3409,13 @@ export default {
 
           self.cacheHelper.geneToAltTranscript = {};
 
-          self.applyGenesImpl(genesToReapply.join(","), {replace: true, warnOnDup: false, isFromClin: false},
+          let options =  {replace: true, warnOnDup: false, isFromClin: false};
+          if (geneNameToSelect) {
+            options.geneNameToSelect = geneNameToSelect;
+          }
+          
+          self.applyGenesImpl(genesToReapply.join(","), options,
           function() {
-            self.selectedGene = geneToSelect;
             resolve();
           });
         })
@@ -3451,7 +3439,7 @@ export default {
           let geneNameToSelect = this.geneModel.sortedGeneNames[0];
           self.promiseLoadGene(geneNameToSelect)
         }
-        
+
       }
     },
     onAnalysisFileError: function(msg, error) {
@@ -3540,33 +3528,17 @@ export default {
     applyGenesImpl: function(genesString, options, callback) {
       let self = this;
       self.selectedGene = {};
+      self.genesAdded = null;
+      let geneNameToSelect = null;
       self.geneModel.promiseCopyPasteGenes(genesString, options)
-      .then(function() {
-        if (!self.launchedFromClin) {
+      .then(function(results) {
+        self.genesAdded = results && results.newGenes ? results.newGenes : [];
+        if (options && options.hasOwnProperty('geneNameToSelect')) {
+          geneNameToSelect = options.geneNameToSelect;
+        } else if (!self.launchedFromClin) {
           self.setUrlGeneParameters();
-        }
-        let geneNameToSelect = null;
-        if (self.launchedFromClin) {
-          if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
-            let applicableGenes = self.geneModel.geneNames.filter(function(geneName) {
-              if (self.isFullAnalysis) {
-                return !self.geneModel.isCandidateGene(geneName);
-              } else {
-                return self.geneModel.isCandidateGene(geneName);
-              }
-            })
-            if (applicableGenes.length > 0) {
-              geneNameToSelect = applicableGenes[0];
-            }
-            else{
-              geneNameToSelect = self.geneModel.sortedGeneNames[0];
-            }
-          }
-
         } else {
-          if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
-            geneNameToSelect = self.geneModel.sortedGeneNames[0];
-          }
+          geneNameToSelect = self.genesAdded && self.genesAdded.length > 0 ? self.genesAdded[0] : self.geneModel.sortedGeneNames[0];          
         }
 
         if (geneNameToSelect) {
@@ -3579,14 +3551,14 @@ export default {
       .then(function() {
         if (self.geneModel.sortedGeneNames) {
           if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
-            // If all of the genes were removed, prompt the user to enter a 
+            // If all of the genes were removed, prompt the user to enter a
             // gene or a phenotype term
             setTimeout( function() {
               if (self.geneModel.sortedGeneNames.length == 0) {
                 if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
                   self.$refs.navRef.geneCount = 0
                   self.$refs.navRef.badgeCounts.coverage = 0
-                  
+
                 }
                 if (!self.isEduMode) {
                   let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
@@ -3605,11 +3577,12 @@ export default {
             self.cacheHelper.analyzeAll(self.cohortModel, false, false, true);
           }
         }
-        
+
       })
       .catch(function(error) {
         console.log("applyGenesImpl encountered an error: " )
         console.log(error)
+        self.addAlert('error', 'Unable to apply genes due to error', null, [error])
       })
 
     },
@@ -3652,35 +3625,67 @@ export default {
       if (self.paramProjectId && self.paramProjectId.length > 0) {
         self.projectId = self.paramProjectId;
       }
-      if (self.paramIobioSource && self.paramIobioSource.length > 0) {
-        self.globalApp.IOBIO_SOURCE = self.paramIobioSource;
-      }
-      if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0
-        && self.sampleId && self.paramSource) {
-        self.launchedFromHub = true;
-
-        if (self.paramSource === self.sfariSource) {
-          self.launchedFromSFARI = true;
-        }
-
-        // Figure out which IOBIO backend we should be using.
-        // TODO - This should be a URL parameter from hub
-        if (self.paramIobioSource == null && self.hubToIobioSources[self.paramSource]) {
-          self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource].iobio;
-          self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[self.paramSource].batchSize;
-          self.globalApp.initBackendSource(self.globalApp.IOBIO_SOURCE)
-        } else {
-          self.globalApp.IOBIO_SOURCE = self.globalApp.DEFAULT_IOBIO_BACKEND;
-          self.globalApp.initBackendSource(self.globalApp.IOBIO_SOURCE);
-        }
-        self.isHubDeprecated = !self.projectId;
-      } else {
-        self.globalApp.initServices(self.launchedFromHub);
-      }
       if (self.paramTour) {
         self.tourNumber = self.paramTour;
       }
-      self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;
+    },
+    
+    /* Determine the iobio backend server. 
+     *  1. If the app is standalone, we use the property IOBIO_BACKEND in the .env file
+     *  2. If the app is launched from Mosaic and gene.iobio is served from a production
+     *     site, we use the URL parameter 'source' to lookup the iobio backend server. 
+     *     If there is not a mapping from the Mosaic source to the iobio backend server, 
+     *     the app throw an error.
+     *  3. If the app is launched from Mosaic and gene.iobio is served from localhost
+     *     or staging, use the .env property IOBIO_BACKEND.
+    */
+    promisePointToIobioBackend() {
+      let self = this;
+      return new Promise(function(resolve, reject) {
+        if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0
+              && self.sampleId && self.paramSource) {
+          self.launchedFromHub = true;
+
+          if (self.paramSource === self.sfariSource) {
+            self.launchedFromSFARI = true;
+          }
+
+          if (window.document.URL.indexOf("localhost") > 0) {
+            self.addAlert('warning', 
+              "Using .env property <pre>IOBIO_SOURCE</pre> instead of mapping from Mosaic source to iobio backend.",
+              null, ['iobio backend set to ' +  process.env.IOBIO_BACKEND], {showAlertPanel: true})
+              self.globalApp.IOBIO_SOURCE = process.env.IOBIO_BACKEND;
+          } else {
+            if (self.hubToIobioSources[self.paramSource] && self.hubToIobioSources[self.paramSource].iobio && self.hubToIobioSources[self.paramSource].iobio.length > 0) {
+              self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource].iobio;
+              self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[self.paramSource].batchSize;
+            } else  {
+              self.addAlert('error', 
+                "Unable to lookup iobio backend server for this Mosaic instance. There is no mapping from " +
+                "the <pre>source</pre> URL parameter to a iobio backend server URL.",
+                null, null, {showAlertPanel: true})
+              reject();
+            } 
+            self.isHubDeprecated = !self.projectId;
+          }
+        } else {
+          // Standalone gene.iobio. Initialize the iobio backend server from the .env property IOBIO_BACKEND.
+          self.globalApp.IOBIO_SOURCE = process.env.IOBIO_BACKEND;
+        }
+        
+        if (self.globalApp.IOBIO_SOURCE) {
+          try {
+            self.globalApp.initServices(self.globalApp.IOBIO_SOURCE)
+            self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;
+
+            resolve();
+          } catch(error) {
+            self.$nextTick(function() {
+              self.addAlert('error', error, null, null, {showAlertPanel: true})
+            })
+          }    
+        }    
+      })
     },
     promiseInitFromUrl: function() {
       let self = this;
@@ -3712,13 +3717,9 @@ export default {
           });
         }
         if (self.paramGene) {
-          self.geneModel.promiseAddGeneName(self.paramGene);
-          self.onGeneSelected(self.paramGene);
+          self.geneModel.promiseAddGeneOrAlias(self.paramGene)
         } else if (self.paramGeneName) {
-          self.geneModel.promiseAddGeneName(self.paramGeneName);
-          if (!self.launchedFromHub) {
-            self.onGeneSelected(self.paramGeneName);
-          }
+          self.geneModel.promiseAddGeneOrAlias(self.paramGeneName, !self.lauchedFromHub)
         }
 
         let isTrio = self.paramRelationships.every(sample => sample);
@@ -3821,6 +3822,7 @@ export default {
       })
 
     },
+
     onRemoveUserFlaggedVariant: function(variant) {
       let self = this;
 
@@ -3867,7 +3869,7 @@ export default {
       }
 
       let theTranscript = variant.transcript ? variant.transcript : self.geneModel.getCanonicalTranscript(variant.gene)
-      self.cohortModel.setVariantInterpretation(variant.gene, 
+      self.cohortModel.setVariantInterpretation(variant.gene,
         theTranscript, variant, {summarizeDanger: true});
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
@@ -3881,7 +3883,7 @@ export default {
         }
         self.onApplyVariantInterpretation(variant);
       }
-      
+
       if (self.launchedFromClin) {
         self.promiseUpdateAnalysisVariant(variant, {delay: false});
       }
@@ -3929,7 +3931,7 @@ export default {
       }
 
       let theTranscript = variant.transcript ? variant.transcript : self.geneModel.getCanonicalTranscript(variant.gene)
-      self.cohortModel.setVariantInterpretation(variant.gene, 
+      self.cohortModel.setVariantInterpretation(variant.gene,
         theTranscript, variant, {summarizeDanger: true});
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
@@ -3954,17 +3956,17 @@ export default {
         if (theVariant.mosaic_interpretation) {
           resolve();
         } else if (interpretationAnnot == null) {
-          // If the interetation annotation doesn't exist for this project, then 
+          // If the interetation annotation doesn't exist for this project, then
           // no need to check variant annotation b/c it doesn't exist.
           resolve();
         } else {
           // Get the mosaic variant
           self.promiseGetMosaicVariant(theVariant)
           .then(function(mosaicVariant) {
-            // Check to see that we found the mosaic variant and that it has 
+            // Check to see that we found the mosaic variant and that it has
             // a variant annotation for 'interpretation'
-            if (mosaicVariant && mosaicVariant.hasOwnProperty(interpretationAnnot.uid) && mosaicVariant[interpretationAnnot.uid].length > 0) {
-              let interpretationLabel = mosaicVariant[interpretationAnnot.uid][0]
+            if (mosaicVariant && mosaicVariant.hasOwnProperty(interpretationAnnot.fieldName) && mosaicVariant[interpretationAnnot.fieldName].length > 0) {
+              let interpretationLabel = mosaicVariant[interpretationAnnot.fieldName][0]
               theVariant.mosaic_interpretation = self.interpretationMapReversed[interpretationLabel]
               resolve(theVariant.mosaic_interpretation)
             } else {
@@ -3973,7 +3975,7 @@ export default {
                 theVariant.mosaic_intepretation = "none"
                 let msg = "Unable to initialize variant <pre>Interpretation</pre> annotation because there is no matching Mosaic variant at coordinates <pre>" + theVariant.chrom + " " + theVariant.start + " " + theVariant.ref + "->" + theVariant.alt + "</pre>";
                 console.log(msg);
-                self.addAlert("warning", 
+                self.addAlert("warning",
                                msg + " for gene <pre>" + self.selectedGene.gene_name + "</pre>",
                               self.selectedGene.gene_name )
                 resolve(null)
@@ -3986,7 +3988,7 @@ export default {
           .catch(function(error) {
             theVariant.mosaic_interpretation = "none";
             console.log(error);
-            self.addAlert("info", 
+            self.addAlert("info",
                            "Cannot initialize variant interpretation based on Mosaic variant annotation. " + error,
                            self.selectedGene.gene_name)
             resolve(null)
@@ -4004,8 +4006,8 @@ export default {
             resolve(mosaicVariant)
           })
           .catch(function(error) {
-            let msg = "Cannot find Mosaic variant in " + 
-              "<pre>" + self.selectedGene.gene_name + "</pre>" + 
+            let msg = "Cannot find Mosaic variant in " +
+              "<pre>" + self.selectedGene.gene_name + "</pre>" +
               " based on lookup by id " + theVariant.mosaic_id;
             self.addAlert("error", msg, self.selectedGene.gene_name, [error])
             reject(msg)
@@ -4016,14 +4018,14 @@ export default {
               resolve(mosaicVariant)
           })
           .catch(function(error) {
-            let msg = "Cannot find Mosaic variant in " + 
-              "<pre>" + self.selectedGene.gene_name + "</pre>" + 
-              " based on lookup by position <pre>" + theVariant.chrom + ":" + 
+            let msg = "Cannot find Mosaic variant in " +
+              "<pre>" + self.selectedGene.gene_name + "</pre>" +
+              " based on lookup by position <pre>" + theVariant.chrom + ":" +
               theVariant.start + "</pre>";
             self.addAlert("warning", msg, self.selectedGene.gene_name)
             resolve(null)
           })
-        }          
+        }
       })
     },
 
@@ -4040,7 +4042,7 @@ export default {
             mosaicVariant = theMosaicVariant;
             if (variant.mosaic_id == null || variant.mosaic_id == "") {
               variant.mosaic_id = mosaicVariant.id;
-            }  
+            }
 
             // Create a variant annotation if one doesn't exist for this Mosaic
             // project.
@@ -4059,14 +4061,15 @@ export default {
               self.variantAnnotationsMap[variantAnnotation.name] = variantAnnotation
 
 
-              // Now, check of the variant annotation value already exists. For 'badge' variant 
-              // annotations, we cannot use the update API, but instead have to 
+              // Now, check of the variant annotation value already exists. For 'badge' variant
+              // annotations, we cannot use the update API, but instead have to
               // delete the annotation value and then add it.
               let getDeleteAnnotValuePromise = function() {
-                if (mosaicVariant && mosaicVariant.hasOwnProperty(variantAnnotation.uid) && mosaicVariant[variantAnnotation.uid].length > 0) {
-                  console.log("deleting annotation value " + mosaicVariant[variantAnnotation.uid])
-                  return self.hubSession.promiseDeleteVariantAnnotationValue(self.projectId, 
-                    variant.mosaic_id, variantAnnotation.id, variant.interpretation)
+                if (mosaicVariant && mosaicVariant.hasOwnProperty(variantAnnotation.fieldName) && mosaicVariant[variantAnnotation.fieldName].length > 0) {
+                  console.log("deleting annotation value " + mosaicVariant[variantAnnotation.fieldName])
+                  let version_id = self.getDefaultAnnotationVersion(variantAnnotation)
+                  return self.hubSession.promiseDeleteVariantAnnotationValue(self.projectId,
+                    variant.mosaic_id, variantAnnotation.id, version_id)
                 } else {
                   console.log("bypassing delete annotation value")
                   return Promise.resolve();
@@ -4078,12 +4081,14 @@ export default {
 
                 if (variant.interpretation != 'not-reviewed') {
                   // Now add the annotation value.
-                  return self.hubSession.promiseAddVariantAnnotationValue(self.projectId, 
-                      variant.mosaic_id, 
-                      variantAnnotation.id, 
-                      self.interpretationMap[variant.interpretation])              
+                  let version_id = self.getDefaultAnnotationVersion(variantAnnotation)
+                  return self.hubSession.promiseAddVariantAnnotationValue(self.projectId,
+                      variant.mosaic_id,
+                      variantAnnotation.id,
+                      self.interpretationMap[variant.interpretation],
+                      version_id)
                 } else {
-                  // No need to update a variant annotation when it is not reviewed. Treat  
+                  // No need to update a variant annotation when it is not reviewed. Treat
                   // this option as 'blank'.
                   return Promise.resolve()
                 }
@@ -4092,13 +4097,13 @@ export default {
                 // Set the Mosaic variant annotation in memory to the refreshed value
                 if (mosaicVariant) {
                   let interpretationLabel = self.interpretationMap[variant.interpretation]
-                  mosaicVariant[variantAnnotation.uid] = [interpretationLabel];
+                  mosaicVariant[variantAnnotation.fieldName] = [interpretationLabel];
                 }
                 resolve();
 
               })
               .catch(function(error) {
-                self.addAlert('error', 
+                self.addAlert('error',
                   'Cannot add Mosaic variant annotation <pre>Interpretation</pre> value.' + error)
                 reject();
               })
@@ -4108,12 +4113,27 @@ export default {
               self.addAlert('error', 'Cannot create Mosaic variant annotation <pre>Interpretation</pre>. ', self.selectedGene.gene_name, [error])
               reject();
             })
-          } 
+          }
 
         })
 
 
       })
+    },
+
+    getDefaultAnnotationVersion: function(variantAnnotation) {
+      if (variantAnnotation.hasOwnProperty('annotation_versions')) {
+        let matched = variantAnnotation.annotation_versions.filter(function(annot) {
+          return annot.version == 'default'
+        })
+        if (matched.length > 0) {
+          return matched[0].id;
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
     },
 
     promiseLoadVariantAnnotationsMap() {
@@ -4130,7 +4150,7 @@ export default {
           })
           .catch(function(error) {
             reject(error)
-          })          
+          })
         } else {
           resolve(null)
         }
@@ -4254,15 +4274,11 @@ export default {
 
 
                 self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
-                if (self.$refs.variantInspectRef) {
-                  self.$refs.variantInspectRef.refresh();
-                }
-
 
                 // Scroll down so that the variant inspect card (and the variant all card)
                 // are in view
                 setTimeout(function() {
-                  self.scrollToVariantInspectCard()                  
+                  self.scrollToVariantInspectCard()
                 },50)
 
                 if (callback) {
@@ -4273,8 +4289,9 @@ export default {
               }
 
             })
-            .catch(function() {
+            .catch(function(error) {
               console.log("GeneHome.onFlaggedVariantSelected. Unable to get matching variant");
+              console.log(error)
               if (callback) {
                 callback();
               }
@@ -4381,17 +4398,17 @@ export default {
           if (dangerSummary) {
             if (dangerSummary.geneCoverageProblem) {
               self.badgeCounts.coverage++;
-            }            
+            }
           }
         })
       }
     },
     onCoverageThresholdApplied: function() {
       let self = this;
-      
+
       self.showLeftPanelForGenes()
 
-      self.addAlert('info', 'Coverage thresholds changed', null, 
+      self.addAlert('info', 'Coverage thresholds changed', null,
         ['<pre>min    = ' + self.filterModel.geneCoverageMin + '</pre>',
          '<pre>median = ' + self.filterModel.geneCoverageMedian + '</pre>',
          '<pre>mean   = ' + self.filterModel.geneCoverageMean + '</pre>']);
@@ -4461,6 +4478,7 @@ export default {
           geneName = self.selectedGene.gene_name;
         }
         self.selectedGene = {};
+        self.geneModel.geneDangerSummaries = {}
 
         self.cohortModel.isLoaded = false;
         self.calcFeatureMatrixWidthPercent();
@@ -4513,7 +4531,7 @@ export default {
           if (self.forMyGene2) {
             options.query.mygene2 = true;
           }
-         
+
           self.$router.push(options)
         });
       })
@@ -5050,7 +5068,8 @@ export default {
       self.cohortModel.endpoint = new EndpointCmd(self.globalApp,
           self.cacheHelper.launchTimestamp,
           self.genomeBuildHelper,
-          self.globalApp.utility.getHumanRefNames
+          self.globalApp.utility.getHumanRefNames,
+          self.launchedFromHub
       );
 
     },
@@ -5142,12 +5161,16 @@ export default {
     },
 
 
-    promiseSelectFirstFlaggedVariant: function() {
+    promiseSelectFirstFlaggedVariant: function(options={'selectAnyVariant': true, 'selectGeneAsFallback':true}) {
       let self = this;
-      if (self.selectedVariant) {
-        self.onCohortVariantClick(self.selectedVariant, null, 'proband');
-        return Promise.resolve();
-      }
+
+      // Examine the flagged variant and choose one to show.
+      //  1. If there aren't any flagged variants, just return as there is no action to be taken,
+      //     unless options.selectGeneAsFallback set to true. In that case, select the first gene.
+      //  2. If there is a flagged variant for a gene just added (through gene search or copy/paste
+      //     or phenoylzer search), select the first flagged variant matching a gene just added.
+      //  3. If there isn't a flagged variant for the gene just added, pick the first
+      //     flagged variant at the top of the list (if options.selectAnyVariant set to true)
       return new Promise(function(resolve) {
 
         let getGeneName = function(variant) {
@@ -5165,40 +5188,76 @@ export default {
         self.cohortModel.promiseOrganizeVariantsByFilterAndGene(null, self.isFullAnalysis)
         .then(function(sortedFilters) {
 
-          sortedFilters.forEach(function(filterObject) {
-            filterObject.genes.forEach(function(geneList) {
-              if (!firstFlaggedVariant && geneList.variants && geneList.variants.length > 0) {
-                firstFlaggedVariant = geneList.variants[0];
-              }
-            })
-          })
-          if ((self.paramAnalysisId || self.paramVariantSetId || !self.geneClicked) && firstFlaggedVariant &&  (!self.selectedGene || getGeneName(firstFlaggedVariant) !== self.selectedGene.gene_name)) {
-            self.promiseLoadGene(getGeneName(firstFlaggedVariant))
-              .then(function() {
-                self.toClickVariant = firstFlaggedVariant;
-                self.showLeftPanelWhenFlaggedVariants("send-to-clin");
-                self.onFlaggedVariantSelected(firstFlaggedVariant, {'forceGeneSelection': true}, function() {
-                resolve()
-                self.cacheHelper.analyzeAllInProgress = false;
-              })
-              .catch(function(error) {
-                resolve();
+          if (self.genesAdded && self.genesAdded.length > 0) {
+            sortedFilters.forEach(function(filterObject) {
+              filterObject.genes.forEach(function(geneList) {
+                if (!firstFlaggedVariant && geneList.variants && geneList.variants.length > 0) {
+                  let candidateVariants = geneList.variants.filter(function(v) {
+                      return self.genesAdded.indexOf(getGeneName(v)) >= 0
+                  })
+                  if (candidateVariants.length > 0) {
+                    firstFlaggedVariant = candidateVariants[0];
+                  }
+                }
               })
             })
           }
-          else if(firstFlaggedVariant && getGeneName(firstFlaggedVariant) === self.selectedGene.gene_name){
-            self.toClickVariant = firstFlaggedVariant;
-            self.showLeftPanelWhenFlaggedVariants();
-            self.onFlaggedVariantSelected(firstFlaggedVariant, {'forceGeneSelection': true}, function() {
-              resolve()
+
+          // We didn't find any variants for genes just added,
+          if (firstFlaggedVariant == null && options.selectAnyVariant) {
+            
+            // Draw from the list of all of the filtered variants
+            sortedFilters.forEach(function(filterObject) {
+              filterObject.genes.forEach(function(geneList) {
+                if (!firstFlaggedVariant && geneList.variants && geneList.variants.length > 0) {
+                  let candidateVariants = geneList.variants;
+                  if (candidateVariants.length > 0) {
+                    firstFlaggedVariant = candidateVariants[0];
+                  }
+                }
+              })
+            })
+            
+          }
+
+          if (firstFlaggedVariant) {
+            // Is this flagged variant in a gene we just added?
+            let forAddedGene = self.genesAdded && self.genesAdded.length > 0 ? self.genesAdded.indexOf(getGeneName(firstFlaggedVariant)) >= 0 : false;
+            self.promiseLoadGene(getGeneName(firstFlaggedVariant))
+            .then(function() {
+              self.toClickVariant = firstFlaggedVariant;
+              if ((self.paramAnalysisId || self.paramVariantSetId || self.geneClicked == false) && !forAddedGene) {
+                self.showLeftPanelWhenFlaggedVariants("send-to-clin");
+              } else {
+                self.showLeftPanelWhenFlaggedVariants();
+              }
+              self.onFlaggedVariantSelected(firstFlaggedVariant, {'forceGeneSelection': true}, function() {
+                if ((self.paramAnalysisId || self.paramVariantSetId || self.geneClicked == false) && !forAddedGene) {
+                  self.cacheHelper.analyzeAllInProgress = false;
+                }
+                self.genesAdded = null;
+                resolve()
+              })
+            })
+            .catch(function(error) {
+              self.genesAdded = null;
+              resolve();
             })
           }
           else {
-            self.showLeftPanelWhenFlaggedVariants();
-            resolve();
+            if (options.selectGeneAsFallback && (self.selectedGene == null || !self.selectedGene.hasOwnProperty('gene_name')) && self.geneModel.sortedGeneNames.length > 0) {
+              // Show the genes tab (for the selected gene)
+              let geneNameToSelect = self.genesAdded && self.genesAdded.length > 0 ? self.genesAdded[0] : self.geneModel.sortedGeneNames[0];
+              self.promiseLoadGene(geneNameToSelect)
+              .then(function() {
+                self.genesAdded = null;
+                resolve();
+              })
+            } else {
+              self.genesAdded = null;
+              resolve();            
+            }
           }
-          
-
         })
 
       })

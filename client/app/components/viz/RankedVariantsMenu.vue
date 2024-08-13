@@ -310,20 +310,16 @@ export default {
       return refAlt;
     },
     afGnomAD: function(af) {
-      if (this.currentVariant.vepAf == null || this.currentVariant.vepAf.gnomAD.AF == null) {
-        return "unknown";
-      } else if (this.currentVariant.vepAf.gnomAD.AF == ".") {
+      if (this.currentVariant.gnomad.AF == null) {
         return "<span>"
         + "0%"
         + "</span>";
-      } else if (this.isBasicMode) {
-        return this.globalApp.utility.percentage(this.currentVariant.vepAf.gnomAD.AF);
-      } else  {
-        var afPercent = this.globalApp.utility.percentage(this.currentVariant.vepAf.gnomAD.AF);
+      } else {
         return "<span>"
-        + afPercent
+        + this.globalApp.utility.percentage(this.currentVariant.gnomad.AF)
         + "</span>";
       }
+
     },
     impactAndConsequence: function() {
       return "<span class=>"

@@ -353,18 +353,18 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, analyzeGeneCo
 
         let getErrorPromise = function() {
           if (error && error.hasOwnProperty('alertType') && error.alertType == 'warning') {
-            me.dispatch.alertIssued('warning', error.message, error.geneName);            
+            me.dispatch.alertIssued('warning', error.message, error.geneName);
             return Promise.resolve({'geneName': error.geneName});
           } else if (error && error.hasOwnProperty('alertType') && error.alertType == 'error') {
-            me.dispatch.alertIssued('error', error.message, error.geneName);            
+            me.dispatch.alertIssued('error', error.message, error.geneName);
             return me.cohort.promiseSummarizeError(error.geneName, error.message)
           } else {
             let geneName = error.hasOwnProperty("geneName") ? error.geneName : geneToAnalyze;
-            me.dispatch.alertIssued('error', error.message);            
+            me.dispatch.alertIssued('error', error.message);
             return me.cohort.promiseSummarizeError(error.geneName, error.message)
           }
         }
-     
+
         getErrorPromise()
         .then(function(dangerObject) {
           // take this gene off of the queue and see
@@ -458,7 +458,7 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
 
           // Joint call variants if we are calling variants for all genes in 'Analyze All'
           if (analyzeCalledVariants) {
-            return me.cohort.promiseJointCallVariants(geneObject, transcript, trioVcfData, {checkCache: true, isBackground: true, gnomADExtra: me.globalApp.gnomADExtra, decompose: true})
+            return me.cohort.promiseJointCallVariants(geneObject, transcript, trioVcfData, {checkCache: true, isBackground: true, decompose: true})
           } else {
             return Promise.resolve({'trioFbData': trioFbData, 'trioVcfData': trioVcfData});
           }
@@ -484,7 +484,7 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
             return Promise.resolve();
           } else {
             // Now summarize the danger for the  gene
-            return me.cohort.promiseSummarizeDanger(geneObject, transcript, trioVcfData.proband, {'CALLED': analyzeCalledVariants, 'GENECOVERAGE': analyzeGeneCoverage})            
+            return me.cohort.promiseSummarizeDanger(geneObject, transcript, trioVcfData.proband, {'CALLED': analyzeCalledVariants, 'GENECOVERAGE': analyzeGeneCoverage})
           }
         })
         .then(function() {
@@ -516,14 +516,14 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
     })
     .catch(function(error) {
       if (error.hasOwnProperty('message') && error.hasOwnProperty('gene')) {
-        cacheReject({'geneName': error.gene, 
-                     'message': error.message, 
+        cacheReject({'geneName': error.gene,
+                     'message': error.message,
                      'alertType': error.hasOwnProperty('alertType') ? error.alertType : 'error'})
       } else {
         cacheReject({'geneName': theGeneName, 'message': error, 'alertType': 'error'});
       }
     });
-    
+
   })
 
 
@@ -688,7 +688,7 @@ CacheHelper.prototype.refreshNextGeneBadge = function(keys, callback) {
           me.refreshNextGeneBadge(keys, callback);
         })
       } else {
-          me.refreshNextGeneBadge(keys, callback);        
+          me.refreshNextGeneBadge(keys, callback);
       }
     });
   }
@@ -834,7 +834,7 @@ CacheHelper.prototype.clearAll = function() {
   .set('labels', {ok:'OK', cancel:'Cancel'});       ;
 }
 
-CacheHelper.prototype.promiseOutputCache = function(options) {  
+CacheHelper.prototype.promiseOutputCache = function(options) {
   var me = this;
 
   return new Promise(function(resolve, reject) {
@@ -852,15 +852,15 @@ CacheHelper.prototype.promiseOutputCache = function(options) {
 
         let bypass = false;
         // If specified in options, bypass loading of bam data
-        if (options 
-          && options[CacheHelper.BAM_DATA] 
+        if (options
+          && options[CacheHelper.BAM_DATA]
           && options[CacheHelper.BAM_DATA] == false
           && keyObject.dataKind == CacheHelper.BAM_DATA) {
           bypass = true;
         }
         // If specified in options, bypass loading of gene coverage data
-        if (options 
-          && options[CacheHelper.GENE_COVERAGE_DATA] 
+        if (options
+          && options[CacheHelper.GENE_COVERAGE_DATA]
           && options[CacheHelper.GENE_COVERAGE_DATA] == false
           && keyObject.dataKind == CacheHelper.GENE_COVERAGE_DATA) {
           bypass = true;
@@ -871,7 +871,7 @@ CacheHelper.prototype.promiseOutputCache = function(options) {
           .then(function(data) {
             cacheItems.push(data)
           })
-          promises.push(p);          
+          promises.push(p);
         }
       });
 
@@ -921,23 +921,23 @@ CacheHelper.prototype.promiseLoadCache = function(cacheData, dataIsAlreadyCompre
 
         let bypass = false;
         // If specified in options, bypass loading of bam data
-        if (options 
-          && options[CacheHelper.BAM_DATA] 
+        if (options
+          && options[CacheHelper.BAM_DATA]
           && options[CacheHelper.BAM_DATA] == false
           && keyObject.dataKind == CacheHelper.BAM_DATA) {
           bypass = true;
         }
         // If specified in options, bypass loading of gene coverage data
-        if (options 
-          && options[CacheHelper.GENE_COVERAGE_DATA] 
+        if (options
+          && options[CacheHelper.GENE_COVERAGE_DATA]
           && options[CacheHelper.GENE_COVERAGE_DATA] == false
           && keyObject.dataKind == CacheHelper.GENE_COVERAGE_DATA) {
           bypass = true;
         }
         // Put the data in the cache
         if (!bypass) {
-          let p = me.promiseCacheData(key, cacheItem.cache, {'compress': dataIsAlreadyCompressed ? false : true})            
-          promises.push(p)              
+          let p = me.promiseCacheData(key, cacheItem.cache, {'compress': dataIsAlreadyCompressed ? false : true})
+          promises.push(p)
         }
       })
 
@@ -947,7 +947,7 @@ CacheHelper.prototype.promiseLoadCache = function(cacheData, dataIsAlreadyCompre
       })
       .then(function() {
 
-        
+
         let thePromises = []
         Object.keys(geneToDangerSummary).forEach(function(gene) {
           if (dataIsAlreadyCompressed) {
@@ -959,7 +959,7 @@ CacheHelper.prototype.promiseLoadCache = function(cacheData, dataIsAlreadyCompre
                 me.cohort.captureFlaggedVariants(ds, theGeneObject)
               }
             })
-            thePromises.push(p)            
+            thePromises.push(p)
           } else {
             thePromises.push(Promise.resolve)
           }
@@ -967,7 +967,7 @@ CacheHelper.prototype.promiseLoadCache = function(cacheData, dataIsAlreadyCompre
 
         return Promise.all(thePromises)
 
-        
+
       })
       .then(function() {
         resolve();
@@ -982,7 +982,7 @@ CacheHelper.prototype.promiseLoadCache = function(cacheData, dataIsAlreadyCompre
       let msg = "Unable to clear cache. " + error;
       console.log(msg)
       reject(msg)
-    })  
+    })
 
   })
 }
@@ -1177,7 +1177,7 @@ CacheHelper.promiseCompressData = function(data) {
               let clonedVariant = $.extend({}, v)
               return clonedVariant;
             })
-            data.badges[filterKey] = clonedVariants;            
+            data.badges[filterKey] = clonedVariants;
           }
         })
       }
@@ -1189,17 +1189,17 @@ CacheHelper.promiseCompressData = function(data) {
             if (cache.indexOf(value) !== -1 && key != 'genotype') {
                 // Circular reference found, discard key
                 return;
-            } 
+            }
             // Store value in our collection
             cache.push(value);
         }
-        if (key == 'gene' 
-          && typeof value === 'object' 
+        if (key == 'gene'
+          && typeof value === 'object'
           && value !== null
           && value.hasOwnProperty('gene_name')) {
           return value.gene_name;
-        } else if (key == 'transcript' 
-          && typeof value === 'object' 
+        } else if (key == 'transcript'
+          && typeof value === 'object'
           && value !== null
           && value.hasOwnProperty('transcript_id')) {
           return value.transcript_id;

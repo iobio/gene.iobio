@@ -6,7 +6,7 @@
   min-width: 600px
 
   .disease-table-body
-    min-height: 100px 
+    min-height: 100px
     max-height: 100px
     overflow-y: scroll
 
@@ -37,11 +37,11 @@
       display: inline-block
       vertical-align: top
       line-height: 15px
-    
+
     .hpo-launch
       min-width: 90px
       max-width: 90px
-      a 
+      a
         color: $link-color
         font-weight: 500
     .hpo-name
@@ -51,7 +51,7 @@
     .phenotype-inheritance
       min-width: 0px
       max-width: 150px
-   
+
 </style>
 
 
@@ -65,7 +65,7 @@
       </div>
       <v-badge v-if="entryCount != ''" class="count entry-count">
         <span v-if="entryCount != ''" slot="badge">
-           {{ entryCount }} 
+           {{ entryCount }}
         </span>
       </v-badge>
     </div>
@@ -121,23 +121,31 @@ export default {
       .then(function(data) {
         let geneDisorders = data[0];
         let geneName      = data[1]
-        geneDisorders.forEach(function(geneDisorder) {
-          let source = null;
-          let mimNumber = null;
-          let url = null;
-          if (geneDisorder.disease_id && geneDisorder.disease_id.indexOf(":") > 0) {
-            source = geneDisorder.disease_id.split(":")[0];
-            mimNumber = geneDisorder.disease_id.split(":")[1];
-            url = source == 'OMIM' ? self.getOMIMEntryHref(mimNumber) : self.getEntryHref(geneDisorder.disease_id);
-          }
-          self.entries.push({'diseaseId': geneDisorder.disease_id, 
-                        'phenotypeInheritance': geneDisorder.inheritance,
-                        'diseaseName': geneDisorder.disorder,
-                        'url': url,
-                        'key':
-                           geneDisorder.disease_id + "-" + geneDisorder.disorder.replaceAll(" ", "_")})
+        let seenKeys = new Set();
+        if (geneDisorders) {
+          geneDisorders.forEach(function(geneDisorder) {
+            let source = null;
+            let mimNumber = null;
+            let url = null;
+            if (geneDisorder.disease_id && geneDisorder.disease_id.indexOf(":") > 0) {
+              source = geneDisorder.disease_id.split(":")[0];
+              mimNumber = geneDisorder.disease_id.split(":")[1];
+              url = source == 'OMIM' ? self.getOMIMEntryHref(mimNumber) : self.getEntryHref(geneDisorder.disease_id);
+            }
+            let key = geneDisorder.disease_id + "-" + geneDisorder.disorder.replaceAll(" ", "_")
+            // Add disorder to list if it is not a duplicate
+            if (!seenKeys.has(key)) {
+              self.entries.push({'diseaseId': geneDisorder.disease_id,
+                          'phenotypeInheritance': geneDisorder.inheritance,
+                          'diseaseName': geneDisorder.disorder,
+                          'url': url,
+                          'key': key
+                            })
+              seenKeys.add(key)
+            }
 
-        })
+          })
+        }
         self.entryCount = self.entries.length > 0 ? self.entries.length : ""
       })
       .catch(function(error) {
@@ -159,7 +167,7 @@ export default {
     },
   },
   calculated: {
-    
+
   },
   created: function() {
   },

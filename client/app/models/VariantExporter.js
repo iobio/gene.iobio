@@ -93,7 +93,7 @@ export default class VariantExporter {
 
       var extraAnnots = true
       if (variantEntries.length > 50) {
-        alertify.alert("Warning", 
+        alertify.alert("Warning",
           "More than 50 variants are being exported. To prevent high system load, the HGVSc and HGVCp annotations will not be provided in the export file.")
         extraAnnots = false
       }
@@ -299,11 +299,11 @@ export default class VariantExporter {
     fields[7] = info;
     return fields.join("\t");
   }
-  
+
   formatNotesForVcf(notes){
-    // Exporting notes in VCF with 'tabs' between notes' content adds extra columns. Hence formating it in a different way as compared to exporting in CSV. 
+    // Exporting notes in VCF with 'tabs' between notes' content adds extra columns. Hence formating it in a different way as compared to exporting in CSV.
     var formattedNotes = "";
-    if(notes.includes("|")){ //Indicates that there are multiple notes added to this variant. 
+    if(notes.includes("|")){ //Indicates that there are multiple notes added to this variant.
       var notesArray = notes.split("|");
       formattedNotes = notesArray.map(x => {
         return x.replace("\t", "--").replace(" ", "--").replace("\t", "--");
@@ -383,7 +383,6 @@ export default class VariantExporter {
             exportRec.variantInspect.vepAminoAcids = variant.vepAminoAcids;
             exportRec.variantInspect.vepProteinPosition = variant.vepProteinPosition;
             exportRec.variantInspect.gnomAD = variant.gnomAD;
-            exportRec.variantInspect.vepAF = variant.vepAF;
             exportRec.variantInspect.extraAnnot = variant.extraAnnot;
           }
 
@@ -402,7 +401,7 @@ export default class VariantExporter {
               let trioVcfData = data;
 
               // Now perform joint calling on the alignments
-              me.cohort.promiseJointCallVariants(theGeneObject, theTranscript, trioVcfData, {sourceVariant: variant, checkCache: true, isBackground: true, gnomADExtra: me.globalApp.gnomADExtra, decompose: true})
+              me.cohort.promiseJointCallVariants(theGeneObject, theTranscript, trioVcfData, {sourceVariant: variant, checkCache: true, isBackground: true, decompose: true})
               .then(function(jointData) {
                   var theGeneObject1    = jointData.gene;
                   var theTranscript1    = jointData.transcript;
@@ -417,7 +416,7 @@ export default class VariantExporter {
                   }
 
                   var sampleNamesToGenotype = me.cohort.getProbandModel().getSampleNamesToGenotype();
-                  var data = me.cohort.getProbandModel().vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, theGeneObject1, theTranscript1, me.cohort.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), 0, me.globalApp.vepAF, me.globalApp.gnomADExtra)
+                  var data = me.cohort.getProbandModel().vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, theGeneObject1, theTranscript1, me.cohort.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), 0)
                   var theFbData = data.results;
 
                   theFbData.features.forEach(function(v) {
@@ -592,39 +591,12 @@ export default class VariantExporter {
         }
       });
 
-      if (theVariant.isProxy) {
-        // Set the clinvar start, alt, ref for clinvar web access
-        me.cohort.getProbandModel().vcf._formatClinvarCoordinates(theVariant, theVariant.alt);
+      me.formatDisplay(revisedVariant, rec, format, extraAnnotations);
 
-        // Get the clinvar data and load into the variant record
-        var dummyVcfData  = {features: [revisedVariant]};
-        var clinvarLoader = me.globalApp.isClinvarOffline || me.globalApp.clinvarSource == "vcf" ? me.cohort.getProbandModel()._refreshVariantsWithClinvarVCFRecs.bind(me.cohort.getProbandModel(), dummyVcfData) : me.cohort.getProbandModel()._refreshVariantsWithClinvarEutils.bind(me.cohort.getProbandModel(), dummyVcfData);
-        me.cohort.getProbandModel()
-        .vcf
-        .promiseGetClinvarRecords(dummyVcfData,
-          me.cohort.getProbandModel()._stripRefName(revisedVariant.chrom),
-          theGeneObject,
-          me.cohort.geneModel.clinvarGenes,
-          clinvarLoader)
-        .then(function() {
-
-          me.formatDisplay(revisedVariant, rec, format, extraAnnotations);
-
-          if (format == 'csv' || format == 'json') {
-            resolve([rec]);
-          } else {
-            resolve([rec, theRawVcfRecords]);
-          }
-        })
+      if (format == 'csv' || format == 'json') {
+          resolve([rec]);
       } else {
-        me.formatDisplay(revisedVariant, rec, format, extraAnnotations);
-
-        if (format == 'csv' || format == 'json') {
-            resolve([rec]);
-        } else {
-          resolve([rec, theRawVcfRecords]);
-        }
-
+        resolve([rec, theRawVcfRecords]);
       }
 
     });
@@ -664,7 +636,7 @@ export default class VariantExporter {
 
     if (extraAnnotations) {
       rec.HGVSc             = info.HGVSc;
-      rec.HGVSp             = info.HGVSp;      
+      rec.HGVSp             = info.HGVSp;
     }
     rec.af                = variant.af        == "." ? 0 : d3.format(".6n")(variant.af);
     rec.afSource          = variant.afSource;

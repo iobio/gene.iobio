@@ -9,6 +9,12 @@
   padding-left: 40px
   padding-right: 20px
 
+    
+  #invalid-build-alert    
+    margin-left: 40px
+    padding: 5px
+    min-width: 510px
+
   .input-group.radio
     margin-top: 0px
     margin-bottom: 0px
@@ -71,10 +77,10 @@
   #info-alert
     padding: 8px !important
   #info-message
-    font-size: 13px 
+    font-size: 13px
     color: $text-color
 
-    pre 
+    pre
       display: inline-block
       vertical-align: top
       padding-top: 0px
@@ -140,6 +146,8 @@
                 <v-card-title style="justify-content:space-between">
                   <span class="info-title">{{errorTitle}}</span>
                 </v-card-title>
+                             
+
                 <v-card-text class="remove-filter-description" style="overflow-wrap: break-word">
                   <div v-for="msg in errorMsgArray">
                     {{msg}}
@@ -153,10 +161,14 @@
             <v-layout row nowrap class="mt-0">
              <v-card-title class="headline">Files</v-card-title>
 
+               <v-alert id="invalid-build-alert" v-if="!isValidBuild"  :value="true" color="error" icon="warning" outline>
+                  {{ invalidBuildMessage}}
+                </v-alert>
               <v-flex xs12 class="mt-2 text-xs-right">
                 <div class="loader" v-show="inProgress">
                   <img src="../../../assets/images/wheel.gif">
                 </div>
+
                 <v-btn class="load-button action-button"
                   @click="onLoad"
                   :disabled="!isValid || !buildName">
@@ -272,7 +284,7 @@
                   v-model="affectedSibs"
                   :items="possibleSibs"
                   item-text="sample"
-                  item-value="sample"                  
+                  item-value="sample"
                   hide-details
                   >
                 </v-autocomplete>
@@ -319,6 +331,8 @@ export default {
     return {
       showFilesDialog: false,
       isValid: false,
+      isValidBuild: true,
+      invalidBuildMessage: '',
       areAnyDuplicates: false,
       loadReady: true,
       warningOpen: false,
@@ -417,6 +431,9 @@ export default {
       if(this.launchedFromDemo) {
         this.buildName = this.cohortModel.genomeBuildHelper.getCurrentBuildName();
       }
+    },
+    buildName: function() {
+      this._validateBuild()
     }
   },
   methods: {
@@ -434,8 +451,8 @@ export default {
             tbiUrl = sms[i].vcf ? sms[i].vcf.getTbiURL() : null;
           }
 
-          if (bamUrl 
-              && bamUrl.split('.').pop() !== "bam" 
+          if (bamUrl
+              && bamUrl.split('.').pop() !== "bam"
               && bamUrl.split('.').pop() !== "cram") {
             self.errorTitle = "Bam file extension warning";
             let errorMsg = "The bam file path does not end with a .bam extension " + bamUrl;
@@ -444,8 +461,8 @@ export default {
             self.areAnyDuplicates = true;
             self.loadReady = false;
           }
-          if (baiUrl 
-            && baiUrl.split('.').pop() !== "bai" 
+          if (baiUrl
+            && baiUrl.split('.').pop() !== "bai"
             && baiUrl.split('.').pop() !== "crai") {
             self.errorTitle = "Bam index file extension warning";
             let errorMsg = "The bam index file path does not end with a .bai extension " + baiUrl;
@@ -514,7 +531,7 @@ export default {
       else {
         self.$ga.event('data_type', 'Custom Data', 'Custom dataset');
       }
-      self.cohortModel.mode = self.mode;
+      self.cohortModel.setMode(self.mode);
       self.cohortModel.genomeBuildHelper.setCurrentBuild(self.buildName);
       self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);
 
@@ -590,7 +607,7 @@ export default {
       let self = this;
       this.$emit('isDemo', true);
       self.isDemo = true;
-      
+
       self.buildName = self.cohortModel.genomeBuildHelper.getCurrentBuildName();
 
       if (self.mode == 'single') {
@@ -678,7 +695,38 @@ export default {
           this.cohortModel.isLoaded = true;
         }
       }
+      if (this.isValid && this.cohortModel.isLoaded) {
+        this._validateBuild();
+      }
     },
+/* 
+    *  Compare the build specified to the vcf header(s). If the vcf header provides information regarding the build,
+    *  (by way of the assembly on the contig header), and it doesn't match the build specified, 
+    *  set isValidBuild to false and display a message indicating which samples (if trio) have a discordant build.
+    * 
+    *  NOTE: This method assumes that validate() has been called and will valid the build if 
+    *        isValid is set to true.
+    */
+    _validateBuild: function() {
+      let self = this;
+      return new Promise(function(resolve, reject) {
+        self.isValidBuild = true;
+        self.invalidBuildMessage = '';
+        if (self.isValid) {
+          self.cohortModel.promiseValidateBuild(self.buildName, self.mode)
+          .then(function(data) {
+            self.isValidBuild = data.isValidBuild;
+            self.invalidBuildMessage = data.message;
+            resolve();
+          })
+          .catch(function(error) {
+            reject(error)
+          })
+        } else {
+          resolve();
+        }
+      })
+    },    
     onSamplesAvailable: function(relationship, samples) {
       let self = this;
       if (relationship == 'proband') {

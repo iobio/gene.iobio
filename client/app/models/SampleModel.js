@@ -313,7 +313,7 @@ class SampleModel {
                })
 
             })
-            .catch( function(error) {                
+            .catch( function(error) {
                 console.log(msg);
                 reject(msg);
             });
@@ -420,7 +420,7 @@ class SampleModel {
               let trRefName = data.refName;
               let theGeneObject = data.geneObject;
               let theTranscript = data.transcript;
-              
+
               var geneCoverageObjects = me._parseGeneCoverage(theData);
               if (geneCoverageObjects.length > 0) {
                 me._setGeneCoverageExonNumbers(transcript, geneCoverageObjects);
@@ -434,7 +434,7 @@ class SampleModel {
             .catch(function(error) {
               reject(error)
             })
-     
+
           }
         }
 
@@ -613,18 +613,18 @@ class SampleModel {
     var me = this;
     return new Promise(function(resolve, reject) {
       var dangerSummary = SampleModel._summarizeDanger(geneObject.gene_name, theVcfData, options, geneCoverageAll, filterModel, me.getTranslator(), me.getAnnotationScheme(), transcript, me.isAlignmentsOnly());
-      
+
       me.cohort.captureFlaggedVariants(dangerSummary, geneObject)
 
       // We need to restore the 'notFound' variants in the badges that we discovered when
-      // the variants were imported. Since they are not in the vcf file, we will lose 
+      // the variants were imported. Since they are not in the vcf file, we will lose
       // this information unless we restore it here.
       if (notFoundVariants && dangerSummary.badges) {
         dangerSummary.badges.notFound = notFoundVariants;
       }
 
       var isDirty = true;
-      if (dangerSummaryExisting) {
+      if (dangerSummaryExisting && !me.isEduMode) {
         isDirty = me._isDifferentDangerSummary(dangerSummaryExisting, dangerSummary)
       }
 
@@ -647,19 +647,19 @@ class SampleModel {
     let match = true;
     ['CALLED', 'GENECOVERAGE','AF', 'CLINVAR', 'CONSEQUENCE', 'IMPACT', 'INHERITANCE', 'calledCount', 'loadedCount', 'isAlignmentsOnly']
     .forEach(function(field) {
-      if (ds1.hasOwnProperty(field) 
+      if (ds1.hasOwnProperty(field)
         && ds2.hasOwnProperty(field)
         && ds1[field]
-        && ds2[field] 
-        && typeof ds1[field] == 'object' 
+        && ds2[field]
+        && typeof ds1[field] == 'object'
         && typeof ds2[field] == 'object') {
         if (JSON.toString(ds1[field]) != JSON.toString(ds2[field])) {
           match = false;
-        }        
+        }
       } else {
         if (ds1[field] != ds2[field]) {
           match = false;
-        }    
+        }
       }
     })
     if (match) {
@@ -676,7 +676,7 @@ class SampleModel {
                   return elem.note;
                 }).join(",") : "";
                 return variant.start + "-" + variant.ref + "-" +  variant.alt
-                       + "-" + variant.interpretation + "-" + variantNotes; 
+                       + "-" + variant.interpretation + "-" + variantNotes;
               } else {
                 return "?"
               }
@@ -690,7 +690,7 @@ class SampleModel {
                   return elem.note;
                 }).join(",") : "";
                 return variant.start + "-" + variant.ref + "-" +  variant.alt
-                       + "-" + variant.interpretation + "-" + variantNotes; 
+                       + "-" + variant.interpretation + "-" + variantNotes;
               } else {
                 return "?"
               }
@@ -701,10 +701,10 @@ class SampleModel {
             match = false;
           } else if (variants1.join(",") != variants2.join(",")) {
             match = false;
-          }    
+          }
         }
       })
-    } 
+    }
     return !match;
   }
 
@@ -875,7 +875,7 @@ class SampleModel {
     } else if (this.isAlignmentsOnly()) {
       let sampleName = self.bam.getHeaderSample();
       if (sampleName == null || sampleName.length == 0) {
-        sampleName = self.relationship;        
+        sampleName = self.relationship;
       }
       return sampleName;
     } else {
@@ -1073,7 +1073,7 @@ class SampleModel {
         me.isMultiSample = false;
 
         me.vcf.promiseOpenVcfUrl(vcfUrl, tbiUrl)
-        .then( function() {
+        .then( function(headerRecs) {
           me.vcfUrlEntered = true;
           me.vcfFileOpened = false;
           me.getVcfRefName = null;
@@ -1094,6 +1094,25 @@ class SampleModel {
       }
     })
   }
+  
+   
+  promiseGetHeaderRecs() {
+    let me = this;
+    return new Promise(function(resolve, reject) {
+      if (me.vcfUrlEntered) {
+        me.vcf.promiseGetHeaderRecs()
+        .then(function(headerRecs){
+          resolve(headerRecs)
+        })
+        .catch(function(error) {
+          reject(error)
+        })
+      } else {
+        reject("Cannot get header recs. No vcf URL provided.")
+      }
+    })
+  }
+
 
   /* Takes in two stably sorted lists of vcfs and tbis. Performs similar functions as onVcfUrlEntered above,
    * but accommodates multiple vcf files that will be apart of a single sample model. Used specifically for Sfari track. */
@@ -1166,7 +1185,7 @@ class SampleModel {
           resolve();
         }
       } else {
-        
+
         me.vcfRefNamesMap = {};
         let currVcf = me.vcf;
         if (sfariMode) {
@@ -1211,8 +1230,8 @@ class SampleModel {
          })
          .catch(function(error) {
             reject(error)
-         })        
-       
+         })
+
       }
     });
 
@@ -1379,7 +1398,7 @@ class SampleModel {
               }
 
             })
-            .catch(function (error) {              
+            .catch(function (error) {
               reject(error)
             })
           }
@@ -1481,10 +1500,8 @@ class SampleModel {
                me.getGeneModel().geneSource == 'refseq' ? true : false,
                true,  // hgvs notation
                true,  // rsid
-               me.globalApp.vepAF, // vepAF
                me.globalApp.useServerCache, // serverside cache
                false, // sfari mode
-               me.globalApp.gnomADExtra, // get extra gnomad,
                true // decompose
             ).then( function(data) {
 
@@ -1572,7 +1589,6 @@ class SampleModel {
                             'vepPolyPhen',
                             'vepRegs',
                             'regulatory',
-                            'vepAf',
                             'highestImpactVep',
                             'highestSIFT',
                             'highestPolyphen',
@@ -1664,7 +1680,11 @@ class SampleModel {
         var theVcfData = data.vcfData;
 
         var regions   = theVcfData.features.filter(function(variant) {
-          if (variant.fbCalled == 'Y')  {
+          if (variant.gnomAD.hasOwnProperty('af')) {
+            // This is a pre 4.11 variant. Refresh so that gnomAD fields
+            // are in expected format
+            return true;
+          } else if (variant.fbCalled == 'Y')  {
             return false;
           } else if (variant.extraAnnot) {
             return false;
@@ -1691,10 +1711,8 @@ class SampleModel {
                me.getGeneModel().geneSource == 'refseq' ? true : false,
                true,  // hgvs notation
                true,  // rsid
-               me.globalApp.vepAF, // vep af
                me.globalApp.useServerCache, // serverside cache
                false, // sfari mode
-               me.globalApp.gnomADExtra, // gnomADExtra,
                true // decompose
             ).then( function(data) {
 
@@ -1785,10 +1803,8 @@ class SampleModel {
                                     self.getGeneModel().geneSource === 'refseq',
                                     false,  // hgvs notation
                                     false,  // rsid
-                                    self.globalApp.vepAF,    // vep af
                                     false,  // server-side cache
                                     true, // sfariMode
-                                    false, // gnomadExtra
                                     false // decompose
                                     ).then((results) => {
                                       let unwrappedResults = results[1];
@@ -2039,10 +2055,8 @@ class SampleModel {
                  me.getGeneModel().geneSource === 'refseq' ? true : false,
                  options.getKnownVariants ? false : (me.isBasicMode || me.globalApp.getVariantIdsForGene),  // hgvs notation
                  options.getKnownVariants ? false : me.globalApp.getVariantIdsForGene,  // rsid
-                 options.getKnownVariants ? false : me.globalApp.vepAF,    // vep af
                  false, // serverside cache
                  false, // sfari mode
-                 options.getKnownVariants ? false : me.globalApp.gnomADExtraAll, // get extra gnomad,
                  !me.isEduMode, // decompose
                  options.bypassAnnotate ? true : false
                 );
@@ -2143,7 +2157,7 @@ class SampleModel {
         msg += "</pre> for gene <pre>" + theGene.gene_name + "</pre>.";
 
         if (theGene.chr.indexOf('alt') > 0 && theGene.gene_name.indexOf("HLA") == 0) {
-          msg += " Many HLA genes reside in a region of the genome that is highly polymorphic. " 
+          msg += " Many HLA genes reside in a region of the genome that is highly polymorphic. "
           + "These regions are represented in alternative references and are often omitted from "
           + "variant calling pipelines. "
           + "This variant file does not contain this alternative reference; "
@@ -2156,7 +2170,7 @@ class SampleModel {
         console.log(msg);
         console.log(error)
         reject(msg)
-        
+
       })
 
 
@@ -2308,50 +2322,12 @@ class SampleModel {
     variant.af = "unknown";
     variant.afSource = "";
 
-    if (me.globalApp.gnomADExtraAll
-      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
-      && variant.vepAf.gnomADg 
-      && variant.vepAf.gnomADg.AC
-      && variant.vepAf.gnomADg.AN
-      && variant.vepAf.gnomADe 
-      && variant.vepAf.gnomADe.AC 
-      && variant.vepAf.gnomADe.AN) {
-      variant.af = _calculateCombinedAf([variant.vepAf.gnomADg.AC, variant.vepAf.gnomADe.AC],
-                                        [variant.vepAf.gnomADg.AN, variant.vepAf.gnomADe.AN])
-      variant.afSource = "gnomAD genomes + exomes"
-    } else if (me.globalApp.gnomADExtraAll
-      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
-      && variant.vepAf.gnomADg 
-      && variant.vepAf.gnomADg.AF) {
-      variant.af = $.isNumeric(variant.vepAf.gnomADg.AF) ? variant.vepAf.gnomADg.AF : ".";
-      variant.afSource = "gnomAD genomes";
-    } else if (me.globalApp.gnomADExtraAll
-      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
-      && variant.vepAf.gnomADe 
-      && variant.vepAf.gnomADe.AF) {
-      variant.af = $.isNumeric(variant.vepAf.gnomADe.AF) ? variant.vepAf.gnomADe.AF : ".";
-      variant.afSource = 'gnomAD exomes';
-    } else if (me.globalApp.gnomADExtraAll
-      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_MERGE_ANNOTS
-      && variant.gnomAD
-      && variant.gnomAD.af) {
-      variant.af = $.isNumeric(variant.gnomAD.af) ? variant.gnomAD.af : ".";
+    if (variant.gnomAD.genomes && variant.gnomAD.genomes.af) {
+      variant.af = $.isNumeric(variant.gnomAD.genomes.af) ? variant.gnomAD.genomes.af : ".";
       variant.afSource = 'gnomAD genomes';
-    } else if (me.globalApp.vepAF
-      && variant.vepAf
-      && variant.vepAf.gnomAD
-      && variant.vepAf.gnomAD.present) {
-      variant.af = $.isNumeric(variant.vepAf.gnomAD.AF) ? variant.vepAf.gnomAD.AF : ".";
-      variant.afSource = 'gnomAD exomes'
-    } else if (me.globalApp.vepAF
-      && variant.vepAf
-      && variant.vepAf.gnomAD
-      && variant.vepAf.gnomAD.MAX.present) {
-      variant.af = $.isNumeric(variant.vepAf.gnomAD.MAX.AF) ? variant.vepAf.gnomAD.MAX.AF : ".";
-      variant.afSource = 'gnomAD exomes (max af)'
     } else {
       variant.af = null;
-      variant.afSource = 'unknown';
+      variant.afSource = 'gnomAD genomes';
     }
   }
 
@@ -2369,58 +2345,19 @@ class SampleModel {
 
   _determineHighestAf(variant) {
     var me = this;
-    // Find the highest value (the least rare AF) 
+    // Find the highest value (the least rare AF)
     variant.afHighest = "unknown";
     variant.afFieldHighest = null;
 
-    if (me.globalApp.gnomADExtraAll
-      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
-      && variant.vepAf.gnomADg 
-      && variant.vepAf.gnomADg.faf95_popmax
-      && $.isNumeric(variant.vepAf.gnomADg.faf95_popmax)) {
-      variant.afFieldHighest = 'vepAf.gnomADg.faf95_popmax';
+    if (variant.gnomAD.genomes
+      && variant.gnomAD.genomes.afPopMax
+      && $.isNumeric(variant.gnomAD.genomes.afPopMax)) {
+      variant.afFieldHighest = 'gnomAD.genomes.afPopMax';
       variant.afHighest = me.getHighestAf(variant);
-    } else if (me.globalApp.gnomADExtraAll
-      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
-      && variant.vepAf.gnomADg 
-      && variant.vepAf.gnomADg.AF_popmax 
-      && $.isNumeric(variant.vepAf.gnomADg.AF_popmax)) {
-      variant.afFieldHighest = 'vepAf.gnomADg.AF_popmax';
-      variant.afHighest = me.getHighestAf(variant);
-    } else if (me.globalApp.gnomADExtraAll
-      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
-      && variant.vepAf.gnomADe 
-      && variant.vepAf.gnomADe.AF_popmax 
-      && $.isNumeric(variant.vepAf.gnomADe.AF_popmax )) {
-      variant.afFieldHighest = 'vepAf.gnomADe.AF_popmax';
-      variant.afHighest = me.getHighestAf(variant);
-    } else if (me.globalApp.gnomADExtraAll
-      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_MERGE_ANNOTS
-      && variant.gnomAD
-      && variant.gnomAD.afPopMax 
-      && $.isNumeric(variant.gnomAD.afPopMax)) {
-      variant.afFieldHighest = 'gnomAD.afPopMax';
-      variant.afHighest = me.getHighestAf(variant);
-    } else if (!me.globalApp.gnomADExtraAll
-      && me.globalApp.vepAF
-      && variant.vepAf
-      && variant.vepAf.MAX
-      && variant.vepAf.MAX.AF
-      && $.isNumeric(variant.vepAf.MAX.AF)) {
-      variant.afFieldHighest = 'vepAf.MAX.AF';
-      variant.afHighest = me.getHighestAf(variant);
-    } else if (me.globalApp.vepAF
-      && variant.vepAf
-      && variant.vepAf.gnomAD
-      && variant.vepAf.gnomAD.AF
-      && $.isNumeric(variant.vepAf.gnomAD.AF)) {
-      variant.afFieldHighest = 'vepAf.gnomAD.AF';
-      variant.afHighest = me.getHighestAf(variant);
-    } else if (me.globalApp.vepAF
-      && variant.vepAf
-      && variant.vepAf.gnomAD
-      && !variant.vepAf.gnomAD.present) {
-      variant.afFieldHighest = 'vepAf.gnomAD.AF';
+    } else if (variant.gnomAD.genomes
+      && variant.gnomAD.genomes.afPopMax
+      && variant.gnomAD.genomes.afPopMax == '.') {
+      variant.afFieldHighest = 'gnomAD.genomes.afPopMax';
       variant.afHighest = 0;
     } else {
       variant.afFieldHighest = null;
@@ -2644,7 +2581,7 @@ class SampleModel {
     let matchingCoverage = null;
     let currCoverage = null;
     let nextCoverage = null;
-    for (; covIter < coverage.length && !matchingCoverage && coverage[covIter][0] <= variant.start; 
+    for (; covIter < coverage.length && !matchingCoverage && coverage[covIter][0] <= variant.start;
          ) {
 
       currCoverage = coverage[covIter]
@@ -2654,7 +2591,7 @@ class SampleModel {
       // or variant.start is between coverage and nextCoverage positions.
       if (variant.start == currCoverage[0]) {
         matchingCoverage = currCoverage;
-      } else if (nextCoverage && 
+      } else if (nextCoverage &&
         (variant.start >= currCoverage[0] && variant.start < nextCoverage[0]) ) {
         matchingCoverage = currCoverage;
       }
@@ -2697,7 +2634,7 @@ class SampleModel {
       //
       // coverage is a 2 element array: first element=pos, second element=depth
       //
-      for (; covIter < coverage.length && !matchingCoverage && coverage[covIter][0] <= variant.start; 
+      for (; covIter < coverage.length && !matchingCoverage && coverage[covIter][0] <= variant.start;
            ) {
 
         currCoverage = coverage[covIter]
@@ -2707,7 +2644,7 @@ class SampleModel {
         // or variant.start is between coverage and nextCoverage positions.
         if (variant.start == currCoverage[0]) {
           matchingCoverage = currCoverage;
-        } else if (nextCoverage && 
+        } else if (nextCoverage &&
           (variant.start >= currCoverage[0] && variant.start < nextCoverage[0]) ) {
           matchingCoverage = currCoverage;
         }
@@ -2717,7 +2654,7 @@ class SampleModel {
         }
       }
 
-      // We found a coverage that spans the interval that contains 
+      // We found a coverage that spans the interval that contains
       // the variant start position
       if (matchingCoverage) {
         variant.bamDepth = matchingCoverage[1];
@@ -2727,7 +2664,7 @@ class SampleModel {
         // the variant on the next variant iteration
         if (nextVariant && nextVariant.dup) {
           //console.log("when finding matching bam depth record, we encountered a variant w the same start position " + variant.start)
-        } 
+        }
       } else {
         console.log("no matching coverage record for variant at start pos " + variant.start + " for gene " + theVcfData.gene)
       }
@@ -2743,7 +2680,7 @@ class SampleModel {
     callback();
   }
 
- 
+
 
   _refreshVariantsWithVariantIds(theVcfData, annotatedVcfData) {
 
@@ -2781,7 +2718,6 @@ class SampleModel {
               'vepPolyPhen',
               'vepRegs',
               'regulatory',
-              'vepAf',
               'highestImpactVep',
               'highestSIFT',
               'highestPolyphen',
@@ -2866,122 +2802,6 @@ class SampleModel {
     loadClinvarProperties(sortedFeatures);
 
   }
-
-
-  _refreshVariantsWithClinvarVCFRecs(theVcfData, clinvarVariants) {
-    var me = this;
-    if (theVcfData == null) {
-      return;
-    }
-
-
-    var loadClinvarProperties = function(recs, clinvarRecs) {
-      for( var vcfIter = 0, clinvarIter = 0; vcfIter < recs.length && clinvarIter < clinvarRecs.length; null) {
-
-        var clinvarRec = clinvarRecs[clinvarIter];
-
-        // compare curr variant and curr clinVar record
-        if (recs[vcfIter].start == +clinvarRec.pos) {
-
-
-          // add clinVar info to variant if it matches
-          if (recs[vcfIter].alt == clinvarRec.alt &&
-            recs[vcfIter].ref == clinvarRec.ref) {
-            var variant = recs[vcfIter];
-
-            var result = me.vcf.parseClinvarInfo(clinvarRec, me.getTranslator().clinvarMap);
-            for (var key in result) {
-              variant[key] = result[key];
-            }
-
-            vcfIter++;
-            clinvarIter++;
-          } else {
-            // If clinvar entry didn't match the variant, figure out if the vcf
-            // iter (multiple vcf recs with same position as 1 clinvar rec) or
-            // the clinvar iter needs to be advanced (multiple clinvar recs with same
-            // position as 1 vcf rec)
-            if (vcfIter+1 < recs.length && recs[vcfIter+1].start == +clinvarRec.pos) {
-              vcfIter++;
-            } else {
-              clinvarIter++;
-            }
-          }
-
-        } else if (recs[vcfIter].start < +clinvarRec.pos) {
-          vcfIter++;
-        } else {
-          clinvarIter++;
-        }
-      }
-    }
-
-    // Load the clinvar info for the variants loaded from the vcf
-    var sortedFeatures = theVcfData.features.sort(SampleModel.orderVariantsByPosition);
-    var sortedClinvarVariants = clinvarVariants.sort(SampleModel.orderVariantsByPosition)
-    loadClinvarProperties(sortedFeatures, sortedClinvarVariants);
-
-  }
-
-
-  _addClinvarEutilInfoToVariant(variant, clinvar) {
-    var me = this;
-    variant.clinvarUid = clinvar.uid;
-
-    if (!variant.clinvarAccession) {
-      variant.clinvarAccession = clinvar.accession;
-    }
-
-    var clinSigObject = variant.clinvarClinSig;
-    if (clinSigObject == null) {
-      variant.clinvarClinSig = {"none": "0"};
-    }
-
-    var clinSigString = clinvar.clinical_significance.description;
-    var clinSigTokens = clinSigString.split(", ");
-    var idx = 0;
-    clinSigTokens.forEach( function(clinSigToken) {
-      if (clinSigToken != "") {
-        // Replace space with underlink
-        clinSigToken = clinSigToken.split(" ").join("_").toLowerCase();
-        variant.clinvarClinSig[clinSigToken] = idx.toString();
-        idx++;
-
-        // Get the clinvar "classification" for the highest ranked clinvar
-        // designation. (e.g. "pathogenic" trumps "benign");
-        var mapEntry = me.getTranslator().clinvarMap[clinSigToken];
-        if (mapEntry != null) {
-          if (variant.clinvarRank == null ||
-            mapEntry.value < variant.clinvarRank) {
-            variant.clinvarRank = mapEntry.value;
-            variant.clinvar = mapEntry.clazz;
-          }
-        }
-      }
-
-    });
-
-
-
-
-    if (variant.clinvarTrait == null) {
-      variant.clinvarTrait = {};
-    }
-
-    var phTokens = clinvar.trait_set.map(function(d) { return d.trait_name; }).join ('; ')
-    if (phTokens != "") {
-      var tokens = phTokens.split("; ");
-      var idx = 0;
-      tokens.forEach(function(phToken) {
-        // Replace space with underlink
-        phToken = phToken.split(" ").join("_");
-        variant.clinvarTrait[phToken.toLowerCase()] = idx.toString();
-        idx++;
-      });
-    }
-  }
-
-
 
 
   loadCalledTrioGenotypes(theVcfData, theFbData) {
@@ -3485,7 +3305,6 @@ class SampleModel {
              me.getGeneModel().geneSource == 'refseq' ? true : false,
              false,  // hgvs notation
              false,  // rsid
-             false, // vepAF
              false, // serverside cache
              false, // sfari mode
              false, // get extra gnomad,
@@ -3830,7 +3649,7 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
     dangerCounts.calledCount  = theVcfData.features.filter(function(d) {
       var bypassZyg = SampleModel.isZygosityToBypass(d, 'proband');
       return d.hasOwnProperty("fbCalled") && d.fbCalled == 'Y' && !bypassZyg;
-    }).length;    
+    }).length;
   //}
 
   // Indicate if the gene pass the filter (if applicable)
@@ -3894,7 +3713,7 @@ SampleModel.summarizeDangerForGeneCoverage = function(dangerObject, geneCoverage
         geneCoverage.forEach(function(gc) {
           if (gc.region != 'NA') {
             if (filterModel.isLowCoverage(gc)) {
-              
+
               if (relationship == 'proband') {
                 dangerObject.geneCoverageProblem = true;
               } else {

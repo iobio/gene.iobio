@@ -2,7 +2,7 @@ import { Client } from 'iobio-api-client';
 
 export default class EndpointCmd {
 
-  constructor(globalApp, launchTimestamp, genomeBuildHelper, getHumanRefNamesFunc) {
+  constructor(globalApp, launchTimestamp, genomeBuildHelper, getHumanRefNamesFunc, launchedFromMosaic) {
     this.globalApp         = globalApp;
     this.launchTimestamp   = launchTimestamp;
     this.genomeBuildHelper = genomeBuildHelper;
@@ -14,36 +14,36 @@ export default class EndpointCmd {
     // iobio-api-client to handle that case.
     const httpScheme = this.globalApp.useSSL ? 'https://' : 'http://';
 
-    if (this.globalApp.launchedFromUtahMosaic) {
-      this.api = new Client(httpScheme + process.env.IOBIO_BACKEND_MOSAIC);
+    if (launchedFromMosaic) {
+      // NOTE:  
+      // To point to a non-production server when launching gene.iobio from Mosaic, avoid making
+      // a hardcoded change here. You have a couple of cleaner options to make sure that all of
+      // the backend requests are going to the same iobio backend server.
+      //
+      // Option 1. When Mosaic launches gene.iobio, a URL parameter called 'source' is set to the
+      // Mosaic backend server. In GeneHome.vue setAppMode() the iobio backend source is determined
+      // by a lookup map (hubToIobioSources) where the key is the URL parameter 'source'. 
+      // Modify this lookup map so that the iobio field is set to the dev server. Here is 
+      // example code in GeneHome.vue that points to the dev Mosaic server running on port gru-dev-9002:
+      //   hubToIobioSources: {
+      //      "https://mosaic.chpc.utah.edu":  {iobio: "mosaic.chpc.utah.edu/gru-dev-9002", batchSize: 10},
+      // 
+      // Option 2. When Mosaic launches gene.iobio, add a URL parameter 'iobioSource' that points
+      // to the dev server.  Example:
+      //   http://localhost:4026#access_token=xxxxxxxxxx&iobioSource=mosaic.chpc.utah.edu/gru-dev-9002
+      //
+      this.api = new Client(globalApp.IOBIO_SERVICES);
     }
     else {
-      // NOTE:  to point to a different (for example, a dev.backend.iobio.io:9001),
-      // don't change it here.  Edit the .env file, setting IOBIO_BACKEND to
-      // the dev server.
-      //this.api = new Client( 'https://mosaic.chpc.utah.edu/gru-dev-9002');
-
-      this.api = new Client(httpScheme + process.env.IOBIO_BACKEND);
+      // NOTE:  To point to a different (for example, a dev.backend.iobio.io:9002),
+      // avoid making a hardcoded change here. Instead, a cleaner approach is to edit the .env file, 
+      // setting IOBIO_BACKEND to the dev server. Example in .env:
+      //    IOBIO_BACKEND=mosaic.chpc.utah.edu/gru-dev-9005
+      
+      this.api = new Client(globalApp.IOBIO_SERVICES);
     }
 
-    // iobio services
-    this.IOBIO = {};
-    this.IOBIO.tabix                   = this.globalApp.IOBIO_SERVICES  + (this.globalApp.useOnDemand ? "od_tabix/" : "tabix/");
-    this.IOBIO.snpEff                  = this.globalApp.IOBIO_SERVICES  + "snpeff/";
-    this.IOBIO.vt                      = this.globalApp.IOBIO_SERVICES  + "vt/";
-    this.IOBIO.af                      = this.globalApp.IOBIO_SERVICES  + "af/";
-    this.IOBIO.vep                     = (this.globalApp.launchedFromUtahMosaic === true ? this.globalApp.IOBIO_SERVICES : this.globalApp.GREEN_IOBIO) + "vep/";   // Inside utah mosaic, normal services, else beefy nv-green to accommodate sfari
-    this.IOBIO.contigAppender          = this.globalApp.IOBIO_SERVICES  + "ctgapndr/";
-    this.IOBIO.bcftools                = this.globalApp.IOBIO_SERVICES  + "bcftools/";
-    this.IOBIO.gnomadAnnot             = this.globalApp.DEV_IOBIO       + "gnomad_annot/";
-    this.IOBIO.coverage                = this.globalApp.IOBIO_SERVICES  + "coverage/";
-    this.IOBIO.samtools                = this.globalApp.IOBIO_SERVICES  +  "samtools/";
-    this.IOBIO.samtoolsOnDemand        = this.globalApp.IOBIO_SERVICES  + (this.globalApp.useOnDemand ? "od_samtools/" : "samtools/");
-    this.IOBIO.freebayes               = this.globalApp.IOBIO_SERVICES  + "freebayes/";
-    this.IOBIO.vcflib                  = this.globalApp.IOBIO_SERVICES  + "vcflib/";
-    this.IOBIO.geneCoverage            = this.globalApp.IOBIO_SERVICES  + "genecoverage/";
-    this.IOBIO.knownvariants           = this.globalApp.IOBIO_SERVICES  + "knownvariants/";
-
+    
     this.gruBackend = true;
   }
 
@@ -90,37 +90,12 @@ export default class EndpointCmd {
     /* Retrieves ClinVar variants from backend to populate ClinVar variants track. Only returns variants with
      * the ClinSig fields matching those described in the provided clinSigFilterObj argument.
      * NOTE: this service only available for gru-1.0.0 and later */
-    getClinvarVariants(vcfSource, refName, regions, clinSigFilterPhrase, gnomadExtra) {
+    getClinvarVariants(vcfSource, refName, regions, clinSigFilterPhrase) {
         const me = this;
         const refNames = this.getHumanRefNames(refName).split(" ");
         const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
         const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
-        let gnomadMergeAnnots = gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_MERGE_ANNOTS 
-        
-        let vepCustom = null;
-        if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP) {
-            // Get the info fields in the gnomAD vcf based on the build and genomes vs exomes
-            gnomadFieldsGenomes = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
-                "genomes");
-            gnomadFieldsExomes  = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
-                "exomes");
-            vepCustom = "-custom "
-                + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(),
-                    me.globalApp.utility.stripRefName(refName),
-                    "genomes",
-                    false)
-                + ',gnomADg,vcf,exact,0,'
-                + gnomadFieldsGenomes;
-            if (gnomadFieldsExomes) {
-                vepCustom += " -custom "
-                    + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(),
-                        me.globalApp.utility.stripRefName(refName),
-                        "exomes",
-                        false)
-                    + ',gnomADe,vcf,exact,0,'
-                    + gnomadFieldsExomes;
-            }
-        }
+        let gnomadMergeAnnots = true;
 
         const cmd = this.api.streamCommand('getClinvarVariantsV2', {
             vcfUrl: vcfSource.vcfUrl,
@@ -136,46 +111,40 @@ export default class EndpointCmd {
         return cmd;
     }
 
-    annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false, gnomadExtra, decompose, bypassAnnotate) {
+    annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, useServerCache, serverCacheKey, sfariMode = false, decompose, bypassAnnotate) {
+      let me = this;
+      if (this.gruBackend) {
+          const refNames = this.getHumanRefNames(refName).split(" ");
+          const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
+          const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
+
+
+          const cmd = this.api.streamCommand('annotateVariantsV3', {
+              vcfUrl: vcfSource.vcfUrl,
+              tbiUrl: vcfSource.tbiUrl,
+              refNames,
+              regions,
+              vcfSampleNames: vcfSampleNames.split(','),
+              refFastaFile,
+              genomeBuildName,
+              hgvsNotation,
+              getRsId,
+              vepREVELFile: this.globalApp.getRevelUrl(this.genomeBuildHelper.getCurrentBuildName()),
+              decompose,
+              bypassAnnotate
+          });
+
+          return cmd;
+      }
+    }
+
+    annotateVariantsV2(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, useServerCache, serverCacheKey, sfariMode = false, decompose, bypassAnnotate) {
         let me = this;
         if (this.gruBackend) {
             const refNames = this.getHumanRefNames(refName).split(" ");
             const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
             const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
-            let gnomadMergeAnnots = gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_MERGE_ANNOTS 
-            let vepCustom = null;
-            if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP) {
-
-              // Get the info fields in the gnomAD vcf based on the build and genomes vs exomes
-              gnomadFieldsGenomes = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
-               "genomes");
-              gnomadFieldsExomes  = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
-                "exomes");
-
-
-              vepCustom = "-custom "
-                          + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(),
-                                                      me.globalApp.utility.stripRefName(refName),
-                                                      "genomes",
-                                                      false)
-                          + ',gnomADg,vcf,exact,0,'
-                          + gnomadFieldsGenomes;
-
-
-              if (gnomadFieldsExomes) {
-                vepCustom += " -custom "
-                         + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(),
-                                                      me.globalApp.utility.stripRefName(refName),
-                                                      "exomes",
-                                                      false)
-                         + ',gnomADe,vcf,exact,0,'
-                         + gnomadFieldsExomes;
-              }
-
-
-              
-
-            }
+            let gnomadMergeAnnots = true;
 
             const cmd = this.api.streamCommand('annotateVariantsV2', {
                 vcfUrl: vcfSource.vcfUrl,
@@ -188,7 +157,6 @@ export default class EndpointCmd {
                 isRefSeq,
                 hgvsNotation,
                 getRsId,
-                vepAF,
                 sfariMode,
                 vepREVELFile: this.globalApp.getRevelUrl(this.genomeBuildHelper.getCurrentBuildName()),
                 gnomadMergeAnnots,
@@ -295,12 +263,12 @@ export default class EndpointCmd {
                 maxPoints,
                 coverageRegions: regions
             });
-            
+
             return cmd;
         }
     }
 
-    freebayesJointCall(bamSources, refName, regionStart, regionEnd, isRefSeq, fbArgs, vepAF, sampleNames, gnomadExtra, decompose) {
+    freebayesJointCallV2(bamSources, refName, regionStart, regionEnd, isRefSeq, fbArgs, sampleNames, decompose) {
         const me = this;
         if (this.gruBackend) {
 
@@ -310,16 +278,10 @@ export default class EndpointCmd {
             const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
             const clinvarUrl = this.globalApp.getClinvarUrl(genomeBuildName);
 
-            let gnomadUrl = null;
-            let gnomadRegionStr = null;
+            let gnomadUrl = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), me.globalApp.utility.stripRefName(refName));
+            // Prepare args to annotate with gnomAD
+            let gnomadRegionStr = refName + "\t" + regionStart + "\t" + regionEnd;
 
-            if (gnomadExtra) {
-              // Get the gnomad vcf based on the genome build
-              gnomadUrl = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), me.globalApp.utility.stripRefName(refName));
-              // Prepare args to annotate with gnomAD
-              gnomadRegionStr = refName + "\t" + regionStart + "\t" + regionEnd;
-
-            }
 
             let cmd = this.api.streamCommand('freebayesJointCallV2', {
                 alignmentSources: bamSources,
@@ -333,7 +295,6 @@ export default class EndpointCmd {
                 refNames,
                 genomeBuildName,
                 vepREVELFile: this.globalApp.getRevelUrl(this.genomeBuildHelper.getCurrentBuildName()),
-                vepAF,
                 isRefSeq,
                 clinvarUrl,
                 sampleNames,
@@ -343,6 +304,39 @@ export default class EndpointCmd {
             return cmd;
         }
     }
+
+    freebayesJointCall(bamSources, refName, regionStart, regionEnd, isRefSeq, fbArgs, sampleNames, decompose) {
+      const me = this;
+      if (this.gruBackend) {
+
+          const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
+
+          const refNames = this.getHumanRefNames(refName).split(" ");
+          const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
+          const clinvarUrl = this.globalApp.getClinvarUrl(genomeBuildName);
+
+
+          let cmd = this.api.streamCommand('freebayesJointCallV3', {
+              alignmentSources: bamSources,
+              refFastaFile,
+              region: {
+                  refName,
+                  start: regionStart,
+                  end: regionEnd,
+              },
+              fbArgs,
+              refNames,
+              genomeBuildName,
+              vepREVELFile: this.globalApp.getRevelUrl(this.genomeBuildHelper.getCurrentBuildName()),
+              isRefSeq,
+              clinvarUrl,
+              sampleNames,
+              decompose
+          });
+
+          return cmd;
+      }
+  }
 
     getGeneCoverage(bamSources, refName, geneName, regionStart, regionEnd, regions) {
         const me = this;

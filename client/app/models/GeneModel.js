@@ -12,7 +12,7 @@ class GeneModel {
 
     this.NCBI_PUBMED_SEARCH_URL    = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&usehistory=y&retmode=json";
     this.NCBI_PUBMED_SUMMARY_URL   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&usehistory=y&retmode=json";
-    
+
     this.ENSEMBL_GENE_URL          = "https://rest.ensembl.org/xrefs/symbol/homo_sapiens/GENESYMBOL?content-type=application/json"
     this.ENSEMBL_LOOKUP_BY_ID      = "https://rest.ensembl.org/xrefs/id/ENSEMBL-GENE-ID?content-type=application/json"
     this.OMIM_URL                  = "https://api.omim.org/api/";
@@ -75,7 +75,7 @@ class GeneModel {
     this.geneToHPOTerms = {};
 
 
-    this.allKnownGenes = [];
+    this.lookupGenesMap = {};
     this.allKnownGeneNames = {};
     this.clinvarGenes = {};
 
@@ -95,7 +95,8 @@ class GeneModel {
 
     this.isFullAnalysis = false;
 
-    this.dispatch = d3.dispatch("geneDangerSummarized", "alertIssued", "alertRetracted");
+    this.dispatch = d3.dispatch("geneDangerSummarized", "alertIssued", "alertRetracted",
+                                "selectGene", "removeGene");
     d3.rebind(this, this.dispatch, "on");
 
     this.genesAssociatedWithSource = {};
@@ -139,7 +140,7 @@ class GeneModel {
       self.candidateGenes[gene] = true;
     })
   }
-  
+
   getCandidateGenes() {
     let self = this;
     return Object.keys(self.candidateGenes);
@@ -293,62 +294,233 @@ class GeneModel {
     }
   }
 
-  promiseAddGeneName(theGeneName) {
+  promiseAddGeneName(geneName) {
     let me = this;
 
     return new Promise(function(resolve, reject) {
 
-      let geneName = theGeneName.toUpperCase();
+      let theGeneName = geneName.toUpperCase();
 
-      if (me.geneNames.indexOf(geneName) < 0) {
-        me.geneNames.push(geneName);
-        me.sortedGeneNames.push(geneName);
-        me.promiseGetGeneObject(geneName)
-        .then(function(geneObject) {
-          return me.promiseGetGenePhenotypes(geneName)
-        })
-        .then(function(data) {
-          resolve(true);
+      if (theGeneName == null || theGeneName.length == 0) {
+        resolve({'geneName': theGeneName,
+                'success': false,
+                'status': 'bypassed',
+                'message': 'Blank gene name encountered.',
+                'geneObject': null})
+      } else {
+        if (me.geneNames.indexOf(geneName) < 0) {
+          // Add the gene if it isn't already added
+          // Even invalid genes will get added b/c we want
+          // to show an error or warning message for
+          // the gene.
+          me.geneNames.push(geneName);
+          me.sortedGeneNames.push(geneName);
+
+          // Now we will try to get the gene and its transcripts.
+          let theGeneObject = null;
+          me.promiseGetCachedGeneObject(theGeneName)
+          .then(function(geneObject) {
+            theGeneObject = geneObject;
+            // Success. Now get the gene phenotypes
+            me.promiseGetGenePhenotypes(theGeneName)
+            .then(function() {
+              // We have successfully added the gene, retreived the gene
+              // object and transcripts, and the gene phenotypes.
+              // Resolve with justAdded set to true.
+              resolve({'geneName':   theGeneName,
+                       'success':    true,
+                       'status':     'added',
+                       'geneObject': theGeneObject});
+
+            })
+            .catch(function(error) {
+              let msg  =  "Problem getting phenotypes for gene " + "<pre>" + theGeneName + "</pre>."
+              me.dispatch.alertIssued("error",
+                  msg,
+                  theGeneName,
+                  [error]);
+              resolve({'geneName':   theGeneName,
+                  'success':    false,
+                  'status':     'added',
+                  'geneObject': theGeneObject});
+
+            })
+          })
+          .catch(function(error) {
+            // Unable to get gene object for the gene
+              resolve({'geneName': theGeneName,
+                       'success':  false,
+                       'status':   'added',
+                       'geneObject': null})
+
+          })
+        } else {
+          // We have already added this gene
+          resolve({'geneName': theGeneName,
+                  'success':  true,
+                  'status':   'already_added',
+                  'geneObject': me.geneObjects[theGeneName]})
+        }
+      }
+    })
+  }
+
+
+  promiseAddGenesOrAliases(genesToAdd, removeInvalidGenes=true) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      if (genesToAdd && genesToAdd.length > 0) {
+        // Populate the knownGeneMap with all valid
+        // gene names so that we don't make individual
+        // requests to gene info service to lookup the
+        // gene entry
+        self.promiseGetKnownGenes(genesToAdd)
+        .then(function() {
+          let promises = [];
+          genesToAdd.forEach(function(geneName) {
+            // Add the gene or if no transcripts, find an alias
+            // and use it. The second arg indicates that we
+            // don't want to select (show) the gene after
+            // the add
+            // Don't remove invalid genes so that the
+            // user can see the error message
+            // to understand why the gene was bypassed
+            let p = self.promiseAddGeneOrAlias(geneName, false, false,removeInvalidGenes )
+            promises.push(p)
+          })
+          Promise.all(promises)
+          .then(function() {
+            resolve(true)
+          })
+          .catch(function(error) {
+            reject(error)
+          })
+
         })
         .catch(function(error) {
-          if (error.hasOwnProperty('message')) {
-            console.log(error.message)
-            me.dispatch.alertIssued(error.hasOwnProperty("alertType") ? error.alertType : "warning",
-                 error.message,
-                 error.hasOwnProperty('gene') ? error.gene : geneName);
-
-          } else {
-            console.log(error)
-            me.dispatch.alertIssued("warning", 
-                 "Cannot get phenotypes for gene <pre>" + geneName + "</pre>",
-                 geneName,
-                 [error]);
-          }
-          resolve(false)
+          console.log(error)
+          reject(error)
         })
       } else {
-        resolve(false);
+        return resolve(true)
       }
-
     })
   }
 
-  setAllKnownGenes(allKnownGenes) {
-    var me = this;
-    me.allKnownGenes = allKnownGenes;
-    me.allKnownGeneNames = {};
-    me.allKnownGenes.forEach(function(gene) {
-      // Gene label is a concantenation of gene name followed by its aliases,
-      // flanked by parens.
-      gene['gl'] = gene['gn'] +
-                   (gene.hasOwnProperty("a") && gene['a'] ? " (" + gene['a'] + ")" : "");
-      let geneObj = $.extend({}, gene["d"]);
-      if (gene.hasOwnProperty("a")) {
-        geneObj['a'] = gene['a']
-      }
-      me.allKnownGeneNames[gene.gn.toUpperCase()] = geneObj
+  promiseAddGeneOrAlias(geneName,
+                        selectOriginalGene=true,
+                        selectReplacementGene=true,
+                        removeOriginalGeneIfReplaced=true) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let theGeneName = geneName.toUpperCase();
+      let geneAdded = false;
+      let checkAliases = true;
+      self.promiseAddGeneName(theGeneName, checkAliases)
+      .then(function(response) {
+
+        // We have added the gene, but at this point, we haven't validated it.
+        // Now get the gene object. This promise will reject if the
+        // gene isn't valid and give error information, directly app
+        // to use a gene alias that does have transcripts for the build and
+        // gene source.
+
+        return self.promiseGetCachedGeneObject(theGeneName)
+      })
+      .then(function(geneObject) {
+        // The original gene is valid. Optionally, select the gene from the left side panel.
+        if (selectOriginalGene) {
+          self.dispatch.selectGene(theGeneName)
+        }
+        resolve({'geneName': theGeneName, 'added': geneAdded, 'success': true, 'geneObject': geneObject});
+      })
+      .catch(function(error) {
+        console.log('Bypassing gene ' + theGeneName)
+        console.log(error.hasOwnProperty('message') ? error.message : error)
+
+        // The gene that was selected doesn't have any transcripts for the source and
+        // build. We are adding a gene that is an alias for the gene to user selected.
+        // This new gene has transcripts for the source and build.
+        if (error.hasOwnProperty('useDifferentGene')) {
+          if (removeOriginalGeneIfReplaced) {
+
+            self.dispatch.alertRetracted('warning', error.message, theGeneName)
+            self.dispatch.removeGene(theGeneName)
+          }
+          // Add the replacement gene
+          self.promiseAddGeneName(error.useDifferentGene)
+          .then(function(differentGeneAdded) {
+            // We just added the gene alias that has transcripts and retreived the
+            // gene object. At this point, optionally, select the gene (alias) from
+            // the genes side panel. Now add the alert indicating that we are using
+            // the gene alias instead of the gene requested. Resolve, indicating
+            // we have successfully added the gene alias.
+            self.promiseGetCachedGeneObject(error.useDifferentGene)
+            .then(function(differentGeneObject) {
+              // The replacement gene (alias) is valid (as expected). Optionally select
+              // the replacement gene (alias) from the left side panel.
+              if (selectReplacementGene) {
+                setTimeout(function() {
+                  self.dispatch.selectGene(error.useDifferentGene)
+
+                  setTimeout(function() {
+                    self.dispatch.alertIssued(error.hasOwnProperty('alertType') ? error.alertType : 'error',
+                                  error.hasOwnProperty('message') ? error.message :
+                                                                    'Gene ' + theGeneName + ' not found. Using alias ' + error.useDifferentGene + ' instead.',
+                                  error.useDifferentGene,
+                                  null,
+                                  error.hasOwnProperty("options") ? error.options : {'selectAlert' : true, 'showAlertPanel': true})
+                    resolve({'geneName':          error.useDifferentGene,
+                              'added':            differentGeneAdded,
+                              'geneObject':       differentGeneObject,
+                              'success':          true,
+                              'isAlias' :         true,
+                              'originalGeneName': theGeneName});
+                  }, 1000)
+                },1000)
+              } else {
+                self.dispatch.alertIssued(error.hasOwnProperty('alertType') ? error.alertType : 'error',
+                              error.hasOwnProperty('message') ? error.message : error,
+                              error.useDifferentGene,
+                              null,
+                              error.hasOwnProperty("options") ? error.options : {'selectAlert' : true, 'showAlertPanel': true})
+                resolve({'geneName':         error.useDifferentGene,
+                          'added':            differentGeneAdded,
+                          'geneObject':       differentGeneObject,
+                          'success':          true,
+                          'isAlias' :         true,
+                          'originalGeneName': theGeneName});
+              }
+            })
+          })
+
+        } else {
+          // The orginal gene we added isn't present or doesn't have any transcripts
+          // for the build and gene source. And none of its aliases have transcripts
+          // for the build and gene source. Reject and add an alert.
+          self.dispatch.alertIssued(error.hasOwnProperty('alertType') ? error.alertType : 'error',
+            error.hasOwnProperty('message') ? error.message :
+                                              'Gene ' + theGeneName + ' not found. Using alias ' + error.useDifferentGene + ' instead.',
+            error.useDifferentGene,
+            null,
+            error.hasOwnProperty("options") ? error.options : {'selectAlert' : true, 'showAlertPanel': true})
+
+          if (error.alertType && error.alertType == 'warning') {
+            resolve({'geneName':          theGeneName,
+                      'added':            false,
+                      'geneObject':       null,
+                      'success':          false,
+                      'isAlias' :         false,
+                      'originalGeneName': theGeneName})
+          } else {
+            reject(error)
+          }
+
+        }
+      })
     })
   }
+
 
   ACMGGenes() {
     this.promiseCopyPasteGenes(this.getGenePanel("ACMG 59").join(","));
@@ -360,24 +532,26 @@ class GeneModel {
 
     return new Promise(function(resolve, reject) {
 
+      let newGenes = null;
       me._promiseCopyPasteGenesImpl(genesString, options)
-      .then(function() {
+      .then(function(results) {
+        newGenes = results && results.hasOwnProperty('newGenes') ? results.newGenes : null;
         me.getNCBIGeneSummariesForceWait(me.geneNames)
 
         var promises = [];
         me.geneNames.forEach(function(geneName) {
-          promises.push(me.promiseGetGeneObject(geneName));
+          promises.push(me.promiseGetCachedGeneObject(geneName));
           promises.push(me.promiseGetGenePhenotypes(geneName));
         })
 
         return Promise.all(promises)
       })
-      .then(function() {
-        resolve();
+      .then(function(results) {
+        resolve({'newGenes': newGenes});
       })
       .catch(function(error) {
         console.log(error);
-        resolve();
+        resolve({'newGenes': newGenes});
       })
 
     })
@@ -404,82 +578,118 @@ class GeneModel {
 
 
 
-      var genesToAdd = [];
+      var genesToApply = [];
+      var newGenes = [];
       var unknownGeneNames = {};
       var duplicateGeneNames = {};
       var promises = [];
-      geneNameList.forEach( function(geneName) {
-        if (geneName.trim().length > 0) {
-          let p = me.promiseIsValidGene(geneName.trim())
-          .then(function(isValid) {
-            if (isValid) {
-              // Make sure this isn't a duplicate.  If we are not replacing the current genes,
-              // make sure to check for dups in the existing gene list as well.
-              if (genesToAdd.indexOf(geneName.trim().toUpperCase()) < 0
-                  && (options.replace || me.geneNames.indexOf(geneName.trim().toUpperCase()) < 0)) {
-                genesToAdd.push(geneName.trim().toUpperCase());
-              } else {
-                duplicateGeneNames[geneName.trim().toUpperCase()] = true;
-              }
-            } else {
-              unknownGeneNames[geneName.trim().toUpperCase()] = true;
-              if (genesToAdd.indexOf(geneName.trim().toUpperCase()) < 0
-                  && (options.replace || me.geneNames.indexOf(geneName.trim().toUpperCase()) < 0)) {
-                genesToAdd.push(geneName.trim().toUpperCase());
-              } 
-            }
-          })
-          promises.push(p);
-        }
-      });
-
-      Promise.all(promises)
+      me.promiseGetKnownGenes(geneNameList)
       .then(function() {
+        geneNameList.forEach( function(geneName) {
+          let theGeneName = geneName.trim();
+          if (theGeneName.length > 0) {
+            let p = me.promiseIsKnownGene(theGeneName)
+            .then(function(response) {
+              if (response.isKnownGene) {
+                if (options.replace) {
+                  // Make sure this isn't a duplicate.
+                  if (genesToApply.indexOf(response.geneName.toUpperCase()) < 0) {
+                    genesToApply.push(response.geneName.toUpperCase());
+                  } else {
+                    duplicateGeneNames[response.geneName.toUpperCase()] = true;
+                  }
 
-        if (options.replace) {
-          me.geneNames = [];
-          me.sortedGeneNames = [];
-        }
+                } else {
 
-        genesToAdd.forEach(function(geneName) {
-          me.geneNames.push(geneName);
-          me.sortedGeneNames.push(geneName);
+                  // Make sure this isn't a duplicate and check for dups in the existing
+                  // gene list as well.
+                  if (genesToApply.indexOf(response.geneName.toUpperCase()) < 0
+                  && me.geneNames.indexOf(response.geneName.toUpperCase()) < 0) {
+                    genesToApply.push(response.geneName.toUpperCase());
+                  } else {
+                    duplicateGeneNames[response.geneName.toUpperCase()] = true;
+                  }
+                }
+
+                // Keep track of genes that are not in the current list. We
+                // send this list back in the resolve so that the caller knows
+                // of the genes just added. This is useful when selecting
+                // a variant in the variants tab once all of the genes have
+                // been analyzed.
+                if (me.geneNames.indexOf(response.geneName.toUpperCase()) < 0) {
+                  newGenes.push(response.geneName.toUpperCase())
+                }
+
+              } else {
+                // Add to the invalid gene list if it isn't in the genes json
+                unknownGeneNames[response.geneName.toUpperCase()] = true;
+                if (genesToApply.indexOf(response.geneName.toUpperCase()) < 0
+                    && (options.replace || me.geneNames.indexOf(response.geneName.toUpperCase()) < 0)) {
+                  genesToApply.push(response.geneName.toUpperCase());
+                }
+              }
+            })
+            promises.push(p);
+          }
+        });
+
+        Promise.all(promises)
+        .then(function() {
+
+
+          if (options.replace) {
+            me.geneNames = [];
+            me.sortedGeneNames = [];
+          }
+
+          // Add the genes
+          // Note: We don't have to remove genes because the gene list is either
+          //       replaced or combined with the existing list.
+          //  1. When we copy/paste genes from the nav genes list, the genes are replaced.
+          //  2. When we get a new list of genes from Phenolyzer, the user gets to
+          //     specify if the genes are replaced or combined. In the former case, the
+          //     entire list of genes is replaced, in the latter, genes are added
+          //     to the existing list. In both cases, we don't have to handle removing
+          //     individual genes.
+          genesToApply.forEach(function(geneName) {
+            me.geneNames.push(geneName);
+            me.sortedGeneNames.push(geneName);
+          })
+
+          if (Object.keys(unknownGeneNames).length > 0) {
+            var message = "Bypassing unknown genes: " + Object.keys(unknownGeneNames).join(", ") + ".";
+            me.dispatch.alertIssued("warning", message, Object.keys(unknownGeneNames).join(", "), Object.keys(unknownGeneNames))
+          }
+
+          if (Object.keys(duplicateGeneNames).length > 0 && options.warnOnDup) {
+            var message = "Bypassing duplicate gene name(s): " + Object.keys(duplicateGeneNames).join(", ") + ".";
+            me.dispatch.alertIssued("warning", message, null, Object.keys(duplicateGeneNames))
+          }
+
+          if (me.limitGenes) {
+            if (me.globalApp.maxGeneCount && me.geneNames.length > me.globalApp.maxGeneCount) {
+              var bypassedCount = me.geneNames.length - me.globalApp.maxGeneCount;
+              me.geneNames = me.geneNames.slice(0, me.globalApp.maxGeneCount);
+              let msg = "Due to browser cache limitations, only the first " + me.globalApp.maxGeneCount
+                + " genes were added. "
+                + bypassedCount.toString()
+                + " "
+                + (bypassedCount == 1 ? "gene" : "genes")
+                +  " bypassed.";
+              me.dispatch.alertIssued("warning", msg)
+            }
+
+          }
+
+          resolve({'newGenes': newGenes});
+
+        })
+        .catch(function(error) {
+          reject(error);
         })
 
 
-
-        if (Object.keys(unknownGeneNames).length > 0) {
-          var message = "Bypassing unknown genes: " + Object.keys(unknownGeneNames).join(", ") + ".";
-          me.dispatch.alertIssued("warning", message, Object.keys(unknownGeneNames).join(", "), Object.keys(unknownGeneNames))
-        }
-
-        if (Object.keys(duplicateGeneNames).length > 0 && options.warnOnDup) {
-          var message = "Bypassing duplicate gene name(s): " + Object.keys(duplicateGeneNames).join(", ") + ".";
-          me.dispatch.alertIssued("warning", message, null, Object.keys(duplicateGeneNames))
-        }
-
-        if (me.limitGenes) {
-          if (me.globalApp.maxGeneCount && me.geneNames.length > me.globalApp.maxGeneCount) {
-            var bypassedCount = me.geneNames.length - me.globalApp.maxGeneCount;
-            me.geneNames = me.geneNames.slice(0, me.globalApp.maxGeneCount);
-            let msg = "Due to browser cache limitations, only the first " + me.globalApp.maxGeneCount
-              + " genes were added. "
-              + bypassedCount.toString()
-              + " "
-              + (bypassedCount == 1 ? "gene" : "genes")
-              +  " bypassed.";
-            me.dispatch.alertIssued("warning", msg)
-          }
-
-        }
-
-        resolve();
-
       })
-      .catch(function(error) {
-        reject(error);
-      })
-
 
     })
 
@@ -748,7 +958,7 @@ class GeneModel {
       canonical.canonical_reason = ''
       if (canonical.is_mane_select && canonical.is_mane_select == 'true') {
         canonical.canonical_reason = 'MANE SELECT'
-      }         
+      }
     }
     return canonical;
   }
@@ -804,44 +1014,6 @@ class GeneModel {
       return codingRegions;
     }
     return [];
-  }
-
-
-
-
-  _getSortedExonsForTranscript(transcript) {
-    var sortedExons = transcript
-      .features.filter(function(feature) {
-        return feature.feature_type.toUpperCase() == 'UTR' || feature.feature_type.toUpperCase() == 'CDS';
-      })
-      .sort(function(feature1, feature2) {
-
-        var compare = 0;
-        if (feature1.start < feature2.start) {
-          compare = -1;
-        } else if (feature1.start > feature2.start) {
-          compare = 1;
-        } else {
-          compare = 0;
-        }
-
-        var strandMultiplier = transcript.strand == "+" ? 1 : -1;
-
-        return compare * strandMultiplier;
-
-      })
-
-    var exonCount = 0;
-    sortedExons.forEach(function(exon) {
-      exonCount++
-    })
-
-    var exonNumber = 1;
-    sortedExons.forEach(function(exon) {
-      exon.exon_number = exonNumber + "/" + exonCount;
-      exonNumber++;
-    })
-    return sortedExons;
   }
 
   getNCBIGeneSummariesForceWait(geneNames) {
@@ -985,8 +1157,8 @@ class GeneModel {
           })
           .fail(function() {
             console.log("Error occurred when making http request to NCBI eutils esummary for gene " + geneName);
-            me.dispatch.alertIssued("warning", 
-              "Unable to get NCBI gene summary (esummary) for gene <pre>" + geneName + "</pre>", geneName, 
+            me.dispatch.alertIssued("warning",
+              "Unable to get NCBI gene summary (esummary) for gene <pre>" + geneName + "</pre>", geneName,
               ['Error occurred when making http request to NCBI eutils esummary',summaryUrl])
             me.geneNCBISummaries[geneName] = unknownGeneInfo;
             resolve(unknownGeneInfo);
@@ -995,8 +1167,8 @@ class GeneModel {
         })
         .fail(function() {
           console.log("Error occurred when making http request to NCBI eutils esearch for gene " + geneName);
-            me.dispatch.alertIssued("warning", 
-              "Unable to get NCBI gene summary (esearch) for gene <pre>" + geneName + "</pre>", geneName, 
+            me.dispatch.alertIssued("warning",
+              "Unable to get NCBI gene summary (esearch) for gene <pre>" + geneName + "</pre>", geneName,
               ['Error occurred when making http request to NCBI eutils esearch',url])
           me.geneNCBISummaries[geneName] = unknownGeneInfo;
           resolve(geneInfo);
@@ -1161,8 +1333,8 @@ class GeneModel {
               let p = self._promiseGetOMIMClinicalSynopsis(data.geneName, phenotype)
               .then(function(data) {
                 omimEntries.push(data);
-              })      
-              promises.push(p)      
+              })
+              promises.push(p)
             })
             Promise.all(promises)
             .then(function() {
@@ -1216,7 +1388,7 @@ class GeneModel {
               console.log(msg);
               console.log(error)
               self.dispatch.alertIssued("warning", "Cannot get HPO terms for gene <pre>" + geneName + "</pre>", geneName, [error])
-              reject(msg + '. Error: ' + error);        
+              reject(msg + '. Error: ' + error);
             })
           } else {
             self.dispatch.alertIssued("warning", "Cannot get HPO terms for gene <pre>" + geneName + "</pre>. Unable to lookup NCBI id for gene.", geneName)
@@ -1236,7 +1408,7 @@ class GeneModel {
         if (!self.warnedMissingOMIMApiKey) {
           let msg ="Unable to access OMIM.  API key is required in env."
           self.dispatch.alertIssued("warning", msg, geneName)
-          self.warnedMissingOMIMApiKey = true;          
+          self.warnedMissingOMIMApiKey = true;
         }
         resolve();
       } else {
@@ -1252,9 +1424,9 @@ class GeneModel {
           .done(function(data) {
             let mimNumber = null;
             let phenotypes = null;
-            if (data 
-              && data.omim.searchResponse 
-              && data.omim.searchResponse.geneMapList 
+            if (data
+              && data.omim.searchResponse
+              && data.omim.searchResponse.geneMapList
               && data.omim.searchResponse.geneMapList.length > 0) {
               let geneMap = data.omim.searchResponse.geneMapList[0].geneMap;
               mimNumber = geneMap.mimNumber;
@@ -1270,7 +1442,7 @@ class GeneModel {
               let msg = "No OMIM entry found for gene " + geneName;
               reject(msg)
             }
-          
+
           })
           .fail(function(error) {
               let msg = "Unable to get phenotype mim number OMIM for gene " + geneName;
@@ -1279,7 +1451,7 @@ class GeneModel {
               self.dispatch.alertIssued("warning", msg, geneName)
               reject(msg + '. Error: ' + error);
           })
-        
+
       }
 
     })
@@ -1301,11 +1473,11 @@ class GeneModel {
           let clinicalSynopsis = null;
           if (data && data.omim.clinicalSynopsisList && data.omim.clinicalSynopsisList.length > 0) {
             clinicalSynopsis = data.omim.clinicalSynopsisList[0].clinicalSynopsis;
-          } 
+          }
           resolve({geneName: geneName, phenotype: phenotype, clinicalSynopsis: clinicalSynopsis});
         })
         .fail(function(error) {
-            let msg = "Unable to get clinical synopsisi from OMIM " + url;
+            let msg = "Unable to get clinical synopsis from OMIM " + url;
             console.log(msg);
             console.log(error)
             reject(msg + '. Error: ' + error);
@@ -1313,19 +1485,6 @@ class GeneModel {
     })
   }
 
-
-  _setTranscriptExonNumbers(transcript, sortedExons) {
-    // Set the exon number on each UTR and CDS within the corresponding exon
-    transcript.features.forEach(function(feature) {
-      if (feature.feature_type.toUpperCase() == 'CDS' || feature.feature_type.toUpperCase() == 'UTR') {
-        sortedExons.forEach(function(exon) {
-          if (feature.start >= exon.start && feature.end <= exon.end) {
-            feature.exon_number = exon.exon_number;
-          }
-        })
-      }
-    })
-  }
 
   clearAllGenes() {
     this.promiseCopyPasteGenes("");
@@ -1418,7 +1577,7 @@ class GeneModel {
               Promise.all(lookupPromises).then(function() {
                 if (matchingEnsemblGeneId) {
                   self.geneToEnsemblId[geneName] = matchingEnsemblGeneId;
-                  resolve({geneName: geneName, ensemblGeneId: matchingEnsemblGeneId});                  
+                  resolve({geneName: geneName, ensemblGeneId: matchingEnsemblGeneId});
                 } else {
                   let msg = "Unable to find ensembl gene id that matches gene name " + geneName;
                   console.log(msg);
@@ -1477,7 +1636,7 @@ class GeneModel {
             reject("An error occurred from ENSEMBL gene lookup for gene <pre>" + theGeneName + "</pre>. "  + error.responseJSON.error);
       })
     })
-  }  
+  }
 
   promiseGetGenePhenotypes(geneName) {
     var me = this;
@@ -1500,7 +1659,7 @@ class GeneModel {
           }
         })
         .then((response) => {
-          
+
           me.genePhenotypes[geneName] = response.phenotypes;
           me.geneDisorders[geneName] = response.disorders;
 
@@ -1528,7 +1687,7 @@ class GeneModel {
 
         fetch(url).then(r => r.json())
         .then((response) => {
-          
+
           me.genePhenotypes[geneName] = response.phenotypes;
           me.geneDisorders[geneName] = response.disorders;
 
@@ -1552,7 +1711,7 @@ class GeneModel {
       if (theGeneObject) {
         resolve(theGeneObject);
       } else {
-        me.promiseGetGeneObject(theGeneName).then(function(geneObject) {
+        me._promiseGetGeneObject(theGeneName).then(function(geneObject) {
           resolve(geneObject);
         })
         .catch(function(error) {
@@ -1568,104 +1727,274 @@ class GeneModel {
   }
 
 
-  promiseGetGeneObject(geneName) {
+  _promiseGetGeneObject(geneName, checkAliases = true) {
     var me = this;
     return new Promise(function(resolve, reject) {
 
-      var url = me.globalApp.geneInfoServer + geneName;
+      let theGeneName = geneName;
 
       // If current build not specified, default to GRCh37
       var buildName = me.genomeBuildHelper.getCurrentBuildName() ? me.genomeBuildHelper.getCurrentBuildName() : "GRCh37";
       $('#build-link').text(buildName);
 
       var defaultGeneSource = me.geneSource ? me.geneSource : 'gencode';
-      let knownGene = me.getKnownGene(geneName);
-      let theGeneSource = null;
-      if (knownGene && knownGene[buildName][defaultGeneSource] > 0) {
-        theGeneSource = defaultGeneSource
-      } else {
-        theGeneSource = null;
-        let msg = "Gene <pre>" + geneName + "</pre> is not present for " + defaultGeneSource + ", build " + buildName + ".";
-        let preferredGeneNames = me.getPreferredGeneNames(geneName, buildName, defaultGeneSource)
-        if (preferredGeneNames && preferredGeneNames.length > 0) {
-          msg += " Analyzing gene <pre>" + preferredGeneNames[0] + "</pre> instead."
-          reject({'message': msg,
-                  'gene': preferredGeneNames[0],
-                  'alertType': 'warning',
-                  'options': {'showAlertPanel': true,
-                              'selectAlert': true},
-                  'useDifferentGene': preferredGeneNames[0] });
-          return;
+      // First, find out if the gene provided has transcripts for the given build and gene source
+      me.promiseGetKnownGene(theGeneName, true)
+      .then(function(knownGene) {
+        let theGeneSource = null;
+        let thePromise = null;
+        // Success. We have a gene with transcripts for the build and gene source
+        if (knownGene != null && knownGene != false && knownGene[buildName][defaultGeneSource] > 0) {
+          theGeneSource = defaultGeneSource
+          thePromise = Promise.resolve({'geneName': knownGene.gene_name,
+                                        'build': buildName,
+                                        'geneSource': defaultGeneSource,
+                                        'success': true});
         } else {
-          reject({'message': msg,
-                  'gene': geneName,
-                  'alertType': 'error',
-                  'options': {'showAlertPanel': true, 'selectAlert': true} });
-          return;
-
-        }
-      }
-
-      if (theGeneSource) {
-        url += "?source="  + theGeneSource;
-        url += "&species=" + me.genomeBuildHelper.getCurrentSpeciesLatinName();
-        url += "&build="   + buildName;
-
-
-        fetch(url).then(r => r.json())
-        .then((response) => {
-          if (response.length > 0 && response[0].hasOwnProperty('gene_name')) {
-            var theGeneObject = response[0];
-            if (theGeneObject.transcripts == null || theGeneObject.transcripts.length == 0) {
-              let msg = "Bypassing gene <pre>" + geneName + "</pre>. There are no transcripts for this gene.";
-              console.log(msg);
-              reject({'message': msg, 
-                      'gene': geneName, 'alertType': 'error', 
-                      'options': {'showAlertPanel': true, 'selectAlert': true} });
+          theGeneSource = null;
+          if (knownGene) {
+            // The gene exists but it doesn't have transcripts for the build and
+            // gene source. Check if any of the aliases the gene do transcripts
+            // for the build and source. If so, we will resolve with an object with a
+            // preferred_gene_name filled in.
+            if (checkAliases) {
+              thePromise = me.promiseGetPreferredGeneName(theGeneName, buildName, defaultGeneSource)
             } else {
-              me.geneObjects[theGeneObject.gene_name] = theGeneObject;
-              resolve(theGeneObject);              
+              // The caller of the method doesn't want to check for aliases.
+              thePromise = {'geneName': theGeneName,
+                            'build':      buildName,
+                            'geneSource': defaultGeneSource,
+                            'success':    false,
+                            'alertType':  'warning',
+                            'message':    "The gene doesn't have transcripts for build " +
+                                          buildName + " from " + defaultGeneSource + "."
+                           }
             }
           } else {
-            let msg = "Bypassing gene <pre>" + geneName + "</pre>. There are no " + theGeneSource + " transcripts for this gene.";
-            console.log(msg);
-            reject({'message': msg, 
-                    'gene': geneName, 
+            // The gene doesn't exist.
+            thePromise = Promise.resolve({'geneName':  theGeneName,
+                                         'build':      buildName,
+                                         'geneSource': defaultGeneSource,
+                                         'success':    false,
+                                         'alertType':  'warning',
+                                         'message':    "Invalid gene name. No entry found for <pre>" + theGeneName + "</pre>."
+                                         });
+          }
+        }
+
+        return thePromise
+      })
+      .then(function(result) {
+        // This is the positive use case where the gene name provided (the argument to this method)
+        // has transcripts for the build and gene source. Now we will call the gene info service
+        // to get the gene object, which includes all of its transcripts.
+        if (result.hasOwnProperty('success') && result.success) {
+          // Get the gene object and its transcripts from the geneinfo server for the gene source
+          // and genome build.
+          var url = me.globalApp.geneInfoServer + result.geneName;
+          url += "?source="  + result.geneSource;
+          url += "&species=" + me.genomeBuildHelper.getCurrentSpeciesLatinName();
+          url += "&build="   + result.build;
+
+
+          fetch(url).then(r => r.json())
+          .then((response) => {
+            if (response.length > 0 && response[0].hasOwnProperty('gene_name')) {
+              var theGeneObject = response[0];
+              // This is an extra check. We should never run into this case b/c we should have only
+              // called the gene info service when we know we have a gene that has at least one transcript
+              // for the given gene source and build.
+              if (theGeneObject.transcripts == null || theGeneObject.transcripts.length == 0) {
+                let msg = "Unexpected result from geneinfo service. Bypassing gene <pre>" + theGeneName +
+                          "</pre>. There are no transcripts for this gene or any of its aliases.";
+                console.log(msg);
+                reject({'message': msg,
+                        'gene': theGeneName,
+                        'alertType': 'error',
+                        'options': {'showAlertPanel': true, 'selectAlert': true} });
+              } else {
+                // For each transcript in the gene, determine the exons, creating a new array. Sort the exons and number them.
+                // Apply this number to the coding features (UTR, CDS).
+                me.determineExons(theGeneObject)
+                me.geneObjects[theGeneObject.gene_name] = theGeneObject;
+                resolve(theGeneObject);
+              }
+            } else {
+              // We shouldn't hit this condition b/c we already determined via getKnownGene
+              // that this gene has transcripts for the build and gene source.
+              let msg = "Unexpected result. Bypassing gene <pre>" + theGeneName + "</pre>. There are no " +
+                        result.geneSource + " " + result.build + " transcripts for this gene.";
+              console.log(msg);
+              reject({'message': msg,
+                      'gene': theGeneName,
+                      'alertType': 'error',
+                      'options': {'showAlertPanel': true, 'selectAlert': true}
+                    });
+            }
+          })
+          .catch((errorThrown) => {
+            console.log("An error occurred when getting transcripts for gene " +  theGeneName + ".");
+            console.log( "Error: " + errorThrown );
+            let msg = "Error " + errorThrown + " occurred when attempting to get transcripts for gene <pre>" + theGeneName + "</pre>";
+            reject({'message': msg,
+                    'gene': theGeneName,
                     'alertType': 'error',
                     'options': {'showAlertPanel': true, 'selectAlert': true}
                   });
-          }
-        })
-        .catch((errorThrown) => {
-          console.log("An error occurred when getting transcripts for gene <pre>" +  geneName + "</pre>.");
-          console.log( "Error: " + errorThrown );
-          let msg = "Error " + errorThrown + " occurred when attempting to get transcripts for gene <pre>" + geneName + "</pre>";
-          reject({'message': msg, 
-                  'gene': geneName, 
-                  'options': {'showAlertPanel': true, 'selectAlert': true}
-                });
-        });
+          });
 
-      } else {
-        let msg = ""
-        if (knownGene) {
-          msg = "No Refseq or Gencode transcripts for gene <pre>" + geneName + "</pre>.";
-          
         } else {
-          msg = "Unknown gene " + geneName;
-        }
+          let msg = "Bypassing gene <pre>" + theGeneName + "</pre>. "
+          if (result.hasOwnProperty('preferredGeneName')) {
+            // Reject, specifying the different gene name to use.
+            // The caller of this method will respond by re-issuing promiseGetGeneObject with another
+            // gene name (an alias for the gene that has transcripts). A warning will be issued
+            // so that the user is aware that the gene they selected does not have transcripts, but a
+            // gene alias of this gene will be used instead as it has transcripts.
+            msg += "Analyzing gene <pre>" + result.preferredGeneName + "</pre> instead."
+            reject({'message':   msg,
+                    'gene':      theGeneName,
+                    'alertType': 'warning',
+                    'options':   {'showAlertPanel': true,
+                                  'selectAlert': true},
+                    'useDifferentGene': result.preferredGeneName });
 
-        reject({'message': msg, 
-                'gene': geneName,
+          } else {
+            // Reject occurs because the gene name doesn't have any transcripts for the gene source and build
+            // and no suitable gene alias was found that has transcripts for the gene source and build.)
+            if (result.message && result.alertType) {
+              reject({
+                 'message':   result.message,
+                 'gene':      theGeneName,
+                 'alertType': result.alertType,
+                 'options':   {'showAlertPanel': true, 'selectAlert': true} });
+
+            } else if (result.hasOwnProperty('aliasFound') && result.aliasFound == false) {
+              // There are not any suitable replacement aliases for this gene.
+              reject( {
+                'message':   'Bypassing gene <pre>' + theGeneName +
+                             '</pre>. There are no transcripts for this gene or any of its aliases.',
+                'gene':      theGeneName,
+                'alertType': 'warning',
+                'options':   {'showAlertPanel': true, 'selectAlert': true} });
+            } else {
+              reject({
+                'message':  'An unexpected problem occurred when getting gene object',
+                'gene':      theGeneName,
+                'alertType': 'error',
+                'options':   {'showAlertPanel': true, 'selectAlert': true} });
+
+            }
+          }
+        }
+      })
+      .catch(function(error) {
+        console.log("An error occurred when getting known gene in GeneModel.getGeneObject for gene " +  theGeneName + ".");
+        console.log( error );
+        let msg = "An error occurred when getting known gene in GeneModel.getGeneObject for gene <pre>" +  theGeneName + "</pre>.";
+        reject({'message': msg,
+                'gene': theGeneName,
+                'alertType': 'error',
                 'options': {'showAlertPanel': true, 'selectAlert': true}
               });
-      }
-
-
-
-    });
+      })
+    })
   }
 
+
+  /*
+   * Capture the exons for a gene transcript. For the user interface,
+   * this is a convenience function that represents each rectangle on the
+   * transcript diagram, which will be a UTR or a CDS for protein coding
+   * genes. But for non-protein coding genes, just filter by feature type
+   * 'exon'.
+   * This function also numbers the exons and sorts them accordingly. The
+   * strand determines which is the first exon.
+   */
+  determineExons(gene) {
+    let self = this;
+    gene.transcripts.forEach(function(transcript) {
+
+      // Exons are what we use the number the features. Each exon is assigned
+      // a number sequentially. For forward strand, we number exons from
+      // first to last exon; For reverse strand, we number from last to
+      // first exon.
+      let exons = transcript.features.filter(function(feature) {
+        return feature.feature_type.toLowerCase() == 'exon';
+      })
+      .sort(function(a,b) {
+        if (gene.strand == "+") {
+          return a.start - b.start;
+        } else {
+          return (a.start - b.start) * -1;
+        }
+      })
+
+      // These are the features (UTRs and CDSs for protein coding transcripts,
+      // EXONs for non-protein coding transcripts) that we treat as exons, that we
+      // will draw on the trascript diagram
+      let exonicFeatures  = transcript.features.filter(function(feature) {
+        if ( transcript.transcript_type == 'protein_coding'
+            || transcript.transcript_type == 'UNIONED'
+            || feature.transcript_type == 'mRNA'
+            || feature.transcript_type == 'transcript'
+            || feature.transcript_type == 'primary_transcript') {
+          return feature.feature_type.toLowerCase() == 'utr' || feature.feature_type.toLowerCase() == 'cds';
+        } else {
+          return feature.feature_type.toLowerCase() == 'exon';
+        }
+      })
+      .sort(function(a,b) {
+        if (gene.strand == "+") {
+          return a.start - b.start;
+        } else {
+          return (a.start - b.start) * -1;
+        }
+      })
+
+      // Assign the exon number sequentially
+      let count = 1;
+      exons.forEach(function(exon) {
+        exon.number = count++;
+        exon.exon_number = exon.number + '/' + exons.length;
+      })
+
+      let getEncapsulatingExon = function(feature) {
+        let matched = exons.filter(function(exon) {
+          return exon.start <= feature.start && exon.end >= feature.end;
+        })
+        if (matched.length > 0) {
+          return matched[0];
+        } else {
+          return null;
+        }
+      }
+
+       // Number the UTR and CDS according to the encapsulating EXON.
+      exonicFeatures.forEach(function(feature) {
+        if (!feature.hasOwnProperty("number")) {
+          let theExon = getEncapsulatingExon(feature, exons)
+          if (theExon) {
+            feature.number = theExon.number;
+            feature.exon_number = theExon.exon_number;
+          } else {
+            console.log("Unable to find encapsulating exon in gene " +
+              gene.gene_name + " for feature " +
+              feature.feature_type + " " +
+              feature.start + "-" + feature.end +
+              ". Feature will not numbered.")
+          }
+
+        }
+      })
+
+
+      transcript.exons = exonicFeatures;
+      transcript.exonsOnly = exons;
+
+    })
+    return gene;
+  }
 
   promiseGetGeneForVariant(variant) {
     var me = this;
@@ -1821,11 +2150,11 @@ class GeneModel {
           if (geneUID && theLink.url.indexOf('GENEUID') >= 0) {
             theLink.url = theLink.url.replace(/GENEUID/g, geneUID );
             resolved = true;
-          } 
+          }
           if (geneObject && theLink.url.indexOf('GENESYMBOL') >= 0) {
             theLink.url = theLink.url.replace(/GENESYMBOL/g, geneName);
             resolved = true;
-          } 
+          }
           if (geneCoord && theLink.url.indexOf('GENECOORD') >= 0) {
             theLink.url = theLink.url.replace(/GENECOORD/g, geneCoord);
             resolved = true;
@@ -1928,7 +2257,7 @@ class GeneModel {
       var keep = false;
 
       if (linkName == 'gnomad') {
-        if (variant.vepAf && variant.vepAf.gnomAD && variant.vepAf.gnomAD.AF && variant.vepAf.gnomAD.AF != ".") {
+        if (variant.gnomAD && variant.gnomAD.af && variant.gnomAD.af != ".") {
           keep = true;
         }
       } else if (linkName == 'dbsnp') {
@@ -1952,89 +2281,250 @@ class GeneModel {
   }
 
 
-  isKnownGene(geneName) {
-    if (geneName == null) {
-      return true;
-    } else if (geneName in this.allKnownGeneNames) {
-      return true;
-    } else if (geneName.toUpperCase() in this.allKnownGeneNames) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  promiseIsValidGene(geneName) {
+  promiseIsKnownGene(geneName) {
     let self = this;
     return new Promise(function(resolve, reject) {
-      if (self.isKnownGene(geneName)) {
-        self.promiseGetGeneObject(geneName)
-        .then(function() {
-          resolve(true);
-        })
-        .catch(function(error) {
-          resolve(false);
-        })
+      let theGeneName = geneName;
+      if (theGeneName == null) {
+        resolve({'isKnownGene': true, 'geneName': theGeneName})
       } else {
-        resolve(false);
+        self.promiseLookupGene(theGeneName, true)
+        .then(function(lookupObject) {
+          if (lookupObject) {
+            resolve({'isKnownGene': true, 'geneName': theGeneName});
+          } else {
+            resolve({'isKnownGene': false, 'geneName': theGeneName});
+          }
+        })
       }
     })
   }
 
-  getKnownGene(geneName) {
-    let d = null;
-    if (this.allKnownGeneNames[geneName]) {
-      d = this.allKnownGeneNames[geneName];
-    } else {
-      d = this.allKnownGeneNames[geneName.toUpperCase()]
-    };
-    if (d) {
-      return {
-              'GRCh37': {'gencode': d[0][0], 'refseq': d[0][1]},
-              'GRCh38': {'gencode': d[1][0], 'refseq': d[1][1]},
-              'aliases': d.hasOwnProperty('a') ? d['a'] : null
-             }
-    } else {
-      return {
-              'GRCh37': {'gencode': 0, 'refseq': 0},
-              'GRCh38': {'gencode': 0, 'refseq': 0},
-              'aliases': null
-             }
 
-    }
+  promiseGetKnownGene(geneName) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let theGeneName = geneName.toUpperCase();
+      let cachedEntry = self.allKnownGeneNames[theGeneName]
+      if (cachedEntry != null) {
+        // We have already looked this gene. Return the cached entry.
+        resolve(cachedEntry);
+      } else {
+        // Call the gene info service to get the entry for this gene
+        let url = self.globalApp.geneInfoServer + "lookupEntries/" + theGeneName;
+        $.ajax({
+          url: url,
+          jsonp: "callback",
+          type: "GET",
+          dataType: "json",
+          success: function( response ) {
+            if (response && response.hasOwnProperty('genes')) {
+              let entry = null;
+              if (response.genes && response.genes.length > 0) {
+                response.genes.forEach(function(geneEntry) {
+                  if (!self.allKnownGeneNames.hasOwnProperty(geneEntry.gene_name)) {
+                    self.allKnownGeneNames[geneEntry.gene_name.toUpperCase()] = geneEntry;
+                  }
+                })
+              }
+              // If the gene wasn't found, cache with the entry set to false. This
+              // will allow us to not re-issue unecessary calls to gene info service
+              // for a gene name not found.
+              if (!self.allKnownGeneNames.hasOwnProperty(theGeneName)) {
+                self.allKnownGeneNames[theGeneName] = false
+              }
+
+              resolve(self.allKnownGeneNames[theGeneName])
+            } else {
+              console.log(msg);
+              reject("Problem getting response from " + url)
+            }
+          },
+          error: function( xhr, status, errorThrown ) {
+            console.log(errorThrown)
+            reject(errorThrown)
+          }
+        })
+      }
+
+    })
 
   }
 
-  getPreferredGeneNames(geneName, build, source) {
+
+  promiseGetKnownGenes(geneNames) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let theGeneNames = geneNames.filter(function(geneName) {
+        return geneName != null && geneName.length > 0;
+      }).map(function(geneName) {
+        return geneName.toUpperCase();
+      })
+      let genesNotCached = [];
+      let cachedEntries = [];
+      theGeneNames.forEach(function(theGeneName) {
+        let cachedEntry = self.allKnownGeneNames[theGeneName]
+        if (cachedEntry == null) {
+          genesNotCached.push(theGeneName)
+        } else {
+          cachedEntries.push(cachedEntry)
+        }
+      })
+      if (genesNotCached.length == 0  && cachedEntries.length == theGeneNames.length) {
+        // If the genes have already looked up, there is no need to call the gene info
+        // service.
+        resolve()
+      } else {
+        // Some or all of the genes have never been looked up. Call the gene info
+        // service to get the entries for each of the genes not previously cached.
+        let url = self.globalApp.geneInfoServer + "lookupEntries/" + genesNotCached.join(",");
+        $.ajax({
+          url: url,
+          jsonp: "callback",
+          type: "GET",
+          dataType: "json",
+          success: function( response ) {
+            if (response && response.hasOwnProperty('genes')) {
+              let match = null;
+              if (response.genes && response.genes.length > 0) {
+                // Hash all of the entries return from the geneinfo lookupEntries service
+                response.genes.forEach(function(geneEntry) {
+                  if (!self.allKnownGeneNames.hasOwnProperty(geneEntry.gene_name)) {
+                    self.allKnownGeneNames[geneEntry.gene_name.toUpperCase()] = geneEntry;
+                  }
+                })
+                // Now loop through the genes we attempted to look up but
+                // didn't find in the database. Add missing genes with a boolean false
+                // value so that we don't attempt getting this entry again
+                genesNotCached.forEach(function(theGeneName) {
+                  if (!self.allKnownGeneNames.hasOwnProperty(theGeneName.toUpperCase())) {
+                    self.allKnownGeneNames[theGeneName] = false
+                  }
+                })
+                resolve();
+              } else {
+                // No genes were returned. Cache the gene names with false so that we don't
+                // attempt lookup again.
+                genesNotCached.forEach(function(theGeneName) {
+                  if (!self.allKnownGeneNames.hasOwnProperty(theGeneName.toUpperCase())) {
+                    self.allKnownGeneNames[theGeneName] = false
+                  }
+                })
+                resolve();
+              }
+            } else {
+              console.log(msg);
+              reject("Problem getting response from " + url)
+            }
+          },
+          error: function( xhr, status, errorThrown ) {
+            console.log(status + " " + errorThrown)
+            let msg = errorThrown && errorThrown.length > 0 ? errorThrown : ' status=' + xhr.status + ", error=" + xhr.responseText + ' url=' + url;
+            reject("Failed to lookup genes. " + msg)
+          }
+        })
+      }
+
+    })
+  }
+  promiseLookupGene(geneName, exactMatch=true) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let theGeneName = geneName.toUpperCase();
+
+      let lookupObject = self.lookupGenesMap[theGeneName]
+      if (lookupObject) {
+        resolve(lookupObject)
+      } else {
+        let url = self.globalApp.geneInfoServer + "/lookup/" + theGeneName + "?searchAlias=last&exactMatch=" + (exactMatch ? "true" : "false");
+        $.ajax({
+          url: url,
+          jsonp: "callback",
+          type: "GET",
+          dataType: "json",
+          success: function( response ) {
+            if (response && response.hasOwnProperty('genes')) {
+              let match = null;
+              response.genes.forEach(function(lookupObject) {
+                if (!match) {
+                  if (lookupObject.gene_name.toUpperCase() == theGeneName) {
+                    match = lookupObject.gene_name;
+                    self.lookupGenesMap[theGeneName] = geneName;
+                  } else if (lookupObject.hasOwnProperty('gene_alias') && lookupObject.gene_alias.toUpperCase() == theGeneName) {
+                    match = lookupObject;
+                    self.lookupGenesMap[theGeneName] = lookupObject;
+                  }
+                }
+              })
+              resolve(match)
+            } else {
+              console.log(msg);
+              reject("Problem getting response from " + url)
+            }
+          },
+          error: function( xhr, status, errorThrown ) {
+            console.log(errorThrown)
+            reject(errorThrown)
+          }
+        })
+      }
+    })
+  }
+
+  promiseGetPreferredGeneName(geneName, build, source) {
     let self = this;
 
-    if (build == null) {
-      // If current build not specified, default to GRCh37
-      build = self.genomeBuildHelper.getCurrentBuildName() ? self.genomeBuildHelper.getCurrentBuildName() : "GRCh37";
-    }
-    if (source == null) {
-      source = self.geneSource ? self.geneSource : 'gencode';
-    }
-
-    let geneObj = self.getKnownGene(geneName);
-    let preferredGeneNames = null;
-    if (geneObj && geneObj.aliases && geneObj.aliases.length > 0) {
-      let otherGeneNames = geneObj.aliases.split(",");
-      // Filter gene aliases to keep those that have transcripts
-      // for the given build and source.
-      preferredGeneNames = otherGeneNames.filter(function(otherGeneName) {
-        let otherGeneObj = self.getKnownGene(otherGeneName);
-        let matching = false;
-        if (otherGeneObj && otherGeneObj[build] && otherGeneObj[build][source]) {
-          let transcriptCount = otherGeneObj[build][source];
-          if (transcriptCount > 0) {
-            matching = true;
-          }
+    return new Promise(function(resolve, reject) {
+      let theGeneName = geneName;
+      let otherGeneNames = null;
+      let preferredGeneName = null;
+      self.promiseGetKnownGene(geneName)
+      .then(function(entry) {
+        if (entry && entry.aliases && entry.aliases.length > 0) {
+          otherGeneNames = entry.aliases.split(",");
+          // Keep all gene aliases that have transcripts
+          // for the given build and source and collect
+          // in preferredGeneNames
+          return self.promiseGetKnownGenes(otherGeneNames);
+        } else {
+          return Promise.resolve();
         }
-        return matching;
       })
-    }
-    return preferredGeneNames;
+      .then(function() {
+        otherGeneNames.forEach(function(otherGeneName) {
+          let otherGeneEntry = self.allKnownGeneNames[otherGeneName]
+          let matching = false;
+          if (otherGeneEntry && otherGeneEntry[build] && otherGeneEntry[build][source]) {
+            let transcriptCount = otherGeneEntry[build][source];
+            if (transcriptCount > 0) {
+              matching = true;
+            }
+          }
+          if (matching && preferredGeneName == null) {
+            preferredGeneName = otherGeneEntry.gene_name;
+          }
+        })
+        if (preferredGeneName) {
+          resolve({'preferredGeneName': preferredGeneName,
+                   'geneName': theGeneName,
+                   'geneSource': source,
+                   'build': build,
+                   'aliasFound': true})
+        } else {
+          resolve({'geneName': theGeneName,
+                   'geneSource': source,
+                   'build': build,
+                   'aliasFound': false })
+        }
+      })
+      .catch(function(error) {
+        let msg = "Problem getting known gene entry for aliases of gene " + theGeneName;
+        console.log(msg)
+        console.log(error)
+        self.dispatch.alertIssued('error', msg, theGeneName, [error] );
+        reject(error)
+      })
+    })
   }
 
 
@@ -2333,7 +2823,7 @@ class GeneModel {
     }
 
   }
-  
+
   setSourceForGenes(genes, source) {
     let self = this;
     let sourceIndicatorMap = {
@@ -2365,7 +2855,7 @@ class GeneModel {
       }
     })
   }
-  
+
   getSourceForGenes() {
     let self = this;
     return self.genesAssociatedWithSource;

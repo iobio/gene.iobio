@@ -187,6 +187,7 @@ export default {
   },
   watch: {
     showDialog: function(showIt) {
+      this.init();
       this.showSettingsDialog = showIt;
     },
     phenolyzerTop: function(newValue, oldValue) {

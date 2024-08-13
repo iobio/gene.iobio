@@ -277,6 +277,12 @@
             "idGenomeBuild": 24,
             "type": "REFSEQ ASSEMBLY ACCESSION RANGE",
             "alias": "GCF_000001405.[13-25]"
+          },
+          {
+            "id": 69,
+            "idGenomeBuild": 24,
+            "type": "",
+            "alias": "b37"
           }
         ]
       },

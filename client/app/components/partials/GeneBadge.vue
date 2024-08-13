@@ -34,7 +34,7 @@
   #gene-status
     display: flex
     min-width: 50px
-    justify-content: flex-start 
+    justify-content: flex-start
     align-items: center
     padding-top: 5px
 
@@ -91,7 +91,7 @@
     &:hover
       text-decoration: underline !important
 
-  #variant-count 
+  #variant-count
     width:         25px
     display:       inline-block
     margin-right:  2px
@@ -182,18 +182,18 @@
 #gene-badge-remove
   margin-top: 3px
   i
-    color: $text-color 
+    color: $text-color
     font-size: 13px
 
   visibility: visible
 
 .myBadge
-  background-color: #efeeee 
-  border-radius: 90px 
+  background-color: #efeeee
+  border-radius: 90px
   height: 16px
-  color: #717171 
-  margin-left: 1px 
-  text-align: center 
+  color: #717171
+  margin-left: 1px
+  text-align: center
   vertical-align: middle
   width: 16px
   display: inline-block
@@ -221,7 +221,7 @@
 
   <a id="gene-badge-button"
     href="javascript:void(0)"
-    v-bind:class="gene.isFlagged ? 'flagged' : ''" 
+    v-bind:class="gene.isFlagged ? 'flagged' : ''"
     @click="selectGene"
     rel="tooltip"   data-html="true"
     data-placement="bottom">
@@ -230,7 +230,7 @@
         <span id="gene-badge-name" style="margin-left:2px;margin-right:2px">
           {{ gene.name }}
         </span>
-        
+
 
 
 
@@ -254,7 +254,7 @@
            width="13" height="14">
           </app-icon>
 
-          <app-icon 
+          <app-icon
            v-if="hasFilteredVariants('autosomalDominant')"
            icon="autosomal dominant"
            class=" level-edu glyph gene-badge-inheritance"
@@ -331,7 +331,7 @@
 
 
 
-          <app-icon id="gene-badge-coverage-problem" 
+          <app-icon id="gene-badge-coverage-problem"
            style="display:none;vertical-align:top"
            v-if="!isSimpleMode"
            icon="coverage"
@@ -352,14 +352,9 @@
 
   <v-spacer/>
 
-  <div id="gene-badge-remove" v-if="!isEduMode" href="javascript:void(0)"
-    @click="removeGene">
-      <i style="vertical-align:middle" class="material-icons">close</i>
-  </div>
 
-  
 
-  <span class="ml-1" style="position: absolute" v-if="launchedFromClin">
+  <span class="d-flex ml-1"  v-if="launchedFromClin">
     <span v-for="(source, idx) in selectedGeneSources.sourceIndicator" :key="idx">
       <span
         v-tooltip.top-center="`${selectedGeneSources.source[idx]}`"
@@ -371,6 +366,11 @@
     </span>
   </span>
 
+
+  <div id="gene-badge-remove" v-if="!isEduMode" href="javascript:void(0)"
+    @click="removeGene">
+      <i style="vertical-align:middle" class="material-icons">close</i>
+  </div>
 
 </div>
 </template>

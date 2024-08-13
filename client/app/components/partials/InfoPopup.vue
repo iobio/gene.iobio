@@ -130,42 +130,14 @@ export default {
             },
             'gnomAD': {
                 title: 'Allele Frequency from gnomAD',
-                description: 'The variant allele frequency is obtained from gnomAD genomes only. In an upcoming release, gene.iobio will obtain allele frequencies from gnomAD exomes as well.',
-                publication: 'gnomAD site',
-                publicationUrl: 'https://gnomad.broadinstitute.org/'
-
-            },
-            'gnomADExtraVepCustom': {
-                title: 'Allele Frequency from gnomAD',
-                description: 'The variant allele frequency is obtained from gnomAD genomes and exomes.',
-                publication: 'gnomAD site',
-                publicationUrl: 'https://gnomad.broadinstitute.org/'
-
-            },
-            'filterAf': {
-                title: 'Filtering variants by allele frequency',
-                description: 'For GRCh37, filter variants using the gnomAD 2.1.1 genomes max population allele frequency (the maximum frequency in any subpopulation). For GRCh38, filter variants using gnomAD 3.1.1 genomes max population allele frequency (the maximum frequency in any subpopulation).',
+                description: 'The variant allele frequencies are shown for gnomAD genomes and exomes. ',
                 publication: 'gnomAD site',
                 publicationUrl: 'https://gnomad.broadinstitute.org/'
 
             },
             'filterAfGenomesOnly': {
                 title: 'Filtering variants by allele frequency',
-                description: 'For GRCh37, filter variants using the gnomAD 2.1.1 genomes max population allele frequency (the maximum frequency in any subpopulation). For GRCh38, filter variants using gnomAD 3.1.1 genomes max population allele frequency (the maximum frequency in any subpopulation). Values must be 0-1.',
-                publication: 'gnomAD site',
-                publicationUrl: 'https://gnomad.broadinstitute.org/'
-
-            },
-            'filterAfExomesOnly': {
-                title: 'Filtering variants by allele frequency',
-                description: 'Use the <strong><em>max population allele frequency</em></strong> from gnomAD to filter variants. This is  the highest allele frequency observed in any population and is a more restrictive filter than the overall allele frequency. <br><br>For performance reasons, the gnomAD population max allele frequency will be determined from <strong><em>gnomAD exomes</em></strong> only.',
-                publication: 'gnomAD site',
-                publicationUrl: 'https://gnomad.broadinstitute.org/'
-
-            },
-            'gnomADExtraVepCustom': {
-                title: 'Allele Frequency from gnomAD',
-                description: 'The variant allele frequency is obtained from gnomAD genomes and exomes.',
+                description: 'For GRCh37, filter variants using the gnomAD 2.1.1 genomes max population allele frequency (the maximum frequency in any subpopulation). For GRCh38, filter variants using gnomAD v4 genomes max population allele frequency (the maximum frequency in any subpopulation). Values must be 0-1.',
                 publication: 'gnomAD site',
                 publicationUrl: 'https://gnomad.broadinstitute.org/'
 
