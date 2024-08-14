@@ -2436,7 +2436,7 @@ class GeneModel {
       if (lookupObject) {
         resolve(lookupObject)
       } else {
-        let url = self.globalApp.geneInfoServer + "/lookup/" + theGeneName + "?searchAlias=last&exactMatch=" + (exactMatch ? "true" : "false");
+        let url = self.globalApp.geneInfoServer + "lookup/" + theGeneName + "?searchAlias=last&exactMatch=" + (exactMatch ? "true" : "false");
         $.ajax({
           url: url,
           jsonp: "callback",
