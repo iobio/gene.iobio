@@ -896,6 +896,7 @@ export default {
       clinSetData: null,
       clinPersistCache: true,
       analysis: null,
+      experiment: null,
       showSaveModal: false,
 
 
@@ -1572,6 +1573,9 @@ export default {
               self.addAlert(alert.alertType, alert.message, null, alert.details, alert.options)
             })
           }
+          if (data.experiment && data.experiment.name) {
+            self.experiment = data.experiment;
+          }
           if (isPedigree && !data.foundPedigree) {
             self.onShowSnackbar({message: 'No pedigree for this sample. Loading proband only.', timeout: 5000})
           }
@@ -1598,6 +1602,9 @@ export default {
         })
         .then(projObj => {
             self.addAlert("info", 'Mosaic project <pre>' + projObj.name + "</pre> loaded.")
+            if (self.experiment && self.experiment.name) {
+              self.addAlert('info', 'Loaded data files Mosaic for experiment <pre>' + self.experiment.name + "</pre>")
+            }
             self.isSfariProject = false;
             // Note: going off of names per CM for now until we can get a Sfari project db flag
             if (projObj && projObj.name === 'SSC GRCh37 WGS' || projObj.name === 'SSC GRCh38 WGS') {
