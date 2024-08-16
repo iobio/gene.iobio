@@ -374,7 +374,7 @@ class GeneModel {
         // gene names so that we don't make individual
         // requests to gene info service to lookup the
         // gene entry
-        self.promiseGetKnownGenes(genesToAdd)
+        self.promiseCacheKnownGeneNames(genesToAdd)
         .then(function() {
           let promises = [];
           genesToAdd.forEach(function(geneName) {
@@ -583,7 +583,7 @@ class GeneModel {
       var unknownGeneNames = {};
       var duplicateGeneNames = {};
       var promises = [];
-      me.promiseGetKnownGenes(geneNameList)
+      me.promiseCacheKnownGeneNames(geneNameList)
       .then(function() {
         geneNameList.forEach( function(geneName) {
           let theGeneName = geneName.trim();
@@ -2296,6 +2296,9 @@ class GeneModel {
             resolve({'isKnownGene': false, 'geneName': theGeneName});
           }
         })
+        .catch(function(error) {
+          reject(error)
+        })
       }
     })
   }
@@ -2352,7 +2355,18 @@ class GeneModel {
   }
 
 
-  promiseGetKnownGenes(geneNames) {
+  /* 
+   * Lookup entries for a list of gene names. This will speedup lookup because we will
+   * make one request for all gene names rather than making multiple requests (one for each
+   * gene name). After this method is invoked, the caller can assume in the then()
+   * block that self.allKnownGeneNames will have an entry for each of the gene names
+   * sent into this method. 
+   * NOTE: To minimize requests for genes that are not found, the lookup map allKnownGeneNames
+   *       will map 'false' to the gene name. When the gene name is found, the entry
+   *       (an object with build keys and counts for each gene source) will be mapped
+   *       to the gene name.
+   */ 
+  promiseCacheKnownGeneNames(geneNames) {
     let self = this;
     return new Promise(function(resolve, reject) {
       let theGeneNames = geneNames.filter(function(geneName) {
@@ -2482,15 +2496,22 @@ class GeneModel {
       .then(function(entry) {
         if (entry && entry.aliases && entry.aliases.length > 0) {
           otherGeneNames = entry.aliases.split(",");
-          // Keep all gene aliases that have transcripts
-          // for the given build and source and collect
-          // in preferredGeneNames
-          return self.promiseGetKnownGenes(otherGeneNames);
+          if (otherGeneNames && otherGeneNames.length > 0)
+          // Cache the known gene entries in bulk so that we lookup
+          // entries more efficiently
+          self.promiseCacheKnownGeneNames(otherGeneNames)
+          .then(function() {
+            return Promise.resolve(otherGeneNames)            
+          })
         } else {
+          otherGeneNames = [];
           return Promise.resolve();
         }
       })
       .then(function() {
+        // Keep all gene aliases that have transcripts
+        // for the given build and source and collect
+        // in preferredGeneNames
         otherGeneNames.forEach(function(otherGeneName) {
           let otherGeneEntry = self.allKnownGeneNames[otherGeneName]
           let matching = false;
