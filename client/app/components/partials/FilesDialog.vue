@@ -10,7 +10,8 @@
   padding-right: 20px
 
     
-  #invalid-build-alert    
+  #invalid-build-alert,
+  #invalid-file-combo-alert  
     margin-left: 40px
     padding: 5px
     min-width: 510px
@@ -160,10 +161,15 @@
 
             <v-layout row nowrap class="mt-0">
              <v-card-title class="headline">Files</v-card-title>
+               <div style="display:flex; flex-direction:column">
+                <v-alert id="invalid-file-combo-alert" v-if="!isValidFileCombo"  :value="true" color="error" icon="warning" outline>
+                    Invalid file combination for trio. If one of the trio samples loads alignments but not a variant file, the other samples must follow the same pattern, loading the alignment files only.
+                  </v-alert>
 
-               <v-alert id="invalid-build-alert" v-if="!isValidBuild"  :value="true" color="error" icon="warning" outline>
-                  {{ invalidBuildMessage}}
+                <v-alert id="invalid-build-alert" v-if="!isValidBuild"  :value="true" color="error" icon="warning" outline>
+                    {{ invalidBuildMessage}}
                 </v-alert>
+              </div>
               <v-flex xs12 class="mt-2 text-xs-right">
                 <div class="loader" v-show="inProgress">
                   <img src="../../../assets/images/wheel.gif">
@@ -171,7 +177,7 @@
 
                 <v-btn class="load-button action-button"
                   @click="onLoad"
-                  :disabled="!isValid || !buildName">
+                  :disabled="!isValid || !buildName || !isValidFileCombo">
                   Load
                 </v-btn>
 
@@ -331,6 +337,7 @@ export default {
     return {
       showFilesDialog: false,
       isValid: false,
+      isValidFileCombo: true,
       isValidBuild: true,
       invalidBuildMessage: '',
       areAnyDuplicates: false,
@@ -680,6 +687,7 @@ export default {
       })
     },
     validate: function() {
+      this.isValidFileCombo = false;
       this.isValid = false;
       this.cohortModel.isLoaded = false;
       if (this.mode == 'single') {
@@ -691,10 +699,16 @@ export default {
         if (this.modelInfoMap.proband && this.modelInfoMap.proband.model && this.modelInfoMap.proband.model.isReadyToLoad()
             && this.modelInfoMap.mother && this.modelInfoMap.mother.model && this.modelInfoMap.mother.model.isReadyToLoad()
             && this.modelInfoMap.father && this.modelInfoMap.father.model && this.modelInfoMap.father.model.isReadyToLoad()) {
-          this.isValid = true;
-          this.cohortModel.isLoaded = true;
+
+            this.isValid = true;
+            this.cohortModel.isLoaded = true;            
+        
         }
       }
+      if (this.cohortModel.isValidAlignmentsOnly()) {
+        this.isValidFileCombo = true;
+      } 
+
       if (this.isValid && this.cohortModel.isLoaded) {
         this._validateBuild();
       }

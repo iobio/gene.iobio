@@ -1417,7 +1417,7 @@ export default {
 
               })
               .catch(function(error) {
-                self.addAlert("error", "Unable to initialize from Mosaic. " + error)
+                self.addAlert("error", error)
                 self.showAppLoader = false;
                 if (callback) {
                   callback();
@@ -1567,6 +1567,11 @@ export default {
           self.experimentId
           )
         .then(data => {
+          if (data.alerts && data.alerts.length > 0) {
+            data.alerts.forEach(function(alert) {
+              self.addAlert(alert.alertType, alert.message, null, alert.details, alert.options)
+            })
+          }
           if (isPedigree && !data.foundPedigree) {
             self.onShowSnackbar({message: 'No pedigree for this sample. Loading proband only.', timeout: 5000})
           }

@@ -355,12 +355,17 @@ class CohortModel {
         return self.promiseSetSibs(affectedSibs, unaffectedSibs)
       })
       .then(function() {
+        if (self.mode == 'trio' && !self.isValidAlignmentsOnly()) {
+          reject("Invalid data files specified for trio. " +
+            "Across all samples, the same file types must be loaded. If one sample loads only alignments, then the other samples must load only alignment files as well.")
+        } else {
+          self.sortSampleModels();
 
-        self.sortSampleModels();
+          self.setAffectedInfo(true);
+          self.inProgress.loadingDataSources = false;
+          self.isLoaded = true;            
+        }
 
-        self.setAffectedInfo(true);
-        self.inProgress.loadingDataSources = false;
-        self.isLoaded = true;
 
         resolve();
       })
@@ -826,6 +831,25 @@ class CohortModel {
     });
     return theModels.length == this.getCanonicalModels().length;
   }
+  
+  isValidAlignmentsOnly() {
+    if (this.getCanonicalModels().length == 1) {
+      return true;
+    } else {
+      var validCanonicalModels = this.getCanonicalModels().filter(function(model) {
+        return model.isLoaded;
+      });
+      var theAlignmentOnlyModels = this.getCanonicalModels().filter(function(model) {
+        return model.isLoaded && model.isAlignmentsOnly();
+      });
+      if (theAlignmentOnlyModels.length > 0 && validCanonicalModels.length > 0 && theAlignmentOnlyModels.length < validCanonicalModels.length) {
+        return false;
+      } else {
+        return true;
+      }
+        
+    }
+  }
 
   hasAlignments() {
     var theModels = this.sampleModels.filter(function(model) {
@@ -885,7 +909,7 @@ class CohortModel {
       let message = "";
           
       if (self.isLoaded) {
-        if (mode == 'single') {
+        if (mode == 'single' && !self.getModel('proband').isAlignmentsOnly()) {
           self.getModel('proband').promiseGetHeaderRecs()
           .then(function(headerRecs) {
             let buildInfo = self.genomeBuildHelper.getBuildFromVcfHeader(headerRecs);
@@ -899,59 +923,71 @@ class CohortModel {
           .catch(function(error) {
             reject(error)
           })
-        } else {
+        } else if (mode == 'trio') {
           let promises = [];
-          promises.push(self.getModel('proband').promiseGetHeaderRecs())
-          promises.push(self.getModel('mother').promiseGetHeaderRecs())
-          promises.push(self.getModel('father').promiseGetHeaderRecs())
-          Promise.all(promises)
-          .then(function() {
-            let buildInfoProband       = self.genomeBuildHelper.getBuildFromVcfHeader(self.getModel('proband').vcf.headerRecs);
-            let properBuildInfoProband = self.genomeBuildHelper.getProperSpeciesAndBuild(buildInfoProband);
-            
-            let buildInfoMother        = self.genomeBuildHelper.getBuildFromVcfHeader(self.getModel('mother').vcf.headerRecs);
-            let properBuildInfoMother  = self.genomeBuildHelper.getProperSpeciesAndBuild(buildInfoMother);
-
-            let buildInfoFather        = self.genomeBuildHelper.getBuildFromVcfHeader(self.getModel('father').vcf.headerRecs);
-            let properBuildInfoFather  = self.genomeBuildHelper.getProperSpeciesAndBuild(buildInfoFather);
-
-            let invalidRels = [];
-            let vcfBuilds = []
-            if (properBuildInfoProband != null && properBuildInfoProband.build && properBuildInfoProband.build.name != buildName) {
-              isValidBuild = false;
-              invalidRels.push('proband');
-              vcfBuilds.push(properBuildInfoProband.build.name)
-            }
-            if (properBuildInfoMother != null && properBuildInfoMother.build && properBuildInfoMother.build.name != buildName) {
-              isValidBuild = false;
-              invalidRels.push('mother');
-              vcfBuilds.push(properBuildInfoMother.build.name)
-            }
-            if (properBuildInfoFather != null && properBuildInfoFather.build && properBuildInfoFather.build.name != buildName) {
-              isValidBuild = false;
-              invalidRels.push('father');
-              vcfBuilds.push(properBuildInfoFather.build.name)
-            }
-            let uniqueBuilds = new Set(vcfBuilds);
-            if (uniqueBuilds.size == 1 && invalidRels.length == 3) {
-              message = "Incorrect build specified for trio. " +
-                        "The vcf header indicates that the build should be set to " +  Array.from(uniqueBuilds)[0] + ".";
-            } else if (uniqueBuilds.size == 1 && invalidRels.length < 3) {
+          if (!self.getModel('proband').isAlignmentsOnly()) {
+            promises.push(self.getModel('proband').promiseGetHeaderRecs())            
+          }
+          if (!self.getModel('mother').isAlignmentsOnly()) {
+            promises.push(self.getModel('mother').promiseGetHeaderRecs())
+          }
+          if (!self.getModel('father').isAlignmentsOnly()) {
+            promises.push(self.getModel('father').promiseGetHeaderRecs())
+          }
+          if (promises.length > 0) {
+            Promise.all(promises)
+            .then(function() {
+              let buildInfoProband       = self.genomeBuildHelper.getBuildFromVcfHeader(self.getModel('proband').vcf.headerRecs);
+              let properBuildInfoProband = self.genomeBuildHelper.getProperSpeciesAndBuild(buildInfoProband);
               
-              message = "Incompatible builds for trio. " + 
-                        "The vcf header indicates that the build should be set to " + Array.from(uniqueBuilds)[0] + 
-                        " for " + invalidRels.join(" and ") + ". "
-            } else if (vcfBuilds.length > 0) {
-              message = "Incompatible builds for trio. " + 
-                        "The vcf header indicates that the build should be set to " + vcfBuilds.join(" and ") + 
-                        " for " + invalidRels.join(" and ") + " (respectively). "
-            } 
-            resolve({'isValidBuild': isValidBuild, 'message': message});
-          })
-          .catch(function(error) {
-            reject(error)
-          })
-        }        
+              let buildInfoMother        = self.genomeBuildHelper.getBuildFromVcfHeader(self.getModel('mother').vcf.headerRecs);
+              let properBuildInfoMother  = self.genomeBuildHelper.getProperSpeciesAndBuild(buildInfoMother);
+
+              let buildInfoFather        = self.genomeBuildHelper.getBuildFromVcfHeader(self.getModel('father').vcf.headerRecs);
+              let properBuildInfoFather  = self.genomeBuildHelper.getProperSpeciesAndBuild(buildInfoFather);
+
+              let invalidRels = [];
+              let vcfBuilds = []
+              if (properBuildInfoProband != null && properBuildInfoProband.build && properBuildInfoProband.build.name != buildName) {
+                isValidBuild = false;
+                invalidRels.push('proband');
+                vcfBuilds.push(properBuildInfoProband.build.name)
+              }
+              if (properBuildInfoMother != null && properBuildInfoMother.build && properBuildInfoMother.build.name != buildName) {
+                isValidBuild = false;
+                invalidRels.push('mother');
+                vcfBuilds.push(properBuildInfoMother.build.name)
+              }
+              if (properBuildInfoFather != null && properBuildInfoFather.build && properBuildInfoFather.build.name != buildName) {
+                isValidBuild = false;
+                invalidRels.push('father');
+                vcfBuilds.push(properBuildInfoFather.build.name)
+              }
+              let uniqueBuilds = new Set(vcfBuilds);
+              if (uniqueBuilds.size == 1 && invalidRels.length == 3) {
+                message = "Incorrect build specified for trio. " +
+                          "The vcf header indicates that the build should be set to " +  Array.from(uniqueBuilds)[0] + ".";
+              } else if (uniqueBuilds.size == 1 && invalidRels.length < 3) {
+                
+                message = "Incompatible builds for trio. " + 
+                          "The vcf header indicates that the build should be set to " + Array.from(uniqueBuilds)[0] + 
+                          " for " + invalidRels.join(" and ") + ". "
+              } else if (vcfBuilds.length > 0) {
+                message = "Incompatible builds for trio. " + 
+                          "The vcf header indicates that the build should be set to " + vcfBuilds.join(" and ") + 
+                          " for " + invalidRels.join(" and ") + " (respectively). "
+              } 
+              resolve({'isValidBuild': isValidBuild, 'message': message});
+            })
+            .catch(function(error) {
+              reject(error)
+            })
+          } else {
+            resolve({'isValidBuild': true, 'message': ''});
+          }
+        } else {
+          resolve({'isValidBuild': true, 'message': ''});
+        }      
       } else {
         resolve({'isValidBuild': true, 'message': ''});
       }
