@@ -361,6 +361,16 @@ nav.toolbar, nav.v-toolbar
       padding: 0px 5px
       font-size: 11px
       font-weight: 500
+      
+  #project-badge
+    margin-left: -20px
+    .v-chip__content
+      max-width: 120px
+      white-space: normal
+      line-height: 11px
+      padding: 5px 5px 5px 5px
+      text-align: center
+      height: min-content
 
   .toolbar__content
     margin-top: 2px
@@ -797,6 +807,11 @@ nav.toolbar, nav.v-toolbar
         v-tooltip.bottom-left="{content: 'Patient phenotypes'}">
           <v-icon style="font-size: 26px;padding-top: 3px;">account_box</v-icon>
       </v-btn>
+      <v-chip v-if="cohortModel && launchedFromHub && cohortModel.isLoaded && project && project.name"
+          id="project-badge" class="settings-badge" text-color="white">
+          {{ project.name }}
+      </v-chip>
+
 
       <v-btn  class="navbar-icon-button" v-if="appAlerts" id="notification-button"  @click="onShowNotificationDrawer" flat
         v-tooltip.bottom-left="{content: 'Notifications (errors, warnings and information). Click to see detailed list.'}">
@@ -1490,6 +1505,7 @@ export default {
     settingsCoverageOnly: null,
     settingsGeneSourceOnly: null,
     analysisModel: null,
+    project: null
   },
   data () {
     let self = this;

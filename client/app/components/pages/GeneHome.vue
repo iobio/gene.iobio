@@ -319,6 +319,7 @@ main.content.clin, main.v-content.clin
       :settingsCoverageOnly="settingsCoverageOnly"
       :settingsGeneSourceOnly="settingsGeneSourceOnly"
       :analysisModel="analysisModel"
+      :project="project"
       @gene-name-entered="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -889,6 +890,7 @@ export default {
       isHubDeprecated: false,
       sampleId: null,
       projectId: null,
+      project: null,
       geneSet: null,
       variantSet: null,
       variantAnnotationsMap: {},
@@ -1603,6 +1605,7 @@ export default {
           return self.hubSession.promiseGetProject(self.projectId)
         })
         .then(projObj => {
+            self.project = projObj;
             self.addAlert("info", 'Mosaic project <pre>' + projObj.name + "</pre> loaded.")
             if (self.experiment && self.experiment.name) {
               self.addAlert('info', 'Loaded data files Mosaic for experiment <pre>' + self.experiment.name + "</pre>")
