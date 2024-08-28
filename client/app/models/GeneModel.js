@@ -818,6 +818,12 @@ class GeneModel {
   getCanonicalTranscript(theGeneObject) {
     let me = this;
     var geneObject = theGeneObject != null ? theGeneObject : window.gene;
+    
+    if (geneObject == null || geneObject.gene_name == null) {
+      console.log("Null gene object sent into method GeneModel.getCanonicalTranscript")
+      return null;
+      
+    }
     var canonical;
 
     if (geneObject.transcripts == null || geneObject.transcripts.length == 0) {

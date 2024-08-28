@@ -202,6 +202,8 @@ class SampleModel {
       if (geneObject == null) {
         reject("Empty geneObject in SampleModel.promiseGetVcfData()");
       }
+      let theGeneObject = geneObject;
+      let theTranscript = selectedTranscript;
 
       // If only alignments have specified, but not variant files, we will need to use the
       // getBamRefName function instead of the getVcfRefName function.
@@ -224,24 +226,24 @@ class SampleModel {
           geneObject.end == me[dataKind].end &&
           geneObject.strand == me[dataKind].strand) {
           theVcfData = me[dataKind];
-          resolve({model: me, vcfData: theVcfData});
+          resolve({model: me, vcfData: theVcfData, 'gene': theGeneObject, 'transcript': theTranscript});
         }
       }
 
 
       if (theVcfData == null) {
         // Find vcf data in cache
-        me._promiseGetData(dataKind, geneObject.gene_name, selectedTranscript)
+        me._promiseGetData(dataKind, theGeneObject.gene_name, theTranscript)
          .then(function(data) {
           if (data != null && data != '') {
             me[dataKind] = data;
             theVcfData = data;
-            resolve({model: me, vcfData: theVcfData});
+            resolve({model: me, vcfData: theVcfData, 'gene': theGeneObject, 'transcript': theTranscript});
           } else {
             // If the vcf data is null, see if there are called variants in the cache.  If so,
             // copy the called variants into the vcf data.
             if (whenEmptyUseFbData && me.isAlignmentsOnly()) {
-              me.promiseGetFbData(geneObject, selectedTranscript)
+              me.promiseGetFbData(theGeneObject, theTranscript)
               .then(function(theFbData) {
                 // If no variants are loaded, create a dummy vcfData with 0 features
                 if (theFbData && theFbData.features) {
@@ -263,16 +265,16 @@ class SampleModel {
 
 
                 }
-                resolve({model: me, vcfData: theVcfData});
+                resolve({model: me, vcfData: theVcfData, 'gene': theGeneObject, 'transcript': theTranscript});
 
                })
                .catch(function (error) {
-                 let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations()."
+                 let msg = "Problem getting fb data in SampleModel.promiseGetVcfData()."
                  console.log(msg);
                  reject(error);
                });
             } else {
-              resolve({model: me, vcfData: theVcfData});
+              resolve({model: me, vcfData: theVcfData, 'gene': theGeneObject, 'transcript': theTranscript});
             }
 
           }

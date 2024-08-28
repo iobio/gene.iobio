@@ -1886,11 +1886,7 @@ class CohortModel {
           resolve(dangerObject);
       }).
       catch(function(error) {
-        if (error.indexOf(geneName) >= 0 ) {
-          self.dispatch.alertIssued('error', error, theGeneName);
-        } else {
-          self.dispatch.alertIssued('error', error + " for gene " + theGeneName, theGeneName);
-        }
+        self.dispatch.alertIssued('error', error, theGeneName);
         reject(error);
       })
     })
@@ -2498,7 +2494,10 @@ class CohortModel {
     var self = this;
     this._recacheForFlaggedVariant(theGene, theTranscript, variant, options);
   }
-
+  
+  // TODO: This method should be deprecated and replaced with promiseAddUserFlaggedVariant.
+  //       However, there are complications due to blocking, so this should be 
+  //       undertaken when we migrate to Vue.js 3.
   addUserFlaggedVariant(theGene, theTranscript, variant) {
     var self = this;
     variant.isFlagged = true;
@@ -2510,6 +2509,31 @@ class CohortModel {
     variant.featureClass = "flagged";
 
     self._recacheForFlaggedVariant(theGene, theTranscript, variant, {summarizeDanger: true});
+
+  }
+  
+  promiseAddUserFlaggedVariant(theGene, theTranscript, variant) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      let theVariant = variant;
+      theVariant.isFlagged = true;
+      theVariant.isUserFlagged = true;
+      if (theVariant.filtersPassed == null) {
+        theVariant.filtersPassed = [];
+      }
+      theVariant.filtersPassed.push("userFlagged");
+      theVariant.featureClass = "flagged";
+      
+      self._promiseRecacheForFlaggedVariant(theGene, theTranscript, theVariant, {summarizeDanger: true})
+      .then(function() {
+        resolve();
+      })
+      .catch(function(error) {
+        reject(error)
+      })
+
+    })
+    
 
   }
 
@@ -2580,7 +2604,53 @@ class CohortModel {
       this.flaggedVariants.splice(index, 1);
     }
   }
+  
+  _promiseRecacheForFlaggedVariant(theGene, theTranscript, variant, options) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let theVariant = variant;
+      self.getProbandModel().promiseGetVcfData(theGene, theTranscript)
+      .then(function(data) {
+        let cachedVcfData = data.vcfData;
+        cachedVcfData.features.forEach(function(v) {
+          var matches = (
+                        self.globalApp.utility.stripRefName(v.chrom) == self.globalApp.utility.stripRefName(theVariant.chrom)
+                        && v.start == theVariant.start
+                        && v.ref == theVariant.ref
+                        && v.alt == theVariant.alt);
+  
+          if (matches) {
+            v.isFlagged      = theVariant.isFlagged
+            v.isUserFlagged  = theVariant.isUserFlagged;
+            v.filtersPassed  = theVariant.filtersPassed;
+            v.interpretation = theVariant.interpretation;
+            v.notes          = theVariant.notes;
+          }
+        });
+        self.getProbandModel()._promiseCacheData(cachedVcfData, CacheHelper.VCF_DATA, data.gene.gene_name, data.transcript)
+        .then(function() {
+          if (options && options.summarizeDanger) {
+            // Now summarize the danger for the selected gene
+            self.promiseSummarizeDanger(theGene, theTranscript, cachedVcfData, null)
+            .then(function() {
+              resolve();
+            })
+            .catch(function(error) {
+              reject(error)
+            })
+          } else {
+            resolve();
+          }
+        })
+  
+      });
+        
+    })
+  }
 
+  // TODO: This method should be deprecated and replaced with _promiseReachesForFlaggedVariant.
+  //       However, there are complications due to blocking, so this should be 
+  //       undertaken when we migrate to Vue.js 3.
   _recacheForFlaggedVariant(theGene, theTranscript, variant, options) {
     let self = this;
     self.getProbandModel().promiseGetVcfData(theGene, theTranscript)
