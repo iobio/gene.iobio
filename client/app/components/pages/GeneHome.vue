@@ -3874,6 +3874,19 @@ export default {
         variant.gene = this.selectedGene;
         variant.transcript = this.selectedTranscript;
         self.cohortModel.addUserFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
+      } else {
+        // If this variant is already a flagged variant and the variant has not
+        // initialized variant.gene, initialize it from the flagged variant.
+        if (!variant.hasOwnProperty('gene') || variant.gene == null) {
+          variant.gene = theFlaggedVariant.gene;
+        }
+      }
+      
+      // Check to make sure the variant has a valid gene property. If not, error and
+      // exit;
+      if (!variant.hasOwnProperty('gene') || variant.gene == null) {
+        self.addAlert('error', 'Unable to set variant notes due to missing gene on variant', this.selectedGene ? this.selectedGene.gene_name : null);
+        return;
       }
 
       if (variant === self.selectedVariant) {
