@@ -806,21 +806,24 @@ export default {
       }
     },
     depthVizRegionGlyph: function(exon, regionGroup, regionX, modelName) {
-      let exonId = 'exon' + exon.exon_number.replace("/", "-");
-      if (regionGroup.select("g#" + exonId).empty()) {
-        regionGroup.append('g')
-              .attr("id", exonId)
-              .attr('class',      'region-glyph coverage-problem-glyph')
-              .attr("modelName", modelName)
-              .attr('transform',  'translate(' + (regionX - 6) + ',-6)')
-              .data([exon])
-              .append('use')
-              .attr('height',     '16')
-              .attr('width',      '16')
-              .attr('href', '#coverage-problem-symbol')
-              .attr('xlink','http://www.w3.org/1999/xlink')
-              .data([exon])
-                .attr("modelName", this.sampleModel.name);
+      if (exon.hasOwnProperty('exon_number') && exon.exon_number && exon.exon_number.length > 0) {
+        let exonId = 'exon' + exon.exon_number.replace("/", "-");
+        if (regionGroup.select("g#" + exonId).empty()) {
+          regionGroup.append('g')
+                .attr("id", exonId)
+                .attr('class',      'region-glyph coverage-problem-glyph')
+                .attr("modelName", modelName)
+                .attr('transform',  'translate(' + (regionX - 6) + ',-6)')
+                .data([exon])
+                .append('use')
+                .attr('height',     '16')
+                .attr('width',      '16')
+                .attr('href', '#coverage-problem-symbol')
+                .attr('xlink','http://www.w3.org/1999/xlink')
+                .data([exon])
+                  .attr("modelName", this.sampleModel.name);
+        }
+        
       }
     },
     onVariantClick: function(variant, model) {
