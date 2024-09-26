@@ -1344,7 +1344,7 @@ nav.toolbar, nav.v-toolbar
               2078-9. [PMID: <a href="http://www.ncbi.nlm.nih.gov/pubmed/19505943">19505943</a>]
 
               <div class="citation-title">Bamtools</div>
-              BamTools: a C++ API and toolkit for analyzing and managing BAM files</span>. Bioinformatics 2011;27:1691-1692.
+              BamTools: a C++ API and toolkit for analyzing and managing BAM files. Bioinformatics 2011;27:1691-1692.
               <a href="/cgi/ijlink?linkType=ABST&amp;journalCode=bioinfo&amp;resid=27/12/1691" class="cit-ref-sprinkles cit-ref-sprinkles-ijlinks"><span class="cit-reflinks-abstract">Abstract</span><span class="cit-sep cit-reflinks-variant-name-sep">/</span><span class="cit-reflinks-full-text"><span class="free-full-text">FREE </span>Full Text</span></a>
 
               <div class="citation-title">vt</div>
