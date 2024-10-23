@@ -1924,7 +1924,7 @@ class SampleModel {
         .then(function (results) {
           if (results) {
             let data = results[1];
-            let theGeneObject = me.getGeneModel().geneObjects[data.gene];
+            let theGeneObject = me.getGeneModel().geneObjects[data.gene.toUpperCase()];
             if (theGeneObject) {
               let resultMap = {};
               let model = variantModel;
@@ -2075,7 +2075,7 @@ class SampleModel {
               if (results && results.length > 0) {
                 var data = results[0];
 
-                var theGeneObject = me.getGeneModel().geneObjects[data.gene];
+                var theGeneObject = me.getGeneModel().geneObjects[data.gene.toUpperCase()];
                 if (theGeneObject) {
 
                   var resultMap = {};

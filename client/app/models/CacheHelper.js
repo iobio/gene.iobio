@@ -681,7 +681,7 @@ CacheHelper.prototype.refreshNextGeneBadge = function(keys, callback) {
       if (cachedData && cachedData.data && cachedData.keyObject) {
         var theVcfData    = cachedData.data;
         var theKeyObject  = cachedData.keyObject;
-        var theGeneObject = me.cohort.geneModel.geneObjects[theKeyObject.gene];
+        var theGeneObject = me.cohort.geneModel.geneObjects[theKeyObject.gene.toUpperCase()];
         var theTranscript = {transcript_id: theKeyObject.transcript};
         me.cohort.promiseSummarizeDanger(theGeneObject, theTranscript, theVcfData, {})
         .then(function() {
@@ -954,7 +954,7 @@ CacheHelper.prototype.promiseLoadCache = function(cacheData, dataIsAlreadyCompre
             let p = CacheHelper.promiseDecompressData(geneToDangerSummary[gene], true)
             .then(function(ds) {
               me.cohort.geneModel.setDangerSummary(ds.geneName, ds);
-              let theGeneObject = me.cohort.geneModel.geneObjects[ds.geneName]
+              let theGeneObject = me.cohort.geneModel.geneObjects[ds.geneName.toUpperCase()]
               if (theGeneObject) {
                 me.cohort.captureFlaggedVariants(ds, theGeneObject)
               }

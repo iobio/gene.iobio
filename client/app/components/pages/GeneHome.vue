@@ -424,7 +424,7 @@ main.content.clin, main.v-content.clin
          :tourNumber="tourNumber"
          :geneModel="geneModel"
          :selectedGene="selectedGene"
-         :geneNames="geneModel.sortedGeneNames"
+         :geneNames="geneModel.geneNames"
          :loadedDangerSummaries="Object.keys(geneModel.geneDangerSummaries)"
          :genesInProgress="cohortModel.genesInProgress"
          :isLoaded="cohortModel && cohortModel.isLoaded"
@@ -1285,7 +1285,7 @@ export default {
           self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
           self.geneModel.translator = translator;
           if (self.isEduMode) {
-            self.geneModel.phenolyzerTopGenesToKeep = 5;
+            self.geneModel.phenolyzerTopGenesToKeep = 8;
           }
 
 
@@ -1811,20 +1811,23 @@ export default {
           // from the gene-to-alerts map.
           if (genes) {
             genes.forEach(function(geneName) {
-              let alertsForGene = self.geneToAppAlerts[geneName]
-              let indexToRemove = null;
-              // Remove alert from array in gene to alerts map
-              for (let idx = 0; idx < alertsForGene.length; idx++) {
-                let theAlert = alertsForGene[idx];
-                if (theAlert.type == type &&
-                    theAlert.message.indexOf(partialMessage) >= 0 &&
-                    theAlert.genes == genes) {
-                  indexToRemove = idx;
-                  break;
+              let alertsForGene = self.geneToAppAlerts[geneName.toUpperCase()]
+              if (alertsForGene) {
+                let indexToRemove = null;
+                // Remove alert from array in gene to alerts map
+                for (let idx = 0; idx < alertsForGene.length; idx++) {
+                  let theAlert = alertsForGene[idx];
+                  if (theAlert.type == type &&
+                      theAlert.message.indexOf(partialMessage) >= 0 &&
+                      theAlert.genes == genes) {
+                    indexToRemove = idx;
+                    break;
+                  }
                 }
-              }
-              if (indexToRemove >= 0) {
-                alertsForGene.splice(indexToRemove, 1);
+                if (indexToRemove >= 0) {
+                  alertsForGene.splice(indexToRemove, 1);
+                }
+                
               }
 
             })
@@ -1900,11 +1903,11 @@ export default {
           }
           if (geneNameList) {
             geneNameList.forEach(function(geneName) {
-              let theGeneName = geneName.toUpperCase();
-              let theAlerts = self.geneToAppAlerts[theGeneName];
+              let geneNameUC = geneName.toUpperCase();
+              let theAlerts = self.geneToAppAlerts[geneNameUC];
               if (theAlerts == null) {
                 theAlerts = [];
-                self.geneToAppAlerts[theGeneName] = theAlerts;
+                self.geneToAppAlerts[geneNameUC] = theAlerts;
               }
               theAlerts.push(alert)
             })
@@ -2857,7 +2860,7 @@ export default {
           }
         })
         .catch(function(error) {
-          console.log('Bypassing gene ' + geneName)
+          console.log('Bypassing gene ' + theGeneName)
           console.log(error.hasOwnProperty('message') ? error.message : error)
           let msg = error.hasOwnProperty('message') ? error.message : error;
           reject(msg)
