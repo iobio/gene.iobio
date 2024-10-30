@@ -115,6 +115,9 @@ export default class EndpointCmd {
       let me = this;
       if (this.gruBackend) {
           const refNames = this.getHumanRefNames(refName).split(" ");
+          if (refNames.indexOf(refName) < 0) {
+            refNames.push(refName)
+          }
           const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
           const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
 

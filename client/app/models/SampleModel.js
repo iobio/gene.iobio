@@ -221,7 +221,7 @@ class SampleModel {
 
 
       if (me[dataKind] != null && me[dataKind].features && me[dataKind].features.length > 0) {
-        if (theGetRefNameFunction(geneObject.chr) == me[dataKind].ref &&
+        if (theGetRefNameFunction.apply(me, [geneObject.chr]) == me[dataKind].ref &&
           geneObject.start == me[dataKind].start &&
           geneObject.end == me[dataKind].end &&
           geneObject.strand == me[dataKind].strand) {
@@ -1205,8 +1205,23 @@ class SampleModel {
             } else if (refName == me._stripRefName(theRef)) {
               me.getVcfRefName = me._stripRefName;
               foundRef = true;
-            }
-
+            } else if (theRef == 'chrMT' && refName == 'chrM') {
+              me.getVcfRefName = me._getRefName;
+              me.vcfRefNamesMap[me.getVcfRefName(theRef)] = refName;
+              foundRef = true;
+            } else if (theRef == 'chrMT' && refName == 'M') {
+              me.getVcfRefName = me._stripRefName;
+              me.vcfRefNamesMap[me.getVcfRefName(theRef)] = refName;
+              foundRef = true;
+            } else if (theRef == 'chrM' && refName == 'chrMT') {
+              me.getVcfRefName = me._getRefName;
+              me.vcfRefNamesMap[me.getVcfRefName(theRef)] = refName;
+              foundRef = true;
+            } else if (theRef == 'chrM' && refName == 'MT') {
+              me.getVcfRefName = me._stripRefName;
+              me.vcfRefNamesMap[me.getVcfRefName(theRef)] = refName;
+              foundRef = true;
+            } 
           });
           // Load up a lookup table.  We will use me for validation when
           // a new gene is loaded to make sure the ref exists.
@@ -1242,10 +1257,12 @@ class SampleModel {
 
 
   _getRefName(refName) {
-    return refName;
+    let me = this;
+    return me._translateRefName(refName);
   }
 
   _stripRefName(refName) {
+    let me = this;
     var tokens = refName.split("chr");
     var strippedName = refName;
     if (tokens.length > 1) {
@@ -1256,7 +1273,17 @@ class SampleModel {
         strippedName = tokens[1];
       }
     }
-    return strippedName;
+    return me._translateRefName(strippedName);
+  }
+  
+  _translateRefName(refName) {
+    let me = this;
+    let theRefName = me.vcfRefNamesMap[refName]
+    if (theRefName) {
+      return theRefName;
+    } else {
+      return refName;
+    }
   }
 
 
