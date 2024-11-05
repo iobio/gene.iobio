@@ -2999,37 +2999,6 @@ class CohortModel {
           }
         })
         promises.push(p)
-        /*
-        var theGeneObject = me.geneModel.geneObjects[ir.gene];
-        if (theGeneObject == null || !ir.transcript || ir.transcript == '') {
-          var promise = me.geneModel.promiseGetCachedGeneObject(ir.gene, true)
-          .then(function(theGeneObject) {
-            if (theGeneObject.notFound) {
-              me.geneModel.promiseIsKnownGene(theGeneObject.notFound)
-              .then(function(response) {
-                  if (response.isKnownGene) {
-                    me.geneModel.promiseAddGeneName(response.geneName);
-                  } else {
-                    me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene <pre>' + response.geneName + "</pre>.", response.geneName);
-                  }
-              })
-            } else if (ir.gene && theGeneObject.notFound === undefined){
-              me.geneModel.promiseIsKnownGene(ir.gene)
-              .then(function(response) {
-                if (response.isKnownGene) {
-                  me.geneModel.promiseAddGeneName(response.geneName);
-                } else {
-                  me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene <pre>' + response.geneName + "</pre>.", response.geneName);
-                }
-              })
-            }
-          })
-          .catch(function(error) {
-            me.dispatch.alertIssued('warning', error.message, error.gene)
-          })
-          promises.push(promise);
-        }
-        */
       }
     })
 
