@@ -310,7 +310,7 @@
             promisePopulateAliases: function() {
               let self = this;
               self.aliases = ""
-              self.cohortModel.geneModel.promiseGetKnownGene(self.selectedGene.gene_name)
+              self.cohortModel.geneModel.promiseGetGeneEntry(self.selectedGene.gene_name)
               .then(function(knownGeneEntry) {
                 if (knownGeneEntry && knownGeneEntry.aliases && knownGeneEntry.aliases.length > 0) {
                   // Add a space after the comma for word wrapping

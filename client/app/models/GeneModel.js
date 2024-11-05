@@ -77,9 +77,8 @@ class GeneModel {
     this.geneToHPOTerms = {};
 
 
-    this.lookupGenesMap = new CaseInsensitiveMap();
-    this.correctGeneNameMap = new CaseInsensitiveMap();
-    this.allKnownGeneNames = {};
+    this.validGeneNameMap = new CaseInsensitiveMap();
+    this.geneEntryMap = {};
     this.clinvarGenes = {};
 
     this.transcriptCodingRegions = {};
@@ -377,7 +376,7 @@ class GeneModel {
         // gene names so that we don't make individual
         // requests to gene info service to lookup the
         // gene entry
-        self.promiseCacheKnownGeneNames(genesToAdd)
+        self.promiseCacheGeneEntries(genesToAdd)
         .then(function() {
           let promises = [];
           genesToAdd.forEach(function(geneName) {
@@ -586,12 +585,12 @@ class GeneModel {
       var unknownGeneNames = {};
       var duplicateGeneNames = {};
       var promises = [];
-      me.promiseCacheKnownGeneNames(geneNameList)
+      me.promiseCacheGeneEntries(geneNameList)
       .then(function() {
         geneNameList.forEach( function(geneName) {
           let theGeneName = geneName.trim();
           if (theGeneName.length > 0) {
-            let p = me.promiseIsKnownGene(theGeneName)
+            let p = me.promiseIsValidGeneName(theGeneName)
             .then(function(response) {
               if (response.isKnownGene) {
                 if (options.replace) {
@@ -1537,6 +1536,15 @@ class GeneModel {
     if (self.geneObjects && self.geneObjects.hasOwnProperty(geneNameUC)) {
       delete self.geneObjects[geneNameUC];
     }
+    
+    
+    if (self.geneEntryMap && self.geneEntryMap.hasOwnProperty(geneNameUC)) {
+      delete self.geneEntryMap[geneNameUC];
+    }
+    
+    if (self.validGeneNameMap && self.validGeneNameMap.has(geneNameUC)) {
+      self.validGeneNameMap.delete(geneNameUC);
+    }
 
     if (self.geneNCBISummaries && self.geneNCBISummaries.hasOwnProperty(geneName)) {
       delete self.geneNCBISummaries[geneName];
@@ -1754,11 +1762,13 @@ class GeneModel {
       $('#build-link').text(buildName);
 
       var defaultGeneSource = me.geneSource ? me.geneSource : 'gencode';
+      var otherGeneSource = defaultGeneSource == 'gencode' ? 'refseq' : 'gencode';
       // First, find out if the gene provided has transcripts for the given build and gene source
-      me.promiseGetKnownGene(theGeneName, true)
+      me.promiseGetGeneEntry(theGeneName, true)
       .then(function(knownGene) {
         let theGeneSource = null;
         let thePromise = null;
+        let theKnownGene = knownGene;
         // Success. We have a gene with transcripts for the build and gene source
         if (knownGene != null && knownGene != false && knownGene[buildName] && knownGene[buildName][defaultGeneSource] 
            && knownGene[buildName][defaultGeneSource] > 0) {
@@ -2147,21 +2157,23 @@ class GeneModel {
     
     let promises = [];
     me.phenolyzerGenes = [];
-
-    rawPhenolyzerGenes.forEach(function(phenolyzerGene) {
-      if (phenolyzerGene.selected) {
-        let p = me.promiseGetCorrectGeneName(phenolyzerGene.geneName)
-        promises.push(p)
-      }
+    
+    let inputGeneNames = rawPhenolyzerGenes.filter(function(phenolyzerGene){
+      return phenolyzerGene.selected
     })
-    Promise.all(promises)
+    .map(function(pg) {
+      return pg.geneName;
+    })
+    me.promiseGetCorrectGeneNames(inputGeneNames)
     .then(function() {
       rawPhenolyzerGenes.forEach(function(phenolyzerGene) {
         if (phenolyzerGene.selected) {
-          let correctName = me.correctGeneNameMap.get(phenolyzerGene.geneName)
+          let correctName = me.validGeneNameMap.get(phenolyzerGene.geneName)
           if (correctName && typeof correctName === 'string') {
             phenolyzerGene.geneName = correctName;
-          }
+          } else if (correctName && correctName.hasOwnProperty('gene_alias')) {
+            phenolyzerGene.geneName = correctName.gene_alias;
+          } 
         }
         me.phenolyzerGenes.push(phenolyzerGene)
       })
@@ -2341,7 +2353,7 @@ class GeneModel {
   }
 
 
-  promiseIsKnownGene(geneName) {
+  promiseIsValidGeneName(geneName) {
     let self = this;
     return new Promise(function(resolve, reject) {
       let theGeneName = geneName;
@@ -2349,7 +2361,7 @@ class GeneModel {
         // Edge case. We have a null gene name.
         resolve({'isKnownGene': false, 'geneName': theGeneName})
       } else {
-        self.promiseLookupGene(theGeneName, true)
+        self.promiseGetValidGeneName(theGeneName, true)
         .then(function(lookupObject) {
           if (lookupObject) {
             resolve({'isKnownGene': true, 'geneName': theGeneName});
@@ -2364,24 +2376,43 @@ class GeneModel {
     })
   }
   
-  /* This is a case-insenstivie lookup. The promise will resolve with an object 
-  *  when the gene name is found, providing an object with gene_name set to the 
-  *  case-sensitive gene name. If the gene name is not found, the promise
-  *  will resolve with the boolean false.
+
+    
+  /* This is a case-insensitive lookup of gene names. The promise will resolve 
+  *  with an object (map) with a key set to the input gene name and the value
+  *  set to the case-sensitive gene name, or if not found, set to false.
+  *  Example result:
+  *    {'c9orf72': 'C9orf72', 'rai1': 'RAI1', 'MTHFR': 'MTHFR', 'foo': false}
+  *  
   */
-  promiseGetCorrectGeneName(geneName) {
+  promiseGetCorrectGeneNames(geneNames) {
     let self = this;
     return new Promise(function(resolve, reject) {
-      let theGeneName = geneName;
-      let cachedEntry = self.correctGeneNameMap.get(theGeneName)
-      if (cachedEntry != null) {
-        // We have already looked this gene. Return the cached entry.
-        resolve(cachedEntry);
+      let theGeneNames = geneNames;
+      let geneNamesToLookup = [];
+      let theGeneNameMap = new CaseInsensitiveMap();
+      
+      // Figure out which gene names we need to lookup (not cached)
+      geneNames.forEach(function(geneName) {
+        let cachedEntry = self.validGeneNameMap.get(geneName);
+        if (cachedEntry) {
+          theGeneNameMap.set(geneName, cachedEntry);
+        } else if (cachedEntry == null) {
+          geneNamesToLookup.push(geneName)
+        } else if (cachedEntry == false) {
+          theGeneNameMap.set(geneName, false);
+        }
+      })
+      
+      
+      if (geneNamesToLookup.length == 0) {
+        // We have already looked up these genes. Resolve with the cached entries.
+        resolve(theGeneNameMap);
       } else {
         // Call the gene info service to get the entry for this gene. This will return
         // candidate gene names (exactMatch=false), so the response will be filtered
         // based on a case-insensitive match.
-        let url = self.globalApp.geneInfoServer + "lookup/" + theGeneName + '?searchAlias=never&exactMatch=false';
+        let url = self.globalApp.geneInfoServer + "api/lookupGenes" + '?searchAlias=never&genes=' + geneNamesToLookup.join(",");
         $.ajax({
           url: url,
           jsonp: "callback",
@@ -2392,24 +2423,35 @@ class GeneModel {
               let entry = null;
               let match = false;
               if (response.genes && response.genes.length > 0) {
-                response.genes.forEach(function(geneEntry) {
-                  if (geneEntry.gene_name.toLowerCase() == theGeneName.toLowerCase()) {
-                    match = geneEntry.gene_name;    
+              // For each gene in the response, cache the gene entry if found. 
+              // If the gene wasn't found, cache with the entry set to false. 
+              // This will prevent the re-issue unecessary calls 
+              // to gene info service.
+              response.genes.forEach(function(geneEntry) {
+                  if (geneEntry.match) {
+                    let inputGeneName   = geneEntry['input_gene_name']
+                    let matchedEntry = null;
+                    if (geneEntry.hasOwnProperty('gene_name')) {
+                      matchedEntry = geneEntry['gene_name'] 
+                    } else if (geneEntry.hasOwnProperty('gene_alias')) {
+                      matchedEntry = geneEntry;
+                    }
+                    theGeneNameMap.set(inputGeneName, matchedEntry);
+                    self.validGeneNameMap.set(inputGeneName, matchedEntry);
+                  } else {
+                    let inputGeneName = geneEntry['input_gene_name']
+                    theGeneNameMap.set(inputGeneName, false);
+                    self.validGeneNameMap.set(inputGeneName, false);
                   }             
                 })
               }
               
-              // Cache the gene entry if found. If the gene wasn't found, 
-              // cache with the entry set to false. This
-              // will allow us to not re-issue unecessary calls 
-              // to gene info service
-              // for a gene name not found.
-              self.correctGeneNameMap.set(theGeneName, match)
+             
 
-              resolve(match)
+              resolve(theGeneNameMap)
             } else {
               console.log(msg);
-              reject("Problem in GeneModel.promiseGetCorrectGeneName() getting response from " + url)
+              reject("Problem in GeneModel.promiseGetCorrectGeneNames() getting response from " + url)
             }
           },
           error: function( xhr, status, errorThrown ) {
@@ -2424,12 +2466,12 @@ class GeneModel {
   }
 
 
-  promiseGetKnownGene(geneName) {
+  promiseGetGeneEntry(geneName) {
     let self = this;
     return new Promise(function(resolve, reject) {
       let theGeneName = geneName;
       let geneNameUC = geneName.toUpperCase();
-      let cachedEntry = self.allKnownGeneNames[geneNameUC]
+      let cachedEntry = self.geneEntryMap[geneNameUC]
       if (cachedEntry != null) {
         // We have already looked this gene. Return the cached entry.
         resolve(cachedEntry);
@@ -2446,19 +2488,19 @@ class GeneModel {
               let entry = null;
               if (response.genes && response.genes.length > 0) {
                 response.genes.forEach(function(geneEntry) {
-                  if (!self.allKnownGeneNames.hasOwnProperty(geneEntry.gene_name.toUpperCase())) {
-                    self.allKnownGeneNames[geneEntry.gene_name.toUpperCase()] = geneEntry;
+                  if (!self.geneEntryMap.hasOwnProperty(geneEntry.gene_name.toUpperCase())) {
+                    self.geneEntryMap[geneEntry.gene_name.toUpperCase()] = geneEntry;
                   }
                 })
               }
               // If the gene wasn't found, cache with the entry set to false. This
               // will allow us to not re-issue unecessary calls to gene info service
               // for a gene name not found.
-              if (!self.allKnownGeneNames.hasOwnProperty(geneNameUC)) {
-                self.allKnownGeneNames[geneNameUC] = false
+              if (!self.geneEntryMap.hasOwnProperty(geneNameUC)) {
+                self.geneEntryMap[geneNameUC] = false
               }
 
-              resolve(self.allKnownGeneNames[geneNameUC])
+              resolve(self.geneEntryMap[geneNameUC])
             } else {
               console.log(msg);
               reject("Problem getting response from " + url)
@@ -2480,14 +2522,14 @@ class GeneModel {
    * Lookup entries for a list of gene names. This will speedup lookup because we will
    * make one request for all gene names rather than making multiple requests (one for each
    * gene name). After this method is invoked, the caller can assume in the then()
-   * block that self.allKnownGeneNames will have an entry for each of the gene names
+   * block that self.geneEntryMap will have an entry for each of the gene names
    * sent into this method. 
-   * NOTE: To minimize requests for genes that are not found, the lookup map allKnownGeneNames
+   * NOTE: To minimize requests for genes that are not found, the lookup map geneEntryMap
    *       will map 'false' to the gene name. When the gene name is found, the entry
    *       (an object with build keys and counts for each gene source) will be mapped
    *       to the gene name.
    */ 
-  promiseCacheKnownGeneNames(geneNames) {
+  promiseCacheGeneEntries(geneNames) {
     let self = this;
     return new Promise(function(resolve, reject) {
       let theGeneNames = geneNames.filter(function(geneName) {
@@ -2496,7 +2538,7 @@ class GeneModel {
       let genesNotCached = [];
       let cachedEntries = [];
       theGeneNames.forEach(function(theGeneName) {
-        let cachedEntry = self.allKnownGeneNames[theGeneName.toUpperCase()]
+        let cachedEntry = self.geneEntryMap[theGeneName.toUpperCase()]
         if (cachedEntry == null) {
           genesNotCached.push(theGeneName)
         } else {
@@ -2522,16 +2564,16 @@ class GeneModel {
               if (response.genes && response.genes.length > 0) {
                 // Hash all of the entries return from the geneinfo lookupEntries service
                 response.genes.forEach(function(geneEntry) {
-                  if (!self.allKnownGeneNames.hasOwnProperty(geneEntry.gene_name.toUpperCase())) {
-                    self.allKnownGeneNames[geneEntry.gene_name.toUpperCase()] = geneEntry;
+                  if (!self.geneEntryMap.hasOwnProperty(geneEntry.gene_name.toUpperCase())) {
+                    self.geneEntryMap[geneEntry.gene_name.toUpperCase()] = geneEntry;
                   }
                 })
                 // Now loop through the genes we attempted to look up but
                 // didn't find in the database. Add missing genes with a boolean false
                 // value so that we don't attempt getting this entry again
                 genesNotCached.forEach(function(theGeneName) {
-                  if (!self.allKnownGeneNames.hasOwnProperty(theGeneName.toUpperCase())) {
-                    self.allKnownGeneNames[theGeneName.toUpperCase()] = false;
+                  if (!self.geneEntryMap.hasOwnProperty(theGeneName.toUpperCase())) {
+                    self.geneEntryMap[theGeneName.toUpperCase()] = false;
                   }
                 })
                 resolve();
@@ -2539,8 +2581,8 @@ class GeneModel {
                 // No genes were returned. Cache the gene names with false so that we don't
                 // attempt lookup again.
                 genesNotCached.forEach(function(theGeneName) {
-                  if (!self.allKnownGeneNames.hasOwnProperty(theGeneName.toUpperCase())) {
-                    self.allKnownGeneNames[theGeneName.toUpperCase()] = false
+                  if (!self.geneEntryMap.hasOwnProperty(theGeneName.toUpperCase())) {
+                    self.geneEntryMap[theGeneName.toUpperCase()] = false
                   }
                 })
                 resolve();
@@ -2560,14 +2602,14 @@ class GeneModel {
 
     })
   }
-  promiseLookupGene(geneName, exactMatch=true) {
+  promiseGetValidGeneName(geneName, exactMatch=true) {
     let self = this;
     return new Promise(function(resolve, reject) {
       let theGeneName = geneName;
       let geneNameUC = geneName.toUpperCase();
 
-      if (self.lookupGenesMap.has(theGeneName)) {
-        resolve(self.lookupGenesMap.get(theGeneName))
+      if (self.validGeneNameMap.has(theGeneName)) {
+        resolve(self.validGeneNameMap.get(theGeneName))
       } else {
         let url = self.globalApp.geneInfoServer + "lookup/" + theGeneName + "?searchAlias=last&exactMatch=" + (exactMatch ? "true" : "false");
         $.ajax({
@@ -2582,10 +2624,10 @@ class GeneModel {
                 if (!matchingLookup) {
                   if (lookupObject.gene_name.toUpperCase() == geneNameUC) {
                     matchingLookup = lookupObject.gene_name;
-                    self.lookupGenesMap.set(theGeneName, lookupObject.gene_name);
+                    self.validGeneNameMap.set(theGeneName, lookupObject.gene_name);
                   } else if (lookupObject.hasOwnProperty('gene_alias') && lookupObject.gene_alias.toUpperCase() == geneNameUC) {
                     matchingLookup = lookupObject;
-                    self.lookupGenesMap.set(theGeneName, lookupObject);
+                    self.validGeneNameMap.set(theGeneName, lookupObject);
                   }
                 }
               })
@@ -2621,7 +2663,7 @@ class GeneModel {
           geneObjectOrig = results;
     
 
-          self.promiseGetKnownGene(theGeneName)
+          self.promiseGetGeneEntry(theGeneName)
           .then(function(entry) {
             // First, cache the gene's aliases (enbulk) for faster processing
             if (entry && entry.hasOwnProperty('aliases') && entry.aliases.length > 0) {
@@ -2629,7 +2671,7 @@ class GeneModel {
               if (otherGeneNames && otherGeneNames.length > 0)
               // Cache the known gene entries in bulk so that we lookup
               // entries more efficiently
-              self.promiseCacheKnownGeneNames(otherGeneNames)
+              self.promiseCacheGeneEntries(otherGeneNames)
               .then(function() {
                 return Promise.resolve(otherGeneNames)            
               })
@@ -2643,7 +2685,7 @@ class GeneModel {
             // for the given build and source
             let promises = []
             otherGeneNames.forEach(function(otherGeneName) {
-              let otherGeneEntry = self.allKnownGeneNames[otherGeneName.toUpperCase()]
+              let otherGeneEntry = self.geneEntryMap[otherGeneName.toUpperCase()]
 
               if (otherGeneEntry && otherGeneEntry[build] && otherGeneEntry[build][source]) {
                 let transcriptCount = otherGeneEntry[build][source];

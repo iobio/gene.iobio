@@ -397,7 +397,7 @@ export default {
         if (lookupObject) {
           resolve(lookupObject)
         } else {
-          self.geneModel.promiseLookupGene(theGeneName, false)
+          self.geneModel.promiseGetValidGeneName(theGeneName, false)
           .then(function(lookupObject) {
             let match = null;
             if (lookupObject && typeof(lookupObject) == 'string' && lookupObject.toUpperCase() == theGeneNameUC) {
