@@ -2059,9 +2059,9 @@ class GeneModel {
                     + " transcripts for this gene";
             msg += (result.hasOwnProperty('aliasFound') && result.aliasFound == false) ? 
                     " or any of its aliases. " : ". ";
-            msg += (result.transcriptCountOtherSource > 0) ?
-                    " However, this gene has " + transcriptCountOtherSource +  
-                    " <pre>" + result.build + " " + otherGeneSource + "</pre> transcript(s)." + 
+            msg += (result.transcriptCountOtherGeneSource > 0) ?
+                    " However, this gene has " + result.transcriptCountOtherGeneSource +  
+                    " " + result.build + " <strong>" + result.otherGeneSource + " transcript(s)</strong>." + 
                       "<br><br>You can switch the gene source by clicking on the settings icon in the nav bar." +
                     "<br><br><strong><em>NOTE: This will reanalyze all genes.</em></strong> "    
                     :
