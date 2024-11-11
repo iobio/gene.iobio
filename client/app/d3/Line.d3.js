@@ -57,10 +57,10 @@ export default function lineD3() {
     return { x: xn, y: yn };
   }
 
-  var formatCircleText = function(pos, depth) {
-        return pos + ',' + depth;
+  var formatCircleText = function(pos, depth, depthSource) {
+        return pos + ',' + depth + " " + (depthSource && depthSource == "average_base_coverage" ? "x" : " reads");
   }
-  var showCircle = function(start, theDepth, altCount) {
+  var showCircle = function(start, theDepth, altCount, depthSource) {
     if (container == null) {
       return;
     }
@@ -93,7 +93,7 @@ export default function lineD3() {
       if (theDepth == null || theDepth == "") {
         theDepth = depthy.toString();
       }
-      var circleText = formatCircleText(posx, theDepth);
+      var circleText = formatCircleText(posx, theDepth, depthSource);
       if (debug) {
         circleText += ' ' + posx + ':' + depthy + ' ' + invertedx + ':' + invertedy;
       }
