@@ -422,23 +422,51 @@ class GeneModel {
       .then(function(response) {
 
         // We have added the gene, but at this point, we haven't validated it.
-        // Now get the gene object. This promise will reject if the
-        // gene isn't valid and give error information, directly app
-        // to use a gene alias that does have transcripts for the build and
-        // gene source.
-
+        // promiseGetCachedGeneObject() will resolve with the gene
+        // object when the gene name is valid and it has transcripts
+        // for the build and source, and will reject under other
+        // circumstances, detailed in the catch block below.
+        
         return self.promiseGetCachedGeneObject(theGeneName)
       })
       .then(function(geneObject) {
-        // The original gene is valid. Optionally, select the gene from the left side panel.
+        // The original gene is valid and has transcripts for the build and source.
+        //  Optionally, select the gene from the left side panel.
         if (selectOriginalGene) {
           self.dispatch.selectGene(theGeneName)
         }
         resolve({'geneName': theGeneName, 'added': geneAdded, 'success': true, 'geneObject': geneObject});
       })
       .catch(function(error) {
-        console.log('Bypassing gene ' + theGeneName)
-        console.log(error.hasOwnProperty('message') ? error.message : error)
+        
+        // This promise will resolve under this circumstance:
+        // 1. The gene name is found or the gene name is a valid gene alias
+        // AND
+        // 2. The gene has at least 1 transcript for the build and source
+        //
+        // getCachedGeneObject rejected due to one of the following:
+        // 1. The gene name isn't found (response.isValidGeneName is false)
+        // OR
+        // 2. The gene name is valid, but there are no transcripts for the
+        //    build and source. But good news -- there is a gene alias with 
+        //    transcripts for the build and gene source. 
+        //    The catch block will add the alternative gene name
+        //    (response.useDifferentGene) instead of the gene name provided.
+        // OR
+        // 3. The gene name is valid, but there are no transcripts for the
+        //    build and source. But somewhat hopeful news -- We didn't find 
+        //    a suitable alternative gene alias with transcripts, but
+        //    there are transcripts for the other gene source 
+        //    (response.useDifferentSource). The catch block will alert the
+        //    user, but not automatically change the source as this applies
+        //    across all genes and requires reanalysis of the variants.
+        // 4. Bummer. The gene name is valid, but there are no transcripts for the
+        //    build and source, nor are there any alternative gene aliases that
+        //    have transcripts, nor are there any transcripts under the other
+        //    gene source. 
+        // OR
+        // 5. Major bummer. An unexpected error occurred. Alert the user of the error.
+        //    
 
         // The gene that was selected doesn't have any transcripts for the source and
         // build. We are adding a gene that is an alias for the gene to user selected.
@@ -468,7 +496,7 @@ class GeneModel {
                   setTimeout(function() {
                     self.dispatch.alertIssued(error.hasOwnProperty('alertType') ? error.alertType : 'error',
                                   error.hasOwnProperty('message') ? error.message :
-                                                                    'Gene ' + theGeneName + ' not found. Using alias ' + error.useDifferentGene + ' instead.',
+                                        'Gene ' + theGeneName + ' not found. Using alias ' + error.useDifferentGene + ' instead.',
                                   error.useDifferentGene,
                                   null,
                                   error.hasOwnProperty("options") ? error.options : {'selectAlert' : true, 'showAlertPanel': true})
@@ -502,9 +530,9 @@ class GeneModel {
           // for the build and gene source. Reject and add an alert.
           self.dispatch.alertIssued(error.hasOwnProperty('alertType') ? error.alertType : 'error',
             error.hasOwnProperty('message') ? error.message :
-                                              'Gene ' + theGeneName + ' not found. Using alias ' + error.useDifferentGene + ' instead.',
-            error.useDifferentGene,
-            null,
+                              'Unable to get gene transcripts for gene ' + theGeneName,
+            theGeneName,
+            error.hasOwnProperty('errorDetails') ? error.errorDetails : null,
             error.hasOwnProperty("options") ? error.options : {'selectAlert' : true, 'showAlertPanel': true})
 
           if (error.alertType && error.alertType == 'warning') {
@@ -1143,38 +1171,43 @@ class GeneModel {
           var webenv = data["esearchresult"]["webenv"];
           var queryKey = data["esearchresult"]["querykey"];
           var summaryUrl = me.NCBI_GENE_SUMMARY_URL + "&query_key=" + queryKey + "&WebEnv=" + webenv;
-          $.ajax( summaryUrl )
-          .done(function(sumData) {
-              if (sumData.result == null || sumData.result.uids.length == 0) {
-                if (sumData.esummaryresult && sumData.esummaryresult.length > 0) {
-                  sumData.esummaryresult.forEach( function(message) {
-                    console.log("Unable to get NCBI gene summary from eutils esummary")
-                    console.log(message);
-                  });
+          // To avoid status clde 429 (Too Many Requests), wait 1/2 second before issuing the eutil summary request
+          setTimeout(function() {
+            $.ajax( summaryUrl )
+            .done(function(sumData) {
+                if (sumData.result == null || sumData.result.uids.length == 0) {
+                  if (sumData.esummaryresult && sumData.esummaryresult.length > 0) {
+                    sumData.esummaryresult.forEach( function(message) {
+                      console.log("Unable to get NCBI gene summary from eutils esummary")
+                      console.log(message);
+                    });
+                  }
+                  me.geneNCBISummaries[geneName] = unknownGeneInfo;
+                  me.dispatch.alertRetracted("warning", "Unable to get NCBI gene summary", geneName)
+  
+                  resolve(unknownGeneInfo);
+  
+                } else {
+  
+                  var uid = sumData.result.uids[0];
+                  var geneInfo = sumData.result[uid];
+  
+                  me.geneNCBISummaries[geneName] = geneInfo;
+                  me.dispatch.alertRetracted("warning", "Unable to get NCBI gene summary", geneName)
+                  resolve(geneInfo)
                 }
-                me.geneNCBISummaries[geneName] = unknownGeneInfo;
-                me.dispatch.alertRetracted("warning", "Unable to get NCBI gene summary", geneName)
-
-                resolve(unknownGeneInfo);
-
-              } else {
-
-                var uid = sumData.result.uids[0];
-                var geneInfo = sumData.result[uid];
-
-                me.geneNCBISummaries[geneName] = geneInfo;
-                me.dispatch.alertRetracted("warning", "Unable to get NCBI gene summary", geneName)
-                resolve(geneInfo)
-              }
-          })
-          .fail(function() {
-            console.log("Error occurred when making http request to NCBI eutils esummary for gene " + geneName);
-            me.dispatch.alertIssued("warning",
-              "Unable to get NCBI gene summary (esummary) for gene <pre>" + geneName + "</pre>", geneName,
-              ['Error occurred when making http request to NCBI eutils esummary',summaryUrl])
-            me.geneNCBISummaries[geneName] = unknownGeneInfo;
-            resolve(unknownGeneInfo);
-          })
+            })
+            .fail(function(response) {
+              console.log("Error occurred when making http request to NCBI eutils esummary for gene " + geneName);
+              console.log(response)
+              me.dispatch.alertIssued("warning",
+                "Unable to get NCBI gene summary (esummary) for gene <pre>" + geneName + "</pre>", geneName,
+                ['Error occurred when making http request to NCBI eutils esummary',summaryUrl])
+              me.geneNCBISummaries[geneName] = unknownGeneInfo;
+              resolve(unknownGeneInfo);
+            })
+              
+          },500)
 
         })
         .fail(function() {
@@ -1726,7 +1759,22 @@ class GeneModel {
   }
 
 
-
+  /* 
+   * See detailed comments under _promiseGetGeneObject
+   *
+   * Arguments: 
+   *   geneName:       The case-sensitive gene name
+   *   resolveOnError: If _promiseGetGeneObject rejects, 
+   *                   just resolve with a simple object of {notFound: [the gene name]}
+   *   checkAliases:   A boolean, indicating if we should
+   *                   extend our lookup to gene aliases to try to
+   *                   find an alternative gene name that has transcripts
+   * 
+   * This method checks the GeneModel cache first. If the
+   * gene is in the cache, resolve with that cached
+   * gene object. 
+   * If it isn't in the GeneModel cache, call _promiseGetGeneObject.
+   */
   promiseGetCachedGeneObject(geneName, resolveOnError=false, checkAliases=true) {
     var me = this;
     return new Promise( function(resolve, reject) {
@@ -1750,10 +1798,70 @@ class GeneModel {
     });
   }
 
-
+  /* 
+  *
+  * _promiseGetGeneObject
+  *
+  * Arguments
+  *   geneName:      The case-sensitive gene symbol. 
+  *   checkAliases:  A boolean, indicating if this method should
+  *                  interrogate the aliases of a gene in the 
+  *                  case where a valid gene name was supplied,
+  *                  but there are no transcripts for the
+  *                  build and gene source.
+  *
+  * This promise will resolve under the following circumstance:
+  *    1. The gene name is found or the gene name is a valid gene alias
+  *    AND
+  *    2. The gene has at least 1 transcript for the build and source
+  *   
+  *     
+  *  This promise will reject due to one of the following circumstances:
+  *    1. The gene name isn't found (response.isValidGeneName is false)
+  *    OR
+  *    2. The gene name is valid, but there are no transcripts for the
+  *       build and source. But good news -- there is a gene alias with 
+  *       transcripts for the build and gene source. 
+  *       The catch block will add the alternative gene name
+  *       (response.useDifferentGene) instead of the gene name provided.
+  *    OR
+  *    3. The gene name is valid, but there are no transcripts for the
+  *       build and source. But somewhat hopeful news -- We didn't find 
+  *       a suitable alternative gene alias with transcripts, but
+  *       there are transcripts for the other gene source 
+  *       (response.useDifferentSource). The catch block will alert the
+  *       user, but not automatically change the source as this applies
+  *       across all genes and requires reanalysis of the variants.
+  *    OR
+  *    4. Bummer. The gene name is valid, but there are no transcripts for the
+  *       build and source, nor are there any alternative gene aliases that
+  *       have transcripts, nor are there any transcripts under the other
+  *       gene source. 
+  *    OR
+  *    5. Major bummer. An unexpected error occurred. Alert the user of the error.
+  * 
+  *    Here is the error object from the reject:
+  *     gene:              The gene name supplied by the caller of this method.
+  *     useDifferentGene:  The alternate gene name that can be used
+  *                        instead of the gene name supplied. 
+  *     useDifferentSource: The other gene source that can
+  *                        be set instead of the one currently in use.
+  *                        If the gene source is switched, the gene 
+  *                        name supplied has transcripts.
+  *     isValidGeneName      A boolean. True when the gene name supplied exists
+  *                        in either refseq or gencode or is a known HGVS gene
+  *                        alias.
+  *     message:           The alert message
+  *     alertType:         Whether the alert message constitutes an error or warning 
+  *     options:           Options about how to display the warning/error message to
+  *                        to user.
+  *     errorDetails:      An array of strings to supply more detailed error message
+  *                        to the user.
+  */      
   _promiseGetGeneObject(geneName, checkAliases = true) {
     var me = this;
     return new Promise(function(resolve, reject) {
+
 
       let theGeneName = geneName;
 
@@ -1763,39 +1871,50 @@ class GeneModel {
 
       var defaultGeneSource = me.geneSource ? me.geneSource : 'gencode';
       var otherGeneSource = defaultGeneSource == 'gencode' ? 'refseq' : 'gencode';
+      
       // First, find out if the gene provided has transcripts for the given build and gene source
       me.promiseGetGeneEntry(theGeneName, true)
-      .then(function(knownGene) {
+      .then(function(geneEntry) {
         let theGeneSource = null;
         let thePromise = null;
-        let theKnownGene = knownGene;
+        let theGeneEntry = geneEntry;
         // Success. We have a gene with transcripts for the build and gene source
-        if (knownGene != null && knownGene != false && knownGene[buildName] && knownGene[buildName][defaultGeneSource] 
-           && knownGene[buildName][defaultGeneSource] > 0) {
+        if (theGeneEntry != null && theGeneEntry != false 
+          && theGeneEntry[buildName] 
+          && theGeneEntry[buildName][defaultGeneSource]) {
+            
           theGeneSource = defaultGeneSource
-          thePromise = Promise.resolve({'geneName': knownGene.gene_name,
+          thePromise = Promise.resolve({'geneName': theGeneEntry.gene_name,
                                         'build': buildName,
                                         'geneSource': defaultGeneSource,
-                                        'success': true});
+                                        'success': true,
+                                        'otherGeneSource': otherGeneSource,
+                                        'transcriptCountOtherGeneSource': theGeneEntry[buildName][otherGeneSource]});
         } else {
           theGeneSource = null;
-          if (knownGene) {
+          if (theGeneEntry) {
+            let transcriptCountOtherSource = theGeneEntry[buildName][otherGeneSource]  
+            
             // The gene exists but it doesn't have transcripts for the build and
-            // gene source. Check if any of the aliases the gene do transcripts
+            // gene source. Check if any of the aliases the gene have transcripts
             // for the build and source. If so, we will resolve with an object with a
-            // preferred_gene_name filled in.
+            // preferredGeneName filled in that will be used in the catch block
+            // to reject with warning message and the alternative gene name
+            // to use instead.
             if (checkAliases) {
               thePromise = me.promiseGetPreferredGeneName(theGeneName, buildName, defaultGeneSource)
             } else {
               // The caller of the method doesn't want to check for aliases.
-              thePromise = {'geneName': theGeneName,
+              // The subsequent "then()" block will formulate a detailed warning
+              // message.
+              thePromise = Promise.resolve( {'geneName': theGeneName,
                             'build':      buildName,
                             'geneSource': defaultGeneSource,
                             'success':    false,
-                            'alertType':  'warning',
-                            'message':    "The gene doesn't have transcripts for build " +
-                                          buildName + " from " + defaultGeneSource + "."
-                           }
+                            'isValidGeneName': true,   
+                            'otherGeneSource': otherGeneSource,
+                            'transcriptCountOtherGeneSource': transcriptCountOtherSource,                         
+                           })
             }
           } else {
             // The gene doesn't exist.
@@ -1803,13 +1922,14 @@ class GeneModel {
                                          'build':      buildName,
                                          'geneSource': defaultGeneSource,
                                          'success':    false,
+                                         'isValidGeneName': false,
                                          'alertType':  'warning',
                                          'message':    "Invalid gene name. No entry found for <pre>" + theGeneName + "</pre>."
                                          });
           }
         }
 
-        return thePromise
+        return thePromise;
       })
       .then(function(result) {
         // This is the positive use case where the gene name provided (the argument to this method)
@@ -1835,88 +1955,143 @@ class GeneModel {
                 let msg = "Unexpected result from geneinfo service. Bypassing gene <pre>" + theGeneName +
                           "</pre>. There are no transcripts for this gene or any of its aliases.";
                 console.log(msg);
-                reject({'message': msg,
+                reject({
                         'gene': theGeneName,
+                        'isValidGeneName': true,
+                        'message': msg,
                         'alertType': 'error',
                         'options': {'showAlertPanel': true, 'selectAlert': true} });
               } else {
-                // For each transcript in the gene, determine the exons, creating a new array. Sort the exons and number them.
+                // 
+                // SUCCESS
+                //
+                // For each transcript in the gene, determine the exons, creating a new array. 
+                // Sort the exons and number them.
                 // Apply this number to the coding features (UTR, CDS).
+                // Resolve with the gene object
                 me.determineExons(theGeneObject)
                 me.geneObjects[theGeneObject.gene_name.toUpperCase()] = theGeneObject;
                 resolve(theGeneObject);
               }
             } else {
-              // We shouldn't hit this condition b/c we already determined via getKnownGene
+              // We shouldn't hit this condition b/c we already determined via promiseGetGeneEntry
               // that this gene has transcripts for the build and gene source.
               let msg = "Unexpected result. Bypassing gene <pre>" + theGeneName + "</pre>. There are no " +
                         result.geneSource + " " + result.build + " transcripts for this gene.";
               console.log(msg);
-              reject({'message': msg,
+              reject({
                       'gene': theGeneName,
+                      'isValidGeneName': false,
+                      'message': msg,
                       'alertType': 'error',
                       'options': {'showAlertPanel': true, 'selectAlert': true}
                     });
             }
           })
           .catch((errorThrown) => {
-            console.log("An error occurred when getting transcripts for gene " +  theGeneName + ".");
+            console.log("An unexpected error occurred when getting transcripts for gene " +  theGeneName + ".");
             console.log( "Error: " + errorThrown );
             let msg = "Error " + errorThrown + " occurred when attempting to get transcripts for gene <pre>" + theGeneName + "</pre>";
-            reject({'message': msg,
+            reject({
                     'gene': theGeneName,
+                    'isValidGeneName': false,
+                    'message': msg,
                     'alertType': 'error',
-                    'options': {'showAlertPanel': true, 'selectAlert': true}
+                    'options': {'showAlertPanel': true, 'selectAlert': true},
+                    'errorDetails': [errorThrown]
                   });
           });
 
         } else {
-          // The gene name is valid, but there are no transcripts for the given build and source. 
+
+          // Reject with an error object that directs the caller to either:
+          //
+          // SCENARIO 1. Use a different gene name and notify the user of the substitution. 
+          //  OR
+          // SCENARIO 2. The gene name is valid. 
+          //    No suitable gene alias was found or the caller of the method didn't want to check
+          ///   aliases. Provide a warning message that informs the user 
+          //    that the gene will be bypassed. In the case where the other gene source has 
+          //    transcripts for the gene, the warning message will suggest changing the gene source.
+          // OR
+          // SCENARIO 3. The gene name is invalid. 
+          // OR
+          // SCENARIO 4. An unexpected error occurred in the chain of promises. Reject with the error information.
           
-          let msg = "Bypassing gene <pre>" + theGeneName + "</pre>. "
-          if (result.hasOwnProperty('preferredGeneName')) {
-            // There is an alias to the gene does have transcripts. Reject with an object
+          let msg = "Bypassing gene <pre>" + theGeneName + "</pre>. ";
+          if (result.isValidGeneName && result.preferredGeneName && result.preferredGeneName.length > 0) {
+            //
+            // SCENARIO 1. 
+            // There is an alias to the gene that has transcripts. Reject with an object
             // that will offer a preferred gene name to use instead.
           
             // Reject, specifying the different gene name to use.
-            // The caller of this method will respond by re-issuing promiseGetGeneObject with another
-            // gene name (an alias for the gene that has transcripts). A warning will be issued
-            // so that the user is aware that the gene they selected does not have transcripts, but a
-            // gene alias of this gene will be used instead as it has transcripts.
+            // The caller of this method will respond by re-issuing the add gene operation
+            // with another gene name (an alias for the gene that has transcripts). 
+            // A warning should be issued  so that the user is aware that of the gene 
+            // name substitution.
+            //
             msg += "Analyzing gene <pre>" + result.preferredGeneName + "</pre> instead."
-            reject({'message':   msg,
+            
+            
+            reject({
                     'gene':      theGeneName,
+                    'isValidGeneName': result.hasOwnProperty('isValidGeneName') ? result.isValidGeneName : false,
+                    'useDifferentGene': result.preferredGeneName,
+                    'message':   msg,
                     'alertType': 'warning',
                     'options':   {'showAlertPanel': true,
-                                  'selectAlert': true},
-                    'useDifferentGene': result.preferredGeneName });
+                                  'selectAlert': true}
+                     });
 
+          } else if (result.isValidGeneName 
+            && result.hasOwnProperty('otherGeneSource') 
+            && result.hasOwnProperty('transcriptCountOtherGeneSource'))  {
+            // 
+            //  SCENARIO 2. 
+            //  Reject. The gene name is valid, but there are no transcripts for the gene 
+            //  (for the given build and gene source). And if directed to check aliases, there 
+            //  were no suitable subsitutions (aliases) for the gene that had transcripts. 
+            //  Supply information about switching to the other gene source if the gene has transcripts 
+            //  under the other gene source.
+            //
+            msg += "There are no " + result.build + " " + result.geneSource 
+                    + " transcripts for this gene";
+            msg += (result.hasOwnProperty('aliasFound') && result.aliasFound == false) ? 
+                    " or any of its aliases. " : ". ";
+            msg += (result.transcriptCountOtherSource > 0) ?
+                    " However, this gene has " + transcriptCountOtherSource +  
+                    " <pre>" + result.build + " " + otherGeneSource + "</pre> transcript(s)." + 
+                      "<br><br>You can switch the gene source by clicking on the settings icon in the nav bar." +
+                    "<br><br><strong><em>NOTE: This will reanalyze all genes.</em></strong> "    
+                    :
+                    "";
+            reject( {
+              'gene':      theGeneName,
+              'isValidGeneName': result.isValidGeneName,
+              'message':   msg,
+              'alertType': 'warning',
+              'options':   {'showAlertPanel': true, 'selectAlert': true} });
+          } else if (result.hasOwnProperty('message') && result.hasOwnProperty('alertType')) {
+            // SCENARIO 3. 
+            // Reject. The gene name is invalid. 
+            reject({
+                'gene':      theGeneName,
+                'isValidGeneName': result.hasOwnProperty('isValidGeneName') ? result.isValidGeneName : false,
+                'message':   result.message,
+                'alertType': result.alertType,
+                'options':   {'showAlertPanel': true, 'selectAlert': true} });
           } else {
-            // Reject occurs because the gene name doesn't have any transcripts for the gene source and build
-            // and no suitable gene alias was found that has transcripts for the gene source and build.)
-            if (result.message && result.alertType) {
-              reject({
-                 'message':   result.message,
-                 'gene':      theGeneName,
-                 'alertType': result.alertType,
-                 'options':   {'showAlertPanel': true, 'selectAlert': true} });
-
-            } else if (result.hasOwnProperty('aliasFound') && result.aliasFound == false) {
-              // There are not any suitable replacement aliases for this gene.
-              reject( {
-                'message':   'Bypassing gene <pre>' + theGeneName +
-                             '</pre>. There are no transcripts for this gene or any of its aliases.',
-                'gene':      theGeneName,
-                'alertType': 'warning',
-                'options':   {'showAlertPanel': true, 'selectAlert': true} });
-            } else {
-              reject({
-                'message':  'An unexpected problem occurred when getting gene object',
-                'gene':      theGeneName,
-                'alertType': 'error',
-                'options':   {'showAlertPanel': true, 'selectAlert': true} });
-
-            }
+            // SCENARIO 4. 
+            // Reject. An unexpected error occurred
+            console.log(result)
+            reject({
+              'message':  'An unexpected problem occurred when getting gene object',
+              'gene':      theGeneName,
+              'isValidGeneName': false,
+              'alertType': 'error',
+              'options':   {'showAlertPanel': true, 'selectAlert': true},
+              'errorDetails': [result]});
           }
         }
       })
@@ -1927,7 +2102,8 @@ class GeneModel {
         reject({'message': msg,
                 'gene': theGeneName,
                 'alertType': 'error',
-                'options': {'showAlertPanel': true, 'selectAlert': true}
+                'options': {'showAlertPanel': true, 'selectAlert': true},
+                'errorDetails': [error]
               });
       })
     })
@@ -2649,6 +2825,29 @@ class GeneModel {
     })
   }
 
+  /*
+  * promiseGetPreferredGeneName
+  *
+  * Arguments:
+  *  geneName: The gene name (case sensitive) that doesn't have transcripts. This method
+  *            will evaluate the aliases to find a suitable substitution
+  *  build:    The genome build
+  *  source:   The gene source which provides coordinates and transcripts (refseq or gencode)
+  * 
+  * Output:
+  *   Resolve with an object that identifies the alias that is a suitable replacement, meeting
+  *   the following criteria:
+  *   1. Has at least 1 transcript for the build and gene source
+  *   2. If the original gene has coordinates (for the gene source), the
+  *      alias must have the same coordinates. This ensures that an alias
+  *      on a different chromosome or at a different location is 
+  *      used as a substitution.
+  *   If the gene has no aliases or non that meet the criteria, resolve with aliasFound = false
+  *   and preferredGeneName = null.
+  * 
+  *   Reject:
+  *   When an unexpected error occurs.
+  */
   promiseGetPreferredGeneName(geneName, build, source) {
     let self = this;
 
@@ -2656,95 +2855,100 @@ class GeneModel {
       let theGeneName = geneName;
       let otherGeneNames = null;
       let preferredGeneName = null;
-      let geneObjectOrig = null;
-      self.promiseGetCachedGeneObject(theGeneName, true, false)
-      .then(function(results) {
-        if (results && results.hasOwnProperty('gene_name')) {
-          geneObjectOrig = results;
-    
+      let transcriptCountPreferredGeneName = null;
+      let transcriptCountOtherGeneSource = null;
+      let geneOrigChr = null;
+      let geneOrigStart = null;
+      let geneOrigEnd = null;
+      
+      let otherGeneSource = source == 'gencode' ? 'refseq' : 'gencode';
+      
+      
 
-          self.promiseGetGeneEntry(theGeneName)
-          .then(function(entry) {
-            // First, cache the gene's aliases (enbulk) for faster processing
-            if (entry && entry.hasOwnProperty('aliases') && entry.aliases.length > 0) {
-              otherGeneNames = entry.aliases.split(",");
-              if (otherGeneNames && otherGeneNames.length > 0)
-              // Cache the known gene entries in bulk so that we lookup
-              // entries more efficiently
-              self.promiseCacheGeneEntries(otherGeneNames)
-              .then(function() {
-                return Promise.resolve(otherGeneNames)            
-              })
-            } else {
-              otherGeneNames = [];
-              return Promise.resolve();
-            }
-          })
-          .then(function() {
-            // Keep the first gene alias that has transcripts
-            // for the given build and source
-            let promises = []
-            otherGeneNames.forEach(function(otherGeneName) {
-              let otherGeneEntry = self.geneEntryMap[otherGeneName.toUpperCase()]
-
-              if (otherGeneEntry && otherGeneEntry[build] && otherGeneEntry[build][source]) {
-                let transcriptCount = otherGeneEntry[build][source];
-                if (transcriptCount > 0 && preferredGeneName == null) {
-                  
-                  let p = self.promiseGetCachedGeneObject(otherGeneEntry.gene_name, true, false)
-                  .then(function(otherGeneObject) {
-                    if (preferredGeneName == null && otherGeneObject && otherGeneObject.hasOwnProperty('gene_name')) {
-                      if (otherGeneObject.chr == geneObjectOrig.chr && 
-                          otherGeneObject.start == geneObjectOrig.start &&
-                          otherGeneObject.end == geneObjectOrig.end) {
-                        preferredGeneName = otherGeneObject.gene_name
-                      }
-                    }
-                  })
-                  promises.push(p)
-                }
-              }
-            })
-            Promise.all(promises)
-            .then(function() {
-           
-              if (preferredGeneName) {
-                resolve({'preferredGeneName': preferredGeneName,
-                        'geneName': theGeneName,
-                        'geneSource': source,
-                        'build': build,
-                        'aliasFound': true})
-              } else {
-                resolve({'geneName': theGeneName,
-                        'geneSource': source,
-                        'build': build,
-                        'aliasFound': false })
-              }
-            })
-
-          })
-          .catch(function(error) {
-            let msg = "Problem getting known gene entry for aliases of gene " + theGeneName;
-            console.log(msg)
-            console.log(error)
-            self.dispatch.alertIssued('error', msg, theGeneName, [error] );
-            reject(error)
-          })
-        } else {
-          resolve({'geneName': theGeneName,
-            'geneSource': source,
-            'build': build,
-            'aliasFound': false })
+      self.promiseGetGeneEntry(theGeneName)
+      .then(function(entry) {
+        
+        if (entry.hasOwnProperty('gene_coord')) {
+          geneOrigChr =    entry.gene_coord[build][source].hasOwnProperty('chr') ? entry.gene_coord[build][source].chr : null;
+          geneOrigStart =  entry.gene_coord[build][source].hasOwnProperty('start')  ? entry.gene_coord[build][source].start : null;
+          geneOrigEnd =    entry.gene_coord[build][source].hasOwnProperty('end') ?  entry.gene_coord[build][source].end : null;
         }
+        
+        // The caller of the method doesn't want to check for aliases.
+        transcriptCountOtherGeneSource = entry[build][otherGeneSource]
+        
+        // First, cache the gene's aliases (enbulk) for faster processing
+        let cachePromise = null;
+        if (entry && entry.hasOwnProperty('aliases') && entry.aliases.length > 0) {
+          otherGeneNames = entry.aliases.split(",");
+          if (otherGeneNames && otherGeneNames.length > 0) {
+            // Cache the known gene entries in bulk so that we lookup
+            // entries more efficiently
+            cachePromise = self.promiseCacheGeneEntries(otherGeneNames)
+          } else {
+            cachePromise = Promise.resolve();
+          }            
+        } else {
+          otherGeneNames = [];
+          cachePromise = Promise.resolve();
+        }
+        
+        return cachePromise;
+      })
+      .then(function() {
+        // Keep the first gene alias that has transcripts
+        // for the given build and source
+        let promises = []
+        otherGeneNames.forEach(function(otherGeneName) {
+          let otherGeneEntry = self.geneEntryMap[otherGeneName.toUpperCase()]
+
+          if (otherGeneEntry && otherGeneEntry[build] && otherGeneEntry[build][source]) {
+            let transcriptCount = otherGeneEntry[build][source];
+            if (transcriptCount > 0 && preferredGeneName == null) {
+              
+              let p = self.promiseGetCachedGeneObject(otherGeneEntry.gene_name, true, false)
+              .then(function(otherGeneObject) {
+                if (preferredGeneName == null && otherGeneObject && otherGeneObject.hasOwnProperty('gene_name')) {
+                  if ((geneOrigChr == null || otherGeneObject.chr == geneOrigChr) && 
+                      (geneOrigStart == null || otherGeneObject.start == geneOrigStart) &&
+                      (geneOrigEnd == null || otherGeneObject.end == geneOrigEnd)) {
+                    preferredGeneName = otherGeneObject.gene_name
+                    transcriptCountPreferredGeneName = otherGeneObject.transcripts.length;
+                  }
+                }
+              })
+              promises.push(p)
+            }
+          }
+        })
+        Promise.all(promises)
+        .then(function() {
+        
+            resolve({
+                    'geneName': theGeneName,
+                    'isValidGeneName': true, // The original gene name provided is a valid gene name or alias
+                    'success': false, // The original gene name does not have transcripts for the build and gene source
+                    'geneSource': source,
+                    'build': build,
+                    'aliasFound': preferredGeneName ? true : false,  // There is a suitable gene alias that has transcripts
+                    'preferredGeneName': preferredGeneName,
+                    'transcriptCountPreferredGeneName': transcriptCountPreferredGeneName, // Number of transcripts for the alias
+                    'otherGeneSource': otherGeneSource, // If a suitable alias isn't found, the other alternative
+                                                        // is to switch the gene source. Provide a transcript
+                                                        // count for the other gene source for the input gene
+                                                        // so that the caller of this method can formulate
+                                                        // a response that involves switching the gene source. 
+                    'transcriptCountOtherGeneSource': transcriptCountOtherGeneSource})
+        })
+
       })
       .catch(function(error) {
-        let msg = "Problem getting known gene object for " + theGeneName + " in GeneMode.promiseGetPreferredGeneName()";
+        let msg = "Problem getting known gene entry for aliases of gene " + theGeneName;
         console.log(msg)
         console.log(error)
         self.dispatch.alertIssued('error', msg, theGeneName, [error] );
         reject(error)
       })
-     
     })
   }
 
