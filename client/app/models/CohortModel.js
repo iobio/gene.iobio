@@ -1757,6 +1757,13 @@ class CohortModel {
 
       Promise.all(annotatePromises)
       .then(function() {
+          if (theResultMap == null || Object.keys(theResultMap).length == 0) {
+            if (!options.isBackground) {
+              self.getCanonicalModels().forEach(function(model) {
+                model.inProgress.loadingVariants = false;
+              })
+            }
+          }
           resolve(theResultMap)
       })
       .catch(function(error) {
