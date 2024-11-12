@@ -2644,7 +2644,7 @@ export default {
         self.setUrlGeneParameters();
       })
       .catch(function(error) {
-
+        console.log(error)
       })
       self.activeGeneVariantTab = "0";
 
