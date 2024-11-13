@@ -1178,7 +1178,18 @@ class SampleModel {
     var me = this;
     return new Promise( function(resolve, reject) {
 
-      var theRef = ref != null ? ref : window.gene.chr;
+      var theRef = ref != null ? ref : (window.gene && window.gene.chr ? window.gene.chr : null);
+      let chrIsPrefixInGeneModel = theRef && theRef.indexOf('chr') == 0 ? true : false;
+      if (theRef == null) {
+        console.log("_promiseVcfRefName failed b/c ref is blank");
+        reject();
+      }
+      
+      // The first time through, getVcfRefName is null. We look at the
+      // vcf header contig recs to figure out if the 'chr' should be 
+      // stripped and also build a translation map for
+      // references like mitochondrial, which will be chrM, M, chrMT, MT
+      // depending on the vcf.
       if (me.getVcfRefName != null) {
         // If we can't find the ref name in the lookup map, show a warning.
         if (me.vcfRefNamesMap[me.getVcfRefName(theRef)] == null) {
@@ -1196,53 +1207,62 @@ class SampleModel {
         currVcf.promiseGetReferenceLengths()
         .then(function(refData) {
           var foundRef = false;
-          refData.forEach( function(refObject) {
+          let chrIsPrefixInVcf = null;
+          
+          let theRefData = refData.filter(function(refObject) {
+            return refObject && refObject.hasOwnProperty('name') && refObject.name && refObject.name != '';
+          })
+          
+          theRefData.forEach( function(refObject) {
             var refName = refObject.name;
-
+            
+            if (chrIsPrefixInVcf == null) {
+              if (refName.indexOf('chr') == 0) {
+                chrIsPrefixInVcf = true;
+              } else {
+                chrIsPrefixInVcf = false;
+              }
+            }
             if (refName == theRef) {
               me.getVcfRefName = me._getRefName;
               foundRef = true;
             } else if (refName == me._stripRefName(theRef)) {
               me.getVcfRefName = me._stripRefName;
               foundRef = true;
-            } else if (theRef == 'chrMT' && refName == 'chrM') {
-              me.getVcfRefName = me._getRefName;
-              me.vcfRefNamesMap[me.getVcfRefName(theRef)] = refName;
-              foundRef = true;
-            } else if (theRef == 'chrMT' && refName == 'M') {
-              me.getVcfRefName = me._stripRefName;
-              me.vcfRefNamesMap[me.getVcfRefName(theRef)] = refName;
-              foundRef = true;
-            } else if (theRef == 'chrM' && refName == 'chrMT') {
-              me.getVcfRefName = me._getRefName;
-              me.vcfRefNamesMap[me.getVcfRefName(theRef)] = refName;
-              foundRef = true;
-            } else if (theRef == 'chrM' && refName == 'MT') {
-              me.getVcfRefName = me._stripRefName;
-              me.vcfRefNamesMap[me.getVcfRefName(theRef)] = refName;
-              foundRef = true;
             } 
           });
           // Load up a lookup table.  We will use me for validation when
           // a new gene is loaded to make sure the ref exists.
-          if (foundRef) {
-            refData.forEach( function(refObject) {
-              var refName = refObject.name;
-              var theRefName = me.getVcfRefName(refName);
-              me.vcfRefNamesMap[theRefName] = refName;
-            });
-            resolve();
-          } else  {
-            if (theRef.endsWith("_alt")) {
-              me.vcfRefName = theRef;
-              me.vcfRefNamesMap[theRef] = theRef;
+          if (!foundRef) {
+            if (chrIsPrefixInGeneModel === true && chrIsPrefixInVcf === true) {
               me.getVcfRefName = me._getRefName;
-              resolve()
             } else {
-              // If we didn't find the matching ref name, show a warning.
-              reject();
-
+              me.getVcfRefName = me._stripRefName;
             }
+          }
+          
+          // Now that we have a getVcfRefName functor, iterate throught
+          // the references in the vcf header and add an entry
+          // to the lookup map.
+          theRefData.forEach( function(refObject) {
+            var refName = refObject.name;
+            var theRefName = me.getVcfRefName(refName);
+            me.vcfRefNamesMap[theRefName] = refName;
+            // Translate from MT to M and vice-versa
+            if (theRefName == 'chrMT' || theRefName == 'MT') {
+              me.vcfRefNamesMap[me.getVcfRefName('M')] = refName;
+              me.vcfRefNamesMap[me.getVcfRefName('chrM')] = refName;
+              
+            } else if (theRefName == 'chrM' || theRefName == 'M') {
+              me.vcfRefNamesMap[me.getVcfRefName('MT')] = refName;
+              me.vcfRefNamesMap[me.getVcfRefName('chrMT')] = refName;
+            }
+          });
+          // If we can't find the ref name in the lookup map, show a warning.
+          if (me.vcfRefNamesMap[me.getVcfRefName(theRef)] == null) {
+            reject();
+          } else {
+            resolve();
           }
          })
          .catch(function(error) {
