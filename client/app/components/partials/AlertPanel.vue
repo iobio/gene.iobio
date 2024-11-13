@@ -69,6 +69,7 @@
       padding-right: 0px
       max-width: 280px
       overflow-wrap: break-word
+      line-height: 20px
 
     &.success--text
       div

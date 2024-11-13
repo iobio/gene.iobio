@@ -30,6 +30,7 @@ export default class HubSession {
     };
     this.globalApp = null;
     this.experiment_id = null;
+    this.experiment = null;
   }
 
   init(source) {
@@ -60,6 +61,16 @@ export default class HubSession {
 
       self.promiseGetClientApplication()
       .then(function() {
+        if (experimentId) {
+          return self.promiseGetExperiment(projectId, experimentId)
+        } else {
+          return Promise.resolve(null)
+        }
+      })
+      .then(function(experiment) {
+        if (experiment) {
+          self.experiment = experiment;
+        }
         if (geneSetId) {
           return self.promiseGetGeneSet(projectId, geneSetId)
         } else {
@@ -88,6 +99,7 @@ export default class HubSession {
 
           let pedigree    = foundPedigree ? data.pedigree : {'proband': data.proband};
           let rawPedigree = data.rawPedigree;
+          let alerts = [];
 
           // Let's get the proband info first
           let probandSample = foundPedigree ? pedigree.proband : data.proband;
@@ -104,69 +116,94 @@ export default class HubSession {
                   samples = [pedigree[rel]];
                 }
                 samples.forEach(s => {
-                  let p =  new Promise(function(sampleResolve, sampleReset) {
+                  let p =  new Promise(function(sampleResolve, sampleReject) {
                     self.promiseGetFileMapForSample(projectId, s, rel).then(data => {
                       let theSample = data.sample;
                       theSample.files = data.fileMap;
-
-                      // gene.iobio only supports siblings in same multi-sample vcf as proband.
-                      // bypass siblings in their own vcf.
-                      let bypass = false;
-                      // TODO:  Need to check if samples exist in proband vcf rather than checking file names
+                      
+                      // TODO: Bypass sibling if not specified in same vcf file as proband
+                      // Need to check if samples exist in proband vcf rather than checking file names
                       // since mosaic generates different vcf url for sample physical file.
-                      //if (data.relationship == 'siblings' && theSample.files.vcf != probandSample.files.vcf) {
+                      // if (relationship == 'siblings' && theSample.files.vcf != probandSample.files.vcf) {
                       //  bypass = true;
                       //  console.log("Bypassing sibling " + theSample.id + ".  This sample must reside in the same vcf as the proband in order to be processed.")
-                      //}
 
-                      if (!bypass) {
-
-                        let tbiUrl = null;
-                        if (theSample.files.tbi) {
-                          tbiUrl = theSample.files.tbi;
-                        } else if (theSample.files.csi) {
-                          tbiUrl = theSample.files.csi;
-                        } else {
-                          tbiUrl = null;
-                        }
-                        self.promiseGetSampleHPOTerms(projectId, theSample.id)
-                        .then(function(hpoTerms) {
-                          var modelInfo = {
-                            'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
-                            'affectedStatus': foundPedigree ? theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected' : 'affected',
-                            'sex':            foundPedigree ? theSample.pedigree.sex == 1 ? 'male' : (theSample.pedigree.sex == 2 ? 'female' : 'unknown') : 'unknown',
-                            'name':           theSample.name,
-                            'sample':         theSample.files.vcf ? theSample.vcf_sample_name : theSample.name,
-                            'vcf':            theSample.files.vcf,
-                            'tbi':            tbiUrl,
-                            'txt':            theSample.files.txt,
-                            'hpoTerms':       hpoTerms
-                          }
-
-
-                          if (theSample.files.bam != null) {
-                            modelInfo.bam = theSample.files.bam;
-                            if (theSample.files.bai) {
-                              modelInfo.bai = theSample.files.bai;
-                            }
-
-                          } else if (theSample.files.cram != null) {
-                            modelInfo.bam = theSample.files.cram;
-                            if (theSample.files.crai) {
-                              modelInfo.bai = theSample.files.crai;
-                            }
-                          }
-
-                          modelInfos.push(modelInfo);
-                          sampleResolve();
-
-                        })
-                        .catch(function(error) {
-                          sampleReset(error)
-                        })
-
+                      let tbiUrl = null;
+                      if (theSample.files.tbi && theSample.files.tbi.length > 0) {
+                        tbiUrl = theSample.files.tbi[0].url;
+                      } else if (theSample.files.csi && theSample.files.csi.length > 0) {
+                        tbiUrl = theSample.files.csi[0].url;
+                      } else {
+                        tbiUrl = null;
                       }
+                      
+                      // If files were bypassed (non-fatal), send a warning to the user.
+                      let alertsForSample = [];
+                      if (data.bypassFiles) {
+                        data.bypassFiles.forEach(function(bypassFile) {
+                          let alert = {'alertType': 'warning', 'message': bypassFile.message, 'options': {'showAlertPanel': true}}
+                          alerts.push(alert)  
+                          alertsForSample.push(alert)                        
+                        })
+                      }
+                      
+                      // Validate that vcf and alignment files have a corresponding index file. 
+                      // If the index file is missing, this is an error, so reject the promise.
+                      // If the index file exists, but has a different file name than the
+                      // vcf/alignment file, send a warning to the user.
+                      let response = self.indexMatchesFile(theSample)
+                      if (response.errorMsg && response.errorMsg.length > 0) {
+                        sampleReject(response.errorMsg)
+                      }                      
+                      if (response.alerts && response.alerts.length > 0) {
+                        response.alerts.forEach(function(alert) {
+                          alerts.push(alert)  
+                          alertsForSample.push(alert)                        
+                        })
+                      }
+                      
+                      self.promiseGetSampleHPOTerms(projectId, theSample.id)
+                      .then(function(hpoTerms) {
+                        var modelInfo = {
+                          'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
+                          'affectedStatus': foundPedigree ? theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected' : 'affected',
+                          'sex':            foundPedigree ? theSample.pedigree.sex == 1 ? 'male' : (theSample.pedigree.sex == 2 ? 'female' : 'unknown') : 'unknown',
+                          'name':           theSample.name,
+                          'sample':         theSample.files.vcf && theSample.files.vcf.length > 0 ? theSample.vcf_sample_name : theSample.name,
+                          'vcf':            theSample.files.vcf && theSample.files.vcf.length > 0 ? theSample.files.vcf[0].url : null,
+                          'tbi':            tbiUrl,
+                          'txt':            theSample.files.txt,
+                          'hpoTerms':       hpoTerms,
+                          'alerts':         alertsForSample
+                        }
 
+
+                        if (theSample.files.bam != null && theSample.files.bam.length > 0) {
+                          modelInfo.bam = theSample.files.bam[0].url;
+                          if (theSample.files.bai && theSample.files.bai.length > 0) {
+                            modelInfo.bai = theSample.files.bai[0].url;
+                          }
+
+                        } else if (theSample.files.cram != null && theSample.files.cram.length > 0 ) {
+                          modelInfo.bam = theSample.files.cram[0].url;
+                          if (theSample.files.crai  && theSample.files.crai.length > 0) {
+                            modelInfo.bai = theSample.files.crai[0].url;
+                          }
+                        }
+
+                        modelInfos.push(modelInfo);
+                        sampleResolve();
+
+                      })
+                      .catch(function(error) {
+                        sampleReject(error)
+                      })
+
+
+
+                    })
+                    .catch(function(error) {
+                      sampleReject(error)
                     })
                   })
                   promises.push(p);
@@ -176,15 +213,25 @@ export default class HubSession {
 
             }
             Promise.all(promises).then(response => {
+              let errorMsg = "";
 
-              let buf = "";
-              modelInfos.forEach(function(modelInfo) {
+              // Validate that every sample that loads a vcf file has a sample name, which is initialized
+              // from the Mosaic sample.vcf_sample_name.
+              let missingSampleNameMsg = "";
+              modelInfos.filter(function(modelInfo) {
+                return modelInfo.vcf;
+              })
+              .forEach(function(modelInfo) {
                 if (modelInfo.sample == null || modelInfo.sample == "") {
-                  buf += "The sample " + modelInfo.name + "  (" + modelInfo.relationship + ")   has an empty vcf_sample_name. Unable to properly filter variants for this sample.<br><br>";
+                  missingSampleNameMsg += "The sample " + modelInfo.name + "  (" + modelInfo.relationship + ") is missing the vcf sample name. Unable to properly filter variants for this sample.<br><br>";
                 }
               })
-              if (buf.length > 0) {
-                reject(buf)
+              if (missingSampleNameMsg.length > 0) {
+                errorMsg += missingSampleNameMsg;                
+              }
+              
+              if (errorMsg.length > 0) {
+                reject(errorMsg)
               } else {
                 resolve({'modelInfos': modelInfos,
                   'rawPedigree': rawPedigree,
@@ -192,7 +239,9 @@ export default class HubSession {
                   'variantSet': variantSet,
                   'isMother': self.isMother,
                   'isFather': self.isFather,
-                  'foundPedigree': foundPedigree});
+                  'foundPedigree': foundPedigree,
+                  'experiment': self.experiment,
+                  'alerts':    alerts});
               }
 
             })
@@ -201,7 +250,7 @@ export default class HubSession {
             })
           })
           .catch(error => {
-            reject(errorMsg)
+            reject(error)
           })
         })
       })
@@ -219,6 +268,43 @@ export default class HubSession {
       return error.toString()
     }
 
+  }
+  
+  indexMatchesFile(theSample) {
+    let errorMsg = "";
+    let alerts = []
+    let fileIndexPairs = [{'base': 'vcf',   'index': ['tbi', 'csi'], 'extension': 'vcf.gz'},
+                          {'base': 'bam',   'index': ['bai']       , 'extension': '.bam'},
+                          {'base': 'cram',  'index': ['crai']      , 'extension': '.cram'},
+    ]
+    fileIndexPairs.forEach(function(fip) {
+      let baseType = fip.base;
+      let indexTypes  = fip.index;
+      if (theSample.files[baseType] && theSample.files[baseType].length > 0) {
+        let baseFile = theSample.files[baseType][0].file.name;
+        let indexFile = null;
+        indexTypes.forEach(function(indexType) {
+          if (theSample.files[indexType] && theSample.files[indexType].length > 0) {
+              indexFile = theSample.files[indexType][0].file.name;
+          }
+        })
+        if (indexFile) {
+          if (indexFile.indexOf(baseFile) < 0) {
+            let alertMsg = "The index file name of sample " + theSample.name + " differs from the expected name for the <pre>" + baseType + "</pre> file name.";
+            alerts.push({
+              'alertType': 'warning', 
+              'message': alertMsg, 
+              'details': [baseType + ': <pre>' + baseFile + '</pre>', 'index file: <pre>' + indexFile + '</pre>'], 
+              'options': {'showAlertPanel': true}
+            })
+          }
+        } else {
+          errorMsg += "Missing index file for " + baseType + " of sample " + theSample.name + "<br><br>";
+        }
+        
+      }
+    })
+    return {'errorMsg': errorMsg, 'alerts': alerts}
   }
 
 
@@ -262,7 +348,20 @@ export default class HubSession {
   }
 
 
-
+  promiseGetExperiment(projectId, experimentId) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getExperiment(projectId, experimentId)
+        .done(response => {
+          resolve(response)
+        })
+        .fail(error => {
+          let errorMsg = self.getErrorMessage(error);
+          reject("Error getting experiment " + experimentId + ": " + errorMsg);
+        })
+    })
+  }
+  
   promiseGetSample(project_id, sample_id, rel) {
     let self = this;
 
@@ -432,6 +531,7 @@ export default class HubSession {
       var promises = [];
       var fileMap = {};
       var currentSample = sample;
+      let bypassFiles = [];
       self.promiseGetFilesForSample(project_id, currentSample.id)
       .then(files => {
         files.filter(file => {
@@ -442,28 +542,48 @@ export default class HubSession {
             return file
           }
         }).filter(file => {
-          return file.type
+          let keep = true;
+          if (file.type == null || file.type.length == 0) {
+            bypassFiles.push({'file': file, 'reason': 'Missing file type', 'message': 'Bypassing file <pre>' + file.nickname + '</pre> due to missing type.'})
+            keep = false;
+          } else if (file.type && file.type == 'vcf' && (file.vcf_sample_name == null || file.vcf_sample_name.length == 0)) {
+            keep = false;
+            bypassFiles.push({'file': file, 'reason': 'Missing vcf_sample_name', 'message': 'Bypassing file <pre>' + file.nickname + '</pre> due missing vcf_sample_name.'})
+          }
+          
+          return keep;
         })
         .forEach(file => {
 
           var p = self.promiseGetSignedUrlForFile(project_id, currentSample.id, file)
           .then(signed => {
+            // For .tsv and .txt files, map them under the file type of txt
+            // and allow for multiple files of txt file type.
             if (file.type == 'txt' || file.type == 'tsv') {
               var files = fileMap.txt;
               if (files == null) {
                 files = [];
                 fileMap.txt = files;
               }
-              files.push({'url': signed.url, 'name': file.nickname});
+              files.push({'url': signed.url, 'name': file.nickname, 'file': file});
 
             } else {
-              fileMap[file.type] = signed.url
-              if (file.type == 'vcf') {
-                if (file.vcf_sample_name == null || file.vcf_sample_name == "") {
-                  reject("Missing vcf_sample_name for file " + file.name)
-                } else {
-                  sample.vcf_sample_name = file.vcf_sample_name;
-                }
+              // For all other files (e.g. vcf.gz, vcf.gz.tbi, bam/bai, cram/crai, etc),
+              // there should only be one file for each file type. However, there may
+              // by a problem where multiple files of the same type are specified on a
+              // Mosaic project for the same sample. In this case, we don't know which
+              // file to select, so we will capture all files and send an error to
+              // alert the user.
+              var files = fileMap[file.type];
+              if (files == null) {
+                files = [];
+                fileMap[file.type]= files;
+              }
+              files.push({'url': signed.url, 'name': file.nickname, 'file': file})
+
+              // We have a vcf file name. Set the sample's vcf_file_name 
+              if (file.type == 'vcf' && (sample.vcf_sample_name == null || sample.vcf_sample_name.length == 0)) {
+                sample.vcf_sample_name = file.vcf_sample_name;
               }
             }
           })
@@ -471,7 +591,42 @@ export default class HubSession {
         })
         Promise.all(promises)
         .then(response => {
-          resolve({'sample': sample, 'relationship': relationship, 'fileMap': fileMap});
+          let errorMsg = '';
+          let offendingFileTypes = new Set()
+          Object.keys(fileMap).forEach(function(fileType) {
+            let files = fileMap[fileType]
+            if ((fileType == 'vcf' || fileType == 'bam' || fileType == 'cram') && files.length > 1) {
+              errorMsg += 'Multiple <pre>' + fileType + '</pre> files specified for sample <pre>' + sample.name + '</pre>. ';
+              offendingFileTypes.add(fileType)
+            }
+          })
+          if (errorMsg.length > 0) {
+            if (self.experiment_id && self.experiment_id != "") {
+              errorMsg += "<br><br>To fix this, modify experiment <pre>" + 
+                          (self.experiment && self.experiment.name ? self.experiment.name : self.experiment_id) +
+                          "</pre>, specifying only one <pre>" + Array.from(offendingFileTypes).join("/") + "</pre>."
+            } else {
+              errorMsg += "<br><br>To fix this, create an experiment in Mosaic, picking a single variant (and/or alignment) file and index for each sample. " +
+              "Then pick the experiment from the dropdown when launching gene.iobio from Mosaic.<br><br>"    
+            }
+          }
+          
+          if ((fileMap.vcf == null || fileMap.vcf.length == 0) && (fileMap.bam == null || fileMap.bam.length == 0) &&  (fileMap.cram == null || fileMap.cram.length == 0) ) {
+            errorMsg += "Missing required file. " +
+                        "A vcf or a bam/cram file must be specified for Mosaic sample " + 
+                        sample.name + " (" + relationship + ").";
+            if (self.experiment_id && self.experiment_id != "") {
+              errorMsg += "<br><br>To fix this, add the missing file (and index) to the experiment <pre>" +
+                          (self.experiment && self.experiment.name ? self.experiment.name : self.experiment_id) + "</pre>."
+            }
+          }
+        
+          if (errorMsg && errorMsg.length > 0) {
+            reject("Unable to load data files for gene.iobio.<br><br> "
+                   + errorMsg)
+          }  else {
+            resolve({'sample': sample, 'relationship': relationship, 'fileMap': fileMap, 'bypassFiles': bypassFiles});                          
+          }
         })
         .catch(errorMsg => {
           reject(errorMsg);
@@ -955,6 +1110,19 @@ export default class HubSession {
 
 
 
+  getExperiment(projectId, experimentId) {
+    let self = this;
+    return $.ajax({
+      url: self.api + '/projects/' + projectId  + '/experiments/' + experimentId,
+      type: 'GET',
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    })
+  }
+
+
   getVariant(project_id, variant_id, includeAnnotationData) {
     let self = this;
 
@@ -998,7 +1166,7 @@ export default class HubSession {
     });
 
   }
-
+  
   createInterpretationAnnotation(project_id) {
     let self = this;
     let annotationObj = {"name": 'Interpretation',

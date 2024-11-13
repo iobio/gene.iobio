@@ -355,12 +355,17 @@ class CohortModel {
         return self.promiseSetSibs(affectedSibs, unaffectedSibs)
       })
       .then(function() {
+        if (self.mode == 'trio' && !self.isValidAlignmentsOnly()) {
+          reject("Invalid data files specified for trio. " +
+            "Across all samples, the same file types must be loaded. If one sample loads only alignments, then the other samples must load only alignment files as well.")
+        } else {
+          self.sortSampleModels();
 
-        self.sortSampleModels();
+          self.setAffectedInfo(true);
+          self.inProgress.loadingDataSources = false;
+          self.isLoaded = true;            
+        }
 
-        self.setAffectedInfo(true);
-        self.inProgress.loadingDataSources = false;
-        self.isLoaded = true;
 
         resolve();
       })
@@ -826,6 +831,25 @@ class CohortModel {
     });
     return theModels.length == this.getCanonicalModels().length;
   }
+  
+  isValidAlignmentsOnly() {
+    if (this.getCanonicalModels().length == 1) {
+      return true;
+    } else {
+      var validCanonicalModels = this.getCanonicalModels().filter(function(model) {
+        return model.isLoaded;
+      });
+      var theAlignmentOnlyModels = this.getCanonicalModels().filter(function(model) {
+        return model.isLoaded && model.isAlignmentsOnly();
+      });
+      if (theAlignmentOnlyModels.length > 0 && validCanonicalModels.length > 0 && theAlignmentOnlyModels.length < validCanonicalModels.length) {
+        return false;
+      } else {
+        return true;
+      }
+        
+    }
+  }
 
   hasAlignments() {
     var theModels = this.sampleModels.filter(function(model) {
@@ -885,7 +909,7 @@ class CohortModel {
       let message = "";
           
       if (self.isLoaded) {
-        if (mode == 'single') {
+        if (mode == 'single' && !self.getModel('proband').isAlignmentsOnly()) {
           self.getModel('proband').promiseGetHeaderRecs()
           .then(function(headerRecs) {
             let buildInfo = self.genomeBuildHelper.getBuildFromVcfHeader(headerRecs);
@@ -899,59 +923,71 @@ class CohortModel {
           .catch(function(error) {
             reject(error)
           })
-        } else {
+        } else if (mode == 'trio') {
           let promises = [];
-          promises.push(self.getModel('proband').promiseGetHeaderRecs())
-          promises.push(self.getModel('mother').promiseGetHeaderRecs())
-          promises.push(self.getModel('father').promiseGetHeaderRecs())
-          Promise.all(promises)
-          .then(function() {
-            let buildInfoProband       = self.genomeBuildHelper.getBuildFromVcfHeader(self.getModel('proband').vcf.headerRecs);
-            let properBuildInfoProband = self.genomeBuildHelper.getProperSpeciesAndBuild(buildInfoProband);
-            
-            let buildInfoMother        = self.genomeBuildHelper.getBuildFromVcfHeader(self.getModel('mother').vcf.headerRecs);
-            let properBuildInfoMother  = self.genomeBuildHelper.getProperSpeciesAndBuild(buildInfoMother);
-
-            let buildInfoFather        = self.genomeBuildHelper.getBuildFromVcfHeader(self.getModel('father').vcf.headerRecs);
-            let properBuildInfoFather  = self.genomeBuildHelper.getProperSpeciesAndBuild(buildInfoFather);
-
-            let invalidRels = [];
-            let vcfBuilds = []
-            if (properBuildInfoProband != null && properBuildInfoProband.build && properBuildInfoProband.build.name != buildName) {
-              isValidBuild = false;
-              invalidRels.push('proband');
-              vcfBuilds.push(properBuildInfoProband.build.name)
-            }
-            if (properBuildInfoMother != null && properBuildInfoMother.build && properBuildInfoMother.build.name != buildName) {
-              isValidBuild = false;
-              invalidRels.push('mother');
-              vcfBuilds.push(properBuildInfoMother.build.name)
-            }
-            if (properBuildInfoFather != null && properBuildInfoFather.build && properBuildInfoFather.build.name != buildName) {
-              isValidBuild = false;
-              invalidRels.push('father');
-              vcfBuilds.push(properBuildInfoFather.build.name)
-            }
-            let uniqueBuilds = new Set(vcfBuilds);
-            if (uniqueBuilds.size == 1 && invalidRels.length == 3) {
-              message = "Incorrect build specified for trio. " +
-                        "The vcf header indicates that the build should be set to " +  Array.from(uniqueBuilds)[0] + ".";
-            } else if (uniqueBuilds.size == 1 && invalidRels.length < 3) {
+          if (!self.getModel('proband').isAlignmentsOnly()) {
+            promises.push(self.getModel('proband').promiseGetHeaderRecs())            
+          }
+          if (!self.getModel('mother').isAlignmentsOnly()) {
+            promises.push(self.getModel('mother').promiseGetHeaderRecs())
+          }
+          if (!self.getModel('father').isAlignmentsOnly()) {
+            promises.push(self.getModel('father').promiseGetHeaderRecs())
+          }
+          if (promises.length > 0) {
+            Promise.all(promises)
+            .then(function() {
+              let buildInfoProband       = self.genomeBuildHelper.getBuildFromVcfHeader(self.getModel('proband').vcf.headerRecs);
+              let properBuildInfoProband = self.genomeBuildHelper.getProperSpeciesAndBuild(buildInfoProband);
               
-              message = "Incompatible builds for trio. " + 
-                        "The vcf header indicates that the build should be set to " + Array.from(uniqueBuilds)[0] + 
-                        " for " + invalidRels.join(" and ") + ". "
-            } else if (vcfBuilds.length > 0) {
-              message = "Incompatible builds for trio. " + 
-                        "The vcf header indicates that the build should be set to " + vcfBuilds.join(" and ") + 
-                        " for " + invalidRels.join(" and ") + " (respectively). "
-            } 
-            resolve({'isValidBuild': isValidBuild, 'message': message});
-          })
-          .catch(function(error) {
-            reject(error)
-          })
-        }        
+              let buildInfoMother        = self.genomeBuildHelper.getBuildFromVcfHeader(self.getModel('mother').vcf.headerRecs);
+              let properBuildInfoMother  = self.genomeBuildHelper.getProperSpeciesAndBuild(buildInfoMother);
+
+              let buildInfoFather        = self.genomeBuildHelper.getBuildFromVcfHeader(self.getModel('father').vcf.headerRecs);
+              let properBuildInfoFather  = self.genomeBuildHelper.getProperSpeciesAndBuild(buildInfoFather);
+
+              let invalidRels = [];
+              let vcfBuilds = []
+              if (properBuildInfoProband != null && properBuildInfoProband.build && properBuildInfoProband.build.name != buildName) {
+                isValidBuild = false;
+                invalidRels.push('proband');
+                vcfBuilds.push(properBuildInfoProband.build.name)
+              }
+              if (properBuildInfoMother != null && properBuildInfoMother.build && properBuildInfoMother.build.name != buildName) {
+                isValidBuild = false;
+                invalidRels.push('mother');
+                vcfBuilds.push(properBuildInfoMother.build.name)
+              }
+              if (properBuildInfoFather != null && properBuildInfoFather.build && properBuildInfoFather.build.name != buildName) {
+                isValidBuild = false;
+                invalidRels.push('father');
+                vcfBuilds.push(properBuildInfoFather.build.name)
+              }
+              let uniqueBuilds = new Set(vcfBuilds);
+              if (uniqueBuilds.size == 1 && invalidRels.length == 3) {
+                message = "Incorrect build specified for trio. " +
+                          "The vcf header indicates that the build should be set to " +  Array.from(uniqueBuilds)[0] + ".";
+              } else if (uniqueBuilds.size == 1 && invalidRels.length < 3) {
+                
+                message = "Incompatible builds for trio. " + 
+                          "The vcf header indicates that the build should be set to " + Array.from(uniqueBuilds)[0] + 
+                          " for " + invalidRels.join(" and ") + ". "
+              } else if (vcfBuilds.length > 0) {
+                message = "Incompatible builds for trio. " + 
+                          "The vcf header indicates that the build should be set to " + vcfBuilds.join(" and ") + 
+                          " for " + invalidRels.join(" and ") + " (respectively). "
+              } 
+              resolve({'isValidBuild': isValidBuild, 'message': message});
+            })
+            .catch(function(error) {
+              reject(error)
+            })
+          } else {
+            resolve({'isValidBuild': true, 'message': ''});
+          }
+        } else {
+          resolve({'isValidBuild': true, 'message': ''});
+        }      
       } else {
         resolve({'isValidBuild': true, 'message': ''});
       }
@@ -1721,6 +1757,13 @@ class CohortModel {
 
       Promise.all(annotatePromises)
       .then(function() {
+          if (theResultMap == null || Object.keys(theResultMap).length == 0) {
+            if (!options.isBackground) {
+              self.getCanonicalModels().forEach(function(model) {
+                model.inProgress.loadingVariants = false;
+              })
+            }
+          }
           resolve(theResultMap)
       })
       .catch(function(error) {
@@ -1850,11 +1893,7 @@ class CohortModel {
           resolve(dangerObject);
       }).
       catch(function(error) {
-        if (error.indexOf(geneName) >= 0 ) {
-          self.dispatch.alertIssued('error', error, theGeneName);
-        } else {
-          self.dispatch.alertIssued('error', error + " for gene " + theGeneName, theGeneName);
-        }
+        self.dispatch.alertIssued('error', error, theGeneName);
         reject(error);
       })
     })
@@ -2462,7 +2501,10 @@ class CohortModel {
     var self = this;
     this._recacheForFlaggedVariant(theGene, theTranscript, variant, options);
   }
-
+  
+  // TODO: This method should be deprecated and replaced with promiseAddUserFlaggedVariant.
+  //       However, there are complications due to blocking, so this should be 
+  //       undertaken when we migrate to Vue.js 3.
   addUserFlaggedVariant(theGene, theTranscript, variant) {
     var self = this;
     variant.isFlagged = true;
@@ -2474,6 +2516,31 @@ class CohortModel {
     variant.featureClass = "flagged";
 
     self._recacheForFlaggedVariant(theGene, theTranscript, variant, {summarizeDanger: true});
+
+  }
+  
+  promiseAddUserFlaggedVariant(theGene, theTranscript, variant) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      let theVariant = variant;
+      theVariant.isFlagged = true;
+      theVariant.isUserFlagged = true;
+      if (theVariant.filtersPassed == null) {
+        theVariant.filtersPassed = [];
+      }
+      theVariant.filtersPassed.push("userFlagged");
+      theVariant.featureClass = "flagged";
+      
+      self._promiseRecacheForFlaggedVariant(theGene, theTranscript, theVariant, {summarizeDanger: true})
+      .then(function() {
+        resolve();
+      })
+      .catch(function(error) {
+        reject(error)
+      })
+
+    })
+    
 
   }
 
@@ -2544,7 +2611,53 @@ class CohortModel {
       this.flaggedVariants.splice(index, 1);
     }
   }
+  
+  _promiseRecacheForFlaggedVariant(theGene, theTranscript, variant, options) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let theVariant = variant;
+      self.getProbandModel().promiseGetVcfData(theGene, theTranscript)
+      .then(function(data) {
+        let cachedVcfData = data.vcfData;
+        cachedVcfData.features.forEach(function(v) {
+          var matches = (
+                        self.globalApp.utility.stripRefName(v.chrom) == self.globalApp.utility.stripRefName(theVariant.chrom)
+                        && v.start == theVariant.start
+                        && v.ref == theVariant.ref
+                        && v.alt == theVariant.alt);
+  
+          if (matches) {
+            v.isFlagged      = theVariant.isFlagged
+            v.isUserFlagged  = theVariant.isUserFlagged;
+            v.filtersPassed  = theVariant.filtersPassed;
+            v.interpretation = theVariant.interpretation;
+            v.notes          = theVariant.notes;
+          }
+        });
+        self.getProbandModel()._promiseCacheData(cachedVcfData, CacheHelper.VCF_DATA, data.gene.gene_name, data.transcript)
+        .then(function() {
+          if (options && options.summarizeDanger) {
+            // Now summarize the danger for the selected gene
+            self.promiseSummarizeDanger(theGene, theTranscript, cachedVcfData, null)
+            .then(function() {
+              resolve();
+            })
+            .catch(function(error) {
+              reject(error)
+            })
+          } else {
+            resolve();
+          }
+        })
+  
+      });
+        
+    })
+  }
 
+  // TODO: This method should be deprecated and replaced with _promiseReachesForFlaggedVariant.
+  //       However, there are complications due to blocking, so this should be 
+  //       undertaken when we migrate to Vue.js 3.
   _recacheForFlaggedVariant(theGene, theTranscript, variant, options) {
     let self = this;
     self.getProbandModel().promiseGetVcfData(theGene, theTranscript)
@@ -2893,37 +3006,6 @@ class CohortModel {
           }
         })
         promises.push(p)
-        /*
-        var theGeneObject = me.geneModel.geneObjects[ir.gene];
-        if (theGeneObject == null || !ir.transcript || ir.transcript == '') {
-          var promise = me.geneModel.promiseGetCachedGeneObject(ir.gene, true)
-          .then(function(theGeneObject) {
-            if (theGeneObject.notFound) {
-              me.geneModel.promiseIsKnownGene(theGeneObject.notFound)
-              .then(function(response) {
-                  if (response.isKnownGene) {
-                    me.geneModel.promiseAddGeneName(response.geneName);
-                  } else {
-                    me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene <pre>' + response.geneName + "</pre>.", response.geneName);
-                  }
-              })
-            } else if (ir.gene && theGeneObject.notFound === undefined){
-              me.geneModel.promiseIsKnownGene(ir.gene)
-              .then(function(response) {
-                if (response.isKnownGene) {
-                  me.geneModel.promiseAddGeneName(response.geneName);
-                } else {
-                  me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene <pre>' + response.geneName + "</pre>.", response.geneName);
-                }
-              })
-            }
-          })
-          .catch(function(error) {
-            me.dispatch.alertIssued('warning', error.message, error.gene)
-          })
-          promises.push(promise);
-        }
-        */
       }
     })
 

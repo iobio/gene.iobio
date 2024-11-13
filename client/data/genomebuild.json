@@ -225,6 +225,15 @@
             "alias": "chrY",
             "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chrY.fa",
             "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chrY.fa"
+          },
+          {
+            "id": 532,
+            "idGenomeBuild": 24,
+            "name": "MT",
+            "length": 16569,
+            "alias": "chrMT",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chrMT.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chrM.fa"
           }
         ],
         "resources": [
@@ -506,6 +515,15 @@
             "alias": "chrY",
             "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.Y.fa",
             "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chrY.fa"
+          },
+          {
+            "id": 556,
+            "idGenomeBuild": 25,
+            "name": "M",
+            "length": 57227415,
+            "alias": "chrM",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.MT.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chrM.fa"
           }
         ],
         "resources": [

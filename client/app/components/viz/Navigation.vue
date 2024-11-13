@@ -361,6 +361,16 @@ nav.toolbar, nav.v-toolbar
       padding: 0px 5px
       font-size: 11px
       font-weight: 500
+      
+  #project-badge
+    margin-left: -20px
+    .v-chip__content
+      max-width: 120px
+      white-space: normal
+      line-height: 11px
+      padding: 5px 5px 5px 5px
+      text-align: center
+      height: min-content
 
   .toolbar__content
     margin-top: 2px
@@ -797,6 +807,11 @@ nav.toolbar, nav.v-toolbar
         v-tooltip.bottom-left="{content: 'Patient phenotypes'}">
           <v-icon style="font-size: 26px;padding-top: 3px;">account_box</v-icon>
       </v-btn>
+      <v-chip v-if="cohortModel && launchedFromHub && cohortModel.isLoaded && project && project.name"
+          id="project-badge" class="settings-badge" text-color="white">
+          {{ project.name }}
+      </v-chip>
+
 
       <v-btn  class="navbar-icon-button" v-if="appAlerts" id="notification-button"  @click="onShowNotificationDrawer" flat
         v-tooltip.bottom-left="{content: 'Notifications (errors, warnings and information). Click to see detailed list.'}">
@@ -1259,18 +1274,21 @@ nav.toolbar, nav.v-toolbar
               <div id="versions" >
                 <div><span class="version-label">Human Genome Reference</span><span class="number">GRCh37, GRCh38</span></div>
                 <div><span class="version-label">Gencode Human Reference</span><span class="number">19, 25</span></div>
+                
                 <div><span class="version-label">REFSEQ Human Reference</span><span class="number">ref_GRCh37.p5, ref_GRCh38.p7</span></div>
                 <div><span class="version-label">Human Phenotype Ontology</span><span class="number">Build #102 (12-15-2015)</span></div>
-                <div><div class="version-label">Phenolyzer</div><div class="number">Oct 2019</div></div>
+                <div><div class="version-label">gnomAD</div><div class="number">v2.1 for GRCh37, v4 for GRCh38 </div></div>
+                <div><div class="version-label">ACMG Genes</div> <div class="number">v3.2</div></div>
+                <div><span class="version-label">phyloP</span><span class="number">phyloP100way</span></div>
+                
                 <div><div class="version-label">Variant Effect Predictor</div><div class="number">Version 105</div></div>
+                <div><div class="version-label">Phenolyzer</div><div class="number">Oct 2019</div></div>
                 <div><div class="version-label">REVEL</div> <div class="number">v1.3</div></div>
                 <div><div class="version-label">FreeBayes</div><div class="number">v1.3.1</div></div>
                 <div><div class="version-label">Samtools</div><div class="number">
                 1.9</div></div>
                 <div><div class="version-label">Tabix</div><div class="number">1.9</div></div>
                 <div><div class="version-label">vt subset, normalize</div><div class="number">v0.57721</div></div>
-                <div><div class="version-label">gnomAD </div><div class="number">v2.1 for GRCh37, v4 for GRCh38 </div></div>
-                <div><div class="version-label">ACMG Genes</div> <div class="number">v3.2</div></div>
 
 
               </div>
@@ -1329,7 +1347,7 @@ nav.toolbar, nav.v-toolbar
               2078-9. [PMID: <a href="http://www.ncbi.nlm.nih.gov/pubmed/19505943">19505943</a>]
 
               <div class="citation-title">Bamtools</div>
-              BamTools: a C++ API and toolkit for analyzing and managing BAM files</span>. Bioinformatics 2011;27:1691-1692.
+              BamTools: a C++ API and toolkit for analyzing and managing BAM files. Bioinformatics 2011;27:1691-1692.
               <a href="/cgi/ijlink?linkType=ABST&amp;journalCode=bioinfo&amp;resid=27/12/1691" class="cit-ref-sprinkles cit-ref-sprinkles-ijlinks"><span class="cit-reflinks-abstract">Abstract</span><span class="cit-sep cit-reflinks-variant-name-sep">/</span><span class="cit-reflinks-full-text"><span class="free-full-text">FREE </span>Full Text</span></a>
 
               <div class="citation-title">vt</div>
@@ -1490,6 +1508,7 @@ export default {
     settingsCoverageOnly: null,
     settingsGeneSourceOnly: null,
     analysisModel: null,
+    project: null
   },
   data () {
     let self = this;
@@ -1950,7 +1969,6 @@ export default {
     onShowAlertsForGene: function(geneName) {
       this.$emit('show-alerts-for-gene', geneName)
     }
-
   },
   created: function() {
   },

@@ -186,7 +186,7 @@ a {
               <phenotype-search
               v-if="isEduMode"
               :isNav="false"
-              :defaultTopGenes="isEduMode ? '6' : '30'"
+              :defaultTopGenes="isEduMode ? '10' : '30'"
               :phenotypeLabel="isEduMode ? 'Disorder' : 'Phenotype'"
               :geneModel="geneModel"
               :phenotypeLookupUrl="phenotypeLookupUrl"
@@ -391,23 +391,24 @@ export default {
     promiseValidateGene: function(geneName) {
       let self = this;
       return new Promise(function(resolve, reject) {
-        let theGeneName = geneName.toUpperCase();
-        let lookupObject = self.validGenesMap[theGeneName]
+        let theGeneName = geneName;
+        let theGeneNameUC = geneName.toUpperCase();
+        let lookupObject = self.validGenesMap[theGeneNameUC]
         if (lookupObject) {
           resolve(lookupObject)
         } else {
-          self.geneModel.promiseLookupGene(theGeneName)
+          self.geneModel.promiseGetValidGeneName(theGeneName, false)
           .then(function(lookupObject) {
             let match = null;
-            if (lookupObject && typeof(lookupObject) == 'string' && lookupObject.toUpperCase() == theGeneName) {
+            if (lookupObject && typeof(lookupObject) == 'string' && lookupObject.toUpperCase() == theGeneNameUC) {
               match = lookupObject;
-              self.validGenesMap[theGeneName] = theGeneName;
-            } else if (lookupObject && lookupObject.hasOwnProperty('gene_alias') && lookupObject.gene_alias.toUpperCase() == theGeneName) {
+              self.validGenesMap[theGeneNameUC] = lookupObject;
+            } else if (lookupObject && lookupObject.hasOwnProperty('gene_alias') && lookupObject.gene_alias.toUpperCase() == theGeneNameUC) {
               match = lookupObject;
-              self.validGenesMap[theGeneName] = lookupObject;
+              self.validGenesMap[theGeneNameUC] = lookupObject;
             }
             if (match == null) {
-              self.validGenesMap[theGeneName] = false;
+              self.validGenesMap[theGeneNameUC] = false;
             }
             resolve(match)
           })
@@ -441,6 +442,8 @@ export default {
         let lookupObject = self.validGenesMap[geneName.toUpperCase()];
         if (lookupObject && lookupObject.hasOwnProperty('gene_alias')) {
           theGeneName = lookupObject['gene_name']
+        } else if (lookupObject && typeof(lookupObject) == "string") {
+          theGeneName = lookupObject
         }
         return theGeneName;
       }).join(", ")
@@ -498,7 +501,6 @@ export default {
           return gene.geneName;
         })
         .join(", ");
-
       }
     },
     onClearAllGenes: function() {

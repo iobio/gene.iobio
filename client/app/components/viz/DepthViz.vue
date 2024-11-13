@@ -167,8 +167,8 @@ export default {
       },
       formatCircleText: {
         type: Function,
-        default: function(pos, depth) {
-          return depth + 'x' ;
+        default: function(pos, depth, depthSource) {
+          return  + depth + (depthSource && depthSource == "average_base_coverage" ? "x" : " reads");
         }
       }
 
@@ -242,7 +242,7 @@ export default {
         this.$emit('updateDepthChart', this.depthChart);
       },
       showCurrentPoint: function(point) {
-        this.depthChart.showCircle()(point.pos, point.depth, point.altCount);
+        this.depthChart.showCircle()(point.pos, point.depth, point.altCount, point.depthSource);
       },
       hideCurrentPoint: function(point) {
         this.depthChart.hideCircle()();

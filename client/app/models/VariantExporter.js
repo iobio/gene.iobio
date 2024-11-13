@@ -92,11 +92,6 @@ export default class VariantExporter {
       var getHeader = format == 'vcf' ? true : false;
 
       var extraAnnots = true
-      if (variantEntries.length > 50) {
-        alertify.alert("Warning",
-          "More than 50 variants are being exported. To prevent high system load, the HGVSc and HGVCp annotations will not be provided in the export file.")
-        extraAnnots = false
-      }
 
       variantEntries.forEach(function(variant) {
         var exportRec = {};

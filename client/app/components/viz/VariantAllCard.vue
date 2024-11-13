@@ -806,21 +806,24 @@ export default {
       }
     },
     depthVizRegionGlyph: function(exon, regionGroup, regionX, modelName) {
-      let exonId = 'exon' + exon.exon_number.replace("/", "-");
-      if (regionGroup.select("g#" + exonId).empty()) {
-        regionGroup.append('g')
-              .attr("id", exonId)
-              .attr('class',      'region-glyph coverage-problem-glyph')
-              .attr("modelName", modelName)
-              .attr('transform',  'translate(' + (regionX - 6) + ',-6)')
-              .data([exon])
-              .append('use')
-              .attr('height',     '16')
-              .attr('width',      '16')
-              .attr('href', '#coverage-problem-symbol')
-              .attr('xlink','http://www.w3.org/1999/xlink')
-              .data([exon])
-                .attr("modelName", this.sampleModel.name);
+      if (exon.hasOwnProperty('exon_number') && exon.exon_number && exon.exon_number.length > 0) {
+        let exonId = 'exon' + exon.exon_number.replace("/", "-");
+        if (regionGroup.select("g#" + exonId).empty()) {
+          regionGroup.append('g')
+                .attr("id", exonId)
+                .attr('class',      'region-glyph coverage-problem-glyph')
+                .attr("modelName", modelName)
+                .attr('transform',  'translate(' + (regionX - 6) + ',-6)')
+                .data([exon])
+                .append('use')
+                .attr('height',     '16')
+                .attr('width',      '16')
+                .attr('href', '#coverage-problem-symbol')
+                .attr('xlink','http://www.w3.org/1999/xlink')
+                .data([exon])
+                  .attr("modelName", this.sampleModel.name);
+        }
+        
       }
     },
     onVariantClick: function(variant, model) {
@@ -1086,11 +1089,14 @@ export default {
         const matchingVariants = self.sampleModel.loadedVariants.features.filter(function(v) {
           return v.start === variant.start && v.alt === variant.alt && v.ref === variant.ref;
         })
+        let theDepthSource = "genotype_depth"
         if (matchingVariants.length > 0) {
-          theDepth = matchingVariants[0].bamDepth;
-          // If samtools mpileup didn't return coverage for this position, use the variant's depth field
+          theDepth = matchingVariants[0].genotypeDepth;
+          // If we don't have the read count from the genotype depth on the variant,
+          // use the average base coverage (from samtools pileup) that was calculated for this position
           if (theDepth == null || theDepth === '') {
-            theDepth = matchingVariants[0].genotypeDepth;
+            theDepth = matchingVariants[0].bamDepth;
+            theDepthSource = "average_base_coverage"
           }
           if (matchingVariants[0].genotype && matchingVariants[0].genotype.altCount) {
             theAltCount = matchingVariants[0].genotype.altCount;
@@ -1098,7 +1104,7 @@ export default {
         }
         // If we have the exact depth for this variant, show it.  Otherwise, we will show
         // the calculated (binned, averaged) depth at this position.
-        let currentPoint = {pos: variant.start, depth: theDepth, altCount: theAltCount}
+        let currentPoint = {pos: variant.start, depth: theDepth, depthSource: theDepthSource}
         self.$refs.depthVizRef.showCurrentPoint(currentPoint);
       }
       self.showCoverageCircleOther(variant);

@@ -202,6 +202,8 @@ class SampleModel {
       if (geneObject == null) {
         reject("Empty geneObject in SampleModel.promiseGetVcfData()");
       }
+      let theGeneObject = geneObject;
+      let theTranscript = selectedTranscript;
 
       // If only alignments have specified, but not variant files, we will need to use the
       // getBamRefName function instead of the getVcfRefName function.
@@ -219,29 +221,29 @@ class SampleModel {
 
 
       if (me[dataKind] != null && me[dataKind].features && me[dataKind].features.length > 0) {
-        if (theGetRefNameFunction(geneObject.chr) == me[dataKind].ref &&
+        if (theGetRefNameFunction.apply(me, [geneObject.chr]) == me[dataKind].ref &&
           geneObject.start == me[dataKind].start &&
           geneObject.end == me[dataKind].end &&
           geneObject.strand == me[dataKind].strand) {
           theVcfData = me[dataKind];
-          resolve({model: me, vcfData: theVcfData});
+          resolve({model: me, vcfData: theVcfData, 'gene': theGeneObject, 'transcript': theTranscript});
         }
       }
 
 
       if (theVcfData == null) {
         // Find vcf data in cache
-        me._promiseGetData(dataKind, geneObject.gene_name, selectedTranscript)
+        me._promiseGetData(dataKind, theGeneObject.gene_name, theTranscript)
          .then(function(data) {
           if (data != null && data != '') {
             me[dataKind] = data;
             theVcfData = data;
-            resolve({model: me, vcfData: theVcfData});
+            resolve({model: me, vcfData: theVcfData, 'gene': theGeneObject, 'transcript': theTranscript});
           } else {
             // If the vcf data is null, see if there are called variants in the cache.  If so,
             // copy the called variants into the vcf data.
             if (whenEmptyUseFbData && me.isAlignmentsOnly()) {
-              me.promiseGetFbData(geneObject, selectedTranscript)
+              me.promiseGetFbData(theGeneObject, theTranscript)
               .then(function(theFbData) {
                 // If no variants are loaded, create a dummy vcfData with 0 features
                 if (theFbData && theFbData.features) {
@@ -263,16 +265,16 @@ class SampleModel {
 
 
                 }
-                resolve({model: me, vcfData: theVcfData});
+                resolve({model: me, vcfData: theVcfData, 'gene': theGeneObject, 'transcript': theTranscript});
 
                })
                .catch(function (error) {
-                 let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations()."
+                 let msg = "Problem getting fb data in SampleModel.promiseGetVcfData()."
                  console.log(msg);
                  reject(error);
                });
             } else {
-              resolve({model: me, vcfData: theVcfData});
+              resolve({model: me, vcfData: theVcfData, 'gene': theGeneObject, 'transcript': theTranscript});
             }
 
           }
@@ -1176,7 +1178,18 @@ class SampleModel {
     var me = this;
     return new Promise( function(resolve, reject) {
 
-      var theRef = ref != null ? ref : window.gene.chr;
+      var theRef = ref != null ? ref : (window.gene && window.gene.chr ? window.gene.chr : null);
+      let chrIsPrefixInGeneModel = theRef && theRef.indexOf('chr') == 0 ? true : false;
+      if (theRef == null) {
+        console.log("_promiseVcfRefName failed b/c ref is blank");
+        reject();
+      }
+      
+      // The first time through, getVcfRefName is null. We look at the
+      // vcf header contig recs to figure out if the 'chr' should be 
+      // stripped and also build a translation map for
+      // references like mitochondrial, which will be chrM, M, chrMT, MT
+      // depending on the vcf.
       if (me.getVcfRefName != null) {
         // If we can't find the ref name in the lookup map, show a warning.
         if (me.vcfRefNamesMap[me.getVcfRefName(theRef)] == null) {
@@ -1194,38 +1207,62 @@ class SampleModel {
         currVcf.promiseGetReferenceLengths()
         .then(function(refData) {
           var foundRef = false;
-          refData.forEach( function(refObject) {
+          let chrIsPrefixInVcf = null;
+          
+          let theRefData = refData.filter(function(refObject) {
+            return refObject && refObject.hasOwnProperty('name') && refObject.name && refObject.name != '';
+          })
+          
+          theRefData.forEach( function(refObject) {
             var refName = refObject.name;
-
+            
+            if (chrIsPrefixInVcf == null) {
+              if (refName.indexOf('chr') == 0) {
+                chrIsPrefixInVcf = true;
+              } else {
+                chrIsPrefixInVcf = false;
+              }
+            }
             if (refName == theRef) {
               me.getVcfRefName = me._getRefName;
               foundRef = true;
             } else if (refName == me._stripRefName(theRef)) {
               me.getVcfRefName = me._stripRefName;
               foundRef = true;
-            }
-
+            } 
           });
           // Load up a lookup table.  We will use me for validation when
           // a new gene is loaded to make sure the ref exists.
-          if (foundRef) {
-            refData.forEach( function(refObject) {
-              var refName = refObject.name;
-              var theRefName = me.getVcfRefName(refName);
-              me.vcfRefNamesMap[theRefName] = refName;
-            });
-            resolve();
-          } else  {
-            if (theRef.endsWith("_alt")) {
-              me.vcfRefName = theRef;
-              me.vcfRefNamesMap[theRef] = theRef;
+          if (!foundRef) {
+            if (chrIsPrefixInGeneModel === true && chrIsPrefixInVcf === true) {
               me.getVcfRefName = me._getRefName;
-              resolve()
             } else {
-              // If we didn't find the matching ref name, show a warning.
-              reject();
-
+              me.getVcfRefName = me._stripRefName;
             }
+          }
+          
+          // Now that we have a getVcfRefName functor, iterate throught
+          // the references in the vcf header and add an entry
+          // to the lookup map.
+          theRefData.forEach( function(refObject) {
+            var refName = refObject.name;
+            var theRefName = me.getVcfRefName(refName);
+            me.vcfRefNamesMap[theRefName] = refName;
+            // Translate from MT to M and vice-versa
+            if (theRefName == 'chrMT' || theRefName == 'MT') {
+              me.vcfRefNamesMap[me.getVcfRefName('M')] = refName;
+              me.vcfRefNamesMap[me.getVcfRefName('chrM')] = refName;
+              
+            } else if (theRefName == 'chrM' || theRefName == 'M') {
+              me.vcfRefNamesMap[me.getVcfRefName('MT')] = refName;
+              me.vcfRefNamesMap[me.getVcfRefName('chrMT')] = refName;
+            }
+          });
+          // If we can't find the ref name in the lookup map, show a warning.
+          if (me.vcfRefNamesMap[me.getVcfRefName(theRef)] == null) {
+            reject();
+          } else {
+            resolve();
           }
          })
          .catch(function(error) {
@@ -1240,10 +1277,12 @@ class SampleModel {
 
 
   _getRefName(refName) {
-    return refName;
+    let me = this;
+    return me._translateRefName(refName);
   }
 
   _stripRefName(refName) {
+    let me = this;
     var tokens = refName.split("chr");
     var strippedName = refName;
     if (tokens.length > 1) {
@@ -1254,7 +1293,17 @@ class SampleModel {
         strippedName = tokens[1];
       }
     }
-    return strippedName;
+    return me._translateRefName(strippedName);
+  }
+  
+  _translateRefName(refName) {
+    let me = this;
+    let theRefName = me.vcfRefNamesMap[refName]
+    if (theRefName) {
+      return theRefName;
+    } else {
+      return refName;
+    }
   }
 
 
@@ -1922,7 +1971,7 @@ class SampleModel {
         .then(function (results) {
           if (results) {
             let data = results[1];
-            let theGeneObject = me.getGeneModel().geneObjects[data.gene];
+            let theGeneObject = me.getGeneModel().geneObjects[data.gene.toUpperCase()];
             if (theGeneObject) {
               let resultMap = {};
               let model = variantModel;
@@ -2073,7 +2122,7 @@ class SampleModel {
               if (results && results.length > 0) {
                 var data = results[0];
 
-                var theGeneObject = me.getGeneModel().geneObjects[data.gene];
+                var theGeneObject = me.getGeneModel().geneObjects[data.gene.toUpperCase()];
                 if (theGeneObject) {
 
                   var resultMap = {};

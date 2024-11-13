@@ -319,6 +319,7 @@ main.content.clin, main.v-content.clin
       :settingsCoverageOnly="settingsCoverageOnly"
       :settingsGeneSourceOnly="settingsGeneSourceOnly"
       :analysisModel="analysisModel"
+      :project="project"
       @gene-name-entered="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -423,7 +424,7 @@ main.content.clin, main.v-content.clin
          :tourNumber="tourNumber"
          :geneModel="geneModel"
          :selectedGene="selectedGene"
-         :geneNames="geneModel.sortedGeneNames"
+         :geneNames="geneModel.geneNames"
          :loadedDangerSummaries="Object.keys(geneModel.geneDangerSummaries)"
          :genesInProgress="cohortModel.genesInProgress"
          :isLoaded="cohortModel && cohortModel.isLoaded"
@@ -889,6 +890,7 @@ export default {
       isHubDeprecated: false,
       sampleId: null,
       projectId: null,
+      project: null,
       geneSet: null,
       variantSet: null,
       variantAnnotationsMap: {},
@@ -896,6 +898,7 @@ export default {
       clinSetData: null,
       clinPersistCache: true,
       analysis: null,
+      experiment: null,
       showSaveModal: false,
 
 
@@ -933,6 +936,8 @@ export default {
         'Not significant':        'not-sig',
         'Not reviewed':           'not-reviewed'
       },
+      
+      userFlaggedVariantsToApply: null,
 
 
       //allGenes: allGenesData,
@@ -1280,7 +1285,7 @@ export default {
           self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
           self.geneModel.translator = translator;
           if (self.isEduMode) {
-            self.geneModel.phenolyzerTopGenesToKeep = 5;
+            self.geneModel.phenolyzerTopGenesToKeep = 8;
           }
 
 
@@ -1417,7 +1422,7 @@ export default {
 
               })
               .catch(function(error) {
-                self.addAlert("error", "Unable to initialize from Mosaic. " + error)
+                self.addAlert("error", error)
                 self.showAppLoader = false;
                 if (callback) {
                   callback();
@@ -1567,6 +1572,14 @@ export default {
           self.experimentId
           )
         .then(data => {
+          if (data.alerts && data.alerts.length > 0) {
+            data.alerts.forEach(function(alert) {
+              self.addAlert(alert.alertType, alert.message, null, alert.details, alert.options)
+            })
+          }
+          if (data.experiment && data.experiment.name) {
+            self.experiment = data.experiment;
+          }
           if (isPedigree && !data.foundPedigree) {
             self.onShowSnackbar({message: 'No pedigree for this sample. Loading proband only.', timeout: 5000})
           }
@@ -1592,7 +1605,11 @@ export default {
           return self.hubSession.promiseGetProject(self.projectId)
         })
         .then(projObj => {
+            self.project = projObj;
             self.addAlert("info", 'Mosaic project <pre>' + projObj.name + "</pre> loaded.")
+            if (self.experiment && self.experiment.name) {
+              self.addAlert('info', 'Loaded data files Mosaic for experiment <pre>' + self.experiment.name + "</pre>")
+            }
             self.isSfariProject = false;
             // Note: going off of names per CM for now until we can get a Sfari project db flag
             if (projObj && projObj.name === 'SSC GRCh37 WGS' || projObj.name === 'SSC GRCh38 WGS') {
@@ -1794,20 +1811,23 @@ export default {
           // from the gene-to-alerts map.
           if (genes) {
             genes.forEach(function(geneName) {
-              let alertsForGene = self.geneToAppAlerts[geneName]
-              let indexToRemove = null;
-              // Remove alert from array in gene to alerts map
-              for (let idx = 0; idx < alertsForGene.length; idx++) {
-                let theAlert = alertsForGene[idx];
-                if (theAlert.type == type &&
-                    theAlert.message.indexOf(partialMessage) >= 0 &&
-                    theAlert.genes == genes) {
-                  indexToRemove = idx;
-                  break;
+              let alertsForGene = self.geneToAppAlerts[geneName.toUpperCase()]
+              if (alertsForGene) {
+                let indexToRemove = null;
+                // Remove alert from array in gene to alerts map
+                for (let idx = 0; idx < alertsForGene.length; idx++) {
+                  let theAlert = alertsForGene[idx];
+                  if (theAlert.type == type &&
+                      theAlert.message.indexOf(partialMessage) >= 0 &&
+                      theAlert.genes == genes) {
+                    indexToRemove = idx;
+                    break;
+                  }
                 }
-              }
-              if (indexToRemove >= 0) {
-                alertsForGene.splice(indexToRemove, 1);
+                if (indexToRemove >= 0) {
+                  alertsForGene.splice(indexToRemove, 1);
+                }
+                
               }
 
             })
@@ -1883,11 +1903,11 @@ export default {
           }
           if (geneNameList) {
             geneNameList.forEach(function(geneName) {
-              let theGeneName = geneName.toUpperCase();
-              let theAlerts = self.geneToAppAlerts[theGeneName];
+              let geneNameUC = geneName.toUpperCase();
+              let theAlerts = self.geneToAppAlerts[geneNameUC];
               if (theAlerts == null) {
                 theAlerts = [];
-                self.geneToAppAlerts[theGeneName] = theAlerts;
+                self.geneToAppAlerts[geneNameUC] = theAlerts;
               }
               theAlerts.push(alert)
             })
@@ -2180,13 +2200,19 @@ export default {
         window.cacheHelper = self.cacheHelper;
         self.cacheHelper.on("geneAnalyzed", function(theGene) {
           self.refreshCoverageCounts()
-          if (self.selectedGene && self.selectedGene.hasOwnProperty("gene_name")
+          self.promiseRefreshUserFlaggedState(theGene)
+          .then(function() {
+            if (self.selectedGene && self.selectedGene.hasOwnProperty("gene_name")
               && theGene.gene_name === self.selectedGene.gene_name) {
-            self.promiseLoadData()
-            .catch(function(error) {
-              self.addAlert("error", error, theGene)
-            })
-          }
+              self.promiseLoadData()
+              .catch(function(error) {
+                self.addAlert("error", error, theGene)
+              })
+            }            
+          })
+          .catch(function(error) {
+            self.addAlert("error", error, theGene)
+          })
         });
         self.cacheHelper.on("geneNotAnalyzed", function(geneName) {
           console.log("Gene not analyzed " + geneName)
@@ -2236,9 +2262,23 @@ export default {
       this.resume = val;
     },
 
-    promiseClearCache: function() {
+    promiseClearCache: function(options) {
       let self = this;
-
+      
+      if (options && options.saveUserFlaggedState) {
+          // Keep track of user flagged variants. We will need to
+          // re-apply the variant interpretation and notes 
+          // after all genes have been re-analyzed.
+          if (self.cohortModel && self.cohortModel.flaggedVariants) {
+            self.userFlaggedVariantsToApply = self.cohortModel.flaggedVariants.filter(function(variant) {
+            return (variant.notes && variant.notes.length > 0) || 
+                   (variant.interpretation && variant.interpretation.length > 0);
+            }) 
+          } 
+      } else {
+        self.userFlaggedVariantsToApply = null;
+      }
+      
       this.clearFilter();
       self.cohortModel.clearFlaggedVariants();
 
@@ -2604,7 +2644,7 @@ export default {
         self.setUrlGeneParameters();
       })
       .catch(function(error) {
-
+        console.log(error)
       })
       self.activeGeneVariantTab = "0";
 
@@ -2820,7 +2860,7 @@ export default {
           }
         })
         .catch(function(error) {
-          console.log('Bypassing gene ' + geneName)
+          console.log('Bypassing gene ' + theGeneName)
           console.log(error.hasOwnProperty('message') ? error.message : error)
           let msg = error.hasOwnProperty('message') ? error.message : error;
           reject(msg)
@@ -2892,26 +2932,29 @@ export default {
       .then(function(data) {
         if (!data.isValidBuild) {
           self.addAlert('error', 'The genome build change to ' + buildName + ' resulted in a problem.  ' + data.message)
+          return;
+        } else {
+          self.addAlert('info', 'Genome build <pre>' + buildName + '</pre> selected.');
+          self.onShowSnackbar({message: 'Genes will be reanalyzed based on genome build '
+            + buildName, timeout: 3000});
+
+          self.genomeBuildHelper.setCurrentBuild(buildName)
+          self.setUrlParameters()
+          self.promiseClearCache({'saveUserFlaggedState': true})
+          .then(function() {
+            return self.promiseResetAllGenes()
+          })
+          .then(function() {
+            self.showLeftPanelForGenes()
+
+            if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
+              self.onAnalyzeAll()
+            }
+          })
+    
         }
       })
       
-      self.addAlert('info', 'Genome build <pre>' + buildName + '</pre> selected.');
-      self.onShowSnackbar({message: 'Genes will be reanalyzed based on genome build '
-        + buildName, timeout: 3000});
-
-      self.genomeBuildHelper.setCurrentBuild(buildName)
-      self.setUrlParameters()
-      self.promiseClearCache()
-      .then(function() {
-        return self.promiseResetAllGenes()
-      })
-      .then(function() {
-        self.showLeftPanelForGenes()
-
-        if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
-          self.onAnalyzeAll()
-        }
-      })
     },
     onGeneSourceSelected: function(theGeneSource) {
       var self = this;
@@ -2921,7 +2964,7 @@ export default {
       self.onShowSnackbar({message: 'Genes will be re-analyzed based on '
           + theGeneSource + ' transcripts', timeout: 3000});
 
-      self.promiseClearCache()
+      self.promiseClearCache({'saveUserFlaggedState': true})
       .then(function() {
         return self.promiseResetAllGenes()
       })
@@ -2950,7 +2993,7 @@ export default {
           self.onShowSnackbar({message: 'Genes will be re-analyzed to only annotate all variants in genes, including intronic regions ', timeout: 3000});
       }
 
-      self.promiseClearCache()
+      self.promiseClearCache({'saveUserFlaggedState': true})
       .then(function() {
         return self.promiseResetAllGenes()
       })
@@ -2980,9 +3023,11 @@ export default {
       let self = this;
       self.geneModel.geneRegionBuffer = theGeneRegionBuffer;
       // We have to clear the cache since the gene regions change
-      self.promiseClearCache()
+      self.promiseClearCache({'saveUserFlaggedState': true})
       .then(function() {
+        self.promiseRefreshUserFlaggedState(self.selectedGene)
         self.onGeneSelected(self.selectedGene.gene_name);
+
       })
 
       setTimeout(function () {
@@ -3405,6 +3450,8 @@ export default {
           self.geneModel.geneObjects = {};
           self.geneModel.geneToLatestTranscript = {};
           self.geneModel.clearAllGenes();
+          
+          
           self.cohortModel.flaggedVariants = [];
 
           self.cacheHelper.geneToAltTranscript = {};
@@ -3416,6 +3463,8 @@ export default {
           
           self.applyGenesImpl(genesToReapply.join(","), options,
           function() {
+            console.log("user flagged variants to apply")
+            console.log(self.userFlaggedVariantsToApply)
             resolve();
           });
         })
@@ -3858,10 +3907,24 @@ export default {
 
       // If the variant isn't in the filtered variants list,
       // mark it as 'user flagged'
-      if (self.cohortModel.getFlaggedVariant(variant) == null) {
+      let theFlaggedVariant = self.cohortModel.getFlaggedVariant(variant)
+      if (theFlaggedVariant == null) {
         variant.gene = this.selectedGene;
         variant.transcript = this.selectedTranscript;
         self.cohortModel.addUserFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
+      } else {
+        // If this variant is already a flagged variant and the variant has not
+        // initialized variant.gene, initialize it from the flagged variant.
+        if (!variant.hasOwnProperty('gene') || variant.gene == null) {
+          variant.gene = theFlaggedVariant.gene;
+        }
+      }
+      
+      // Check to make sure the variant has a valid gene property. If not, error and
+      // exit;
+      if (!variant.hasOwnProperty('gene') || variant.gene == null) {
+        self.addAlert('error', 'Unable to set variant notes due to missing gene on variant', this.selectedGene ? this.selectedGene.gene_name : null);
+        return;
       }
 
       if (variant === self.selectedVariant) {
@@ -4386,6 +4449,149 @@ export default {
         }
       })
     },
+    promiseRefreshUserFlaggedState: function(geneObject) {
+      let self = this;
+      
+      return new Promise(function(resolve, reject) {
+        
+        let geneName = geneObject.gene_name;
+        
+        if (self.userFlaggedVariantsToApply == null || self.userFlaggedVariantsToApply.length == 0 ||
+            self.cohortModel.flaggedVariants == null || self.cohortModel.flaggedVariants.length == 0) {
+          resolve();
+        }
+        
+        // Add any user flagged variants         
+        let userFlaggedVariantsToAdd = self.userFlaggedVariantsToApply.filter(function(source) {
+          if (source.gene && source.gene.gene_name) {
+            let matchesGene = source.gene.gene_name == geneName;
+            let matchingFlaggedVariants = self.cohortModel.flaggedVariants.filter(function(target) {
+              let foundMatch = (
+                self.globalApp.utility.stripRefName(source.chrom) == self.globalApp.utility.stripRefName(target.chrom)
+                && source.start == target.start
+                && source.ref   == target.ref
+                && source.alt   == target.alt);
+              return foundMatch;
+            })
+            return (matchesGene && source.isUserFlagged && matchingFlaggedVariants.length == 0)
+          } else {
+            return false;
+          }
+        })
+        
+        // Create the promises to add the user flagged variants
+        var promises = userFlaggedVariantsToAdd.map(function(source) {
+          return new Promise(function(resolve1, reject1) {
+            let theSource = source;
+            let theGeneObject = geneObject;
+            let theTranscript = self.geneModel.getCanonicalTranscript(theGeneObject)
+            self.cohortModel.getProbandModel().promiseGetMatchingVariant(theSource, theGeneObject, theTranscript)
+            .then(function(matchingVariant) {
+              if (matchingVariant) {
+                matchingVariant.isFlagged = true;
+                matchingVariant.isUserFlagged = true;
+                matchingVariant.filtersPassed    = ['reviewed']
+                matchingVariant.filtersPassedAll = ['reviewed']
+                matchingVariant.notes         =  theSource.notes;
+                matchingVariant.interpretation = theSource.interpretation;
+                self.cohortModel.promiseAddUserFlaggedVariant(theGeneObject, theTranscript, matchingVariant)
+                .then(function() {
+                  resolve1();
+                })
+                .catch(function(error) {
+                  reject1('Failed to flag user flagged variant due to error: ' + error)
+                })
+              } else {
+                let theNotes = theSource.notes && theSource.notes.length > 0 ? 
+                                 theSource.notes.map(function(n){
+                                    return n.note
+                                  }).join(", ") : "";
+                self.addAlert('error',
+                              'Failed to flag ' + theGeneObject.gene_name + 
+                                ' variant  ' + theSource.chrom + ":" + theSource.start +
+                                '. Unable to capture interpretation and notes for variant.',
+                              theGeneObject.gene_name, 
+                              ['interpretation: ' + theSource.interpretation, 
+                              'notes: ' + theNotes],
+                              {'showAlertPanel': true})
+                resolve1();
+              }
+            })
+          })
+        })
+        
+        Promise.all(promises)
+        .then(function() {
+          // Get the tuples of source variant and target variant
+          let flaggedVariantsToRefresh = self.userFlaggedVariantsToApply.map(function(source) {
+            if (source.gene && source.gene.gene_name) {
+              let matchesGene = source.gene.gene_name == geneName;
+              let matchingFlaggedVariants = self.cohortModel.flaggedVariants.filter(function(target) {
+                let foundMatch = (
+                  self.globalApp.utility.stripRefName(source.chrom) == self.globalApp.utility.stripRefName(target.chrom)
+                  && source.start == target.start
+                  && source.ref   == target.ref
+                  && source.alt   == target.alt);
+                return foundMatch;
+              })
+              return {'source': source, 
+                      'matchesGene': matchesGene, 
+                      'matchingFlaggedVariants': matchingFlaggedVariants}
+            } else {
+              return {'source': source, 
+                      'matchesGene': false, 
+                      'matchingFlaggedVariants': []}
+            }
+          }).filter(function(matchInfo) {
+            return matchInfo.matchesGene;
+          })
+          
+          // Iterate through the tuples of source and target variants and refresh the target
+          // variant notes and interpretation based on the source. Issue a warning
+          // if we have a source variant for a gene an no matching flagged variant.
+          flaggedVariantsToRefresh.forEach(function(matchInfo) {
+            if (matchInfo.matchingFlaggedVariants && matchInfo.matchingFlaggedVariants.length > 0) {
+              matchInfo.matchingFlaggedVariants.forEach(function(target) {
+                console.log("setting user flagged state for variant " + target.start + " for gene " + target.gene.gene_name)
+                target.interpretation = matchInfo.source.interpretation;
+                target.notes          = matchInfo.source.notes;   
+                var index = self.userFlaggedVariantsToApply.indexOf(matchInfo.source);
+                if (index !== -1) {
+                  self.userFlaggedVariantsToApply.splice(index, 1);
+                }       
+              }) 
+            } else {
+              let theNotes = "";
+              if (matchInfo.source.notes) {
+                theNotes = matchInfo.source.notes.map(function(n){
+                  return n.note
+                }).join(", ")
+              }
+              self.addAlert('error', 
+                            'Cannot refresh the variant interpretation and notes for ' + geneName + ' variant ' + 
+                              matchInfo.source.chrom + ':' + matchInfo.source.start + ' ' + matchInfo.source.ref + '>' + matchInfo.source.alt + 
+                              ' because the variant no longer matches any filter criteria.',
+                            geneName, 
+                            ['interpretation: ' + matchInfo.source.interpretation, 
+                            'notes: ' + theNotes],
+                            {'showAlertPanel': true});
+            }
+          })
+          
+          resolve();
+                    
+        })
+        .catch(function(error) {
+          reject(error)
+        })
+        
+        
+        
+
+      })
+    
+      
+    },
     refreshCoverageCounts: function() {
       let self = this;
       self.badgeCounts = {coverage: 0};
@@ -4523,7 +4729,7 @@ export default {
       this.featureMatrixModel.isBasicMode = false;
       this.featureMatrixModel.isSimpleMode = false;
       this.filterModel.isBasicMode = false;
-      this.promiseClearCache()
+      this.promiseClearCache({'saveUserFlaggedState': true})
       .then(function() {
         self.calcFeatureMatrixWidthPercent();
         self.onFilesLoaded(true, true, function() {
@@ -4552,7 +4758,7 @@ export default {
       this.featureMatrixModel.isBasicMode = false;
       this.featureMatrixModel.isSimpleMode = true;
       this.filterModel.isBasicMode = false;
-      this.promiseClearCache()
+      this.promiseClearCache({'saveUserFlaggedState': true})
       .then(function() {
         self.calcFeatureMatrixWidthPercent();
         self.onFilesLoaded(true, true, function() {

@@ -1772,19 +1772,25 @@ export default {
     },
 
     depthVizRegionGlyph: function(exon, regionGroup, regionX) {
-      var exonId = 'exon' + exon.exon_number.replace("/", "-");
-      if (regionGroup.select("g#" + exonId).empty()) {
-        regionGroup.append('g')
-              .attr("id", exonId)
-              .attr('class',      'region-glyph coverage-problem-glyph')
-              .attr('transform',  'translate(' + (regionX - 6) + ',-25)')
-              .data([exon])
-              .append('use')
-              .attr('height',     '12')
-              .attr('width',      '12')
-              .attr('href', '#coverage-problem-symbol')
-              .attr('xlink','http://www.w3.org/1999/xlink')
-              .data([exon]);
+      if (exon.hasOwnProperty('exon_number')) {
+        var exonId = 'exon' + exon.exon_number.replace("/", "-");
+        if (exonId && exonId.length > 0) {
+          if (regionGroup.select("g#" + exonId).empty()) {
+            regionGroup.append('g')
+                .attr("id", exonId)
+                .attr('class',      'region-glyph coverage-problem-glyph')
+                .attr('transform',  'translate(' + (regionX - 6) + ',-25)')
+                .data([exon])
+                .append('use')
+                .attr('height',     '12')
+                .attr('width',      '12')
+                .attr('href', '#coverage-problem-symbol')
+                .attr('xlink','http://www.w3.org/1999/xlink')
+                .data([exon]);
+          }
+          
+        }
+        
       }
     },
     getExonClass: function(exon, i) {
