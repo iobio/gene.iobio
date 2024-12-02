@@ -1050,7 +1050,7 @@ export default {
       clinIobioUrls: ["http://localhost:4030", "http://tony.iobio.io:4030", "http://clin.iobio.io", "https://clin.iobio.io", "https://dev.clin.iobio.io", "http://dev.clin.iobio.io", "https://stage.clin.iobio.io"],
       clinIobioUrl: "https://clin.iobio.io",
 
-      forceLocalStorage: null,
+      forceLocalStorage: false,
 
       phenotypeLookupUrl: null,
       phenolyzerTopGenes: null,
@@ -1279,10 +1279,8 @@ export default {
           let translator = new Translator(self.globalApp, glyph);
           let genericAnnotation = new GenericAnnotation(glyph);
 
-          self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage,
-            self.launchedFromHub, self.genePanels);
+          self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage, self.genomeBuildHelper, self.genePanels);
           self.geneModel.geneSource = self.forMyGene2 ? "refseq" : "gencode";
-          self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
           self.geneModel.translator = translator;
           if (self.isEduMode) {
             self.geneModel.phenolyzerTopGenesToKeep = 8;
@@ -1316,7 +1314,7 @@ export default {
             self.addAlert(type, message, genes, details, options)
           })
 
-          self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
+          self.geneModel.addEventListener("geneDangerSummarized", function(dangerSummary) {
             self.geneModel.promiseGetCachedGeneObject(dangerSummary.geneName)
             .then(function(theGeneObject) {
               if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
@@ -1327,16 +1325,16 @@ export default {
               console.log(error.message)
             })
           })
-          self.geneModel.on("alertIssued", function(type, message, genes, details, options) {
+          self.geneModel.addEventListener("alertIssued", function(type, message, genes, details, options) {
             self.addAlert(type, message, genes, details, options)
           })
-          self.geneModel.on("alertRetracted", function(type, partialMessage, geneName) {
+          self.geneModel.addEventListener("alertRetracted", function(type, partialMessage, geneName) {
             self.onRetractAppAlert(type, partialMessage, [geneName])
           })
-          self.geneModel.on("selectGene", function(geneName) {
+          self.geneModel.addEventListener("selectGene", function(geneName) {
             self.onGeneSelected(geneName)
           })
-          self.geneModel.on("removeGene", function(geneName) {
+          self.geneModel.addEventListener("removeGene", function(geneName) {
             self.removeGeneImpl(geneName)
           })
 

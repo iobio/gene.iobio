@@ -1,11 +1,14 @@
+import Reactor                 from './Reactor.js';
 import CaseInsensitiveMap      from './CaseInsensitiveMap.js'
 
 class GeneModel {
-  constructor(globalApp, limitGenes, launchedFromHub, genePanels) {
+  constructor(globalApp, enforceGeneLimit, genomeBuildHelper, genePanels) {
 
     this.globalApp                 = globalApp;
-    this.limitGenes                = limitGenes;
-    this.launchedFromHub = launchedFromHub;
+    this.enforceGeneLimit          = enforceGeneLimit;
+    this.genomeBuildHelper         = genomeBuildHelper;
+    this.genePanels                = genePanels;
+    
     this.phenolyzerServer          = "https://services.backend.iobio.io/phenolyzer/";
 
     this.NCBI_GENE_SEARCH_URL      = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&usehistory=y&retmode=json";
@@ -54,9 +57,6 @@ class GeneModel {
 
     this.translator = null;
 
-    this.genomeBuildHelper = null;
-
-    this.genePanels = genePanels;
 
     this.geneNames = [];
     this.geneDangerSummaries = {};
@@ -97,11 +97,22 @@ class GeneModel {
 
     this.isFullAnalysis = false;
 
-    this.dispatch = d3.dispatch("geneDangerSummarized", "alertIssued", "alertRetracted",
-                                "selectGene", "removeGene");
-    d3.rebind(this, this.dispatch, "on");
-
     this.genesAssociatedWithSource = {};
+    
+    this.reactor = new Reactor();
+    this.reactor.registerEvent("geneDangerSummarized")
+    this.reactor.registerEvent("alertIssued")
+    this.reactor.registerEvent("alertRetracted")
+    this.reactor.registerEvent("selectGene")
+    this.reactor.registerEvent("removeGene")
+
+  }
+  addEventListener(eventName, callback) {
+    this.reactor.addEventListener(eventName, callback)
+  }
+
+  dispatchEvent(eventName, eventArgs) {
+    this.reactor.dispatchEvent(eventName, eventArgs)
   }
 
 
@@ -337,7 +348,7 @@ class GeneModel {
             })
             .catch(function(error) {
               let msg  =  "Problem getting phenotypes for gene " + "<pre>" + geneName + "</pre>."
-              me.dispatch.alertIssued("error",
+              me.dispatchEvent("alertIssued", "error",
                   msg,
                   geneName,
                   [error]);
@@ -433,7 +444,7 @@ class GeneModel {
         // The original gene is valid and has transcripts for the build and source.
         //  Optionally, select the gene from the left side panel.
         if (selectOriginalGene) {
-          self.dispatch.selectGene(theGeneName)
+          self.dispatchEvent("selectGene", theGeneName)
         }
         resolve({'geneName': theGeneName, 'added': geneAdded, 'success': true, 'geneObject': geneObject});
       })
@@ -474,8 +485,8 @@ class GeneModel {
         if (error.hasOwnProperty('useDifferentGene')) {
           if (removeOriginalGeneIfReplaced) {
 
-            self.dispatch.alertRetracted('warning', error.message, theGeneName)
-            self.dispatch.removeGene(theGeneName)
+            self.dispatchEvent("alertRetracted", 'warning', error.message, theGeneName)
+            self.dispatchEvent("removeGene", theGeneName)
           }
           // Add the replacement gene
           self.promiseAddGeneName(error.useDifferentGene)
@@ -491,10 +502,10 @@ class GeneModel {
               // the replacement gene (alias) from the left side panel.
               if (selectReplacementGene) {
                 setTimeout(function() {
-                  self.dispatch.selectGene(error.useDifferentGene)
+                  self.dispatchEvent("selectGene", error.useDifferentGene)
 
                   setTimeout(function() {
-                    self.dispatch.alertIssued(error.hasOwnProperty('alertType') ? error.alertType : 'error',
+                    self.dispatchEvent("alertIssued", error.hasOwnProperty('alertType') ? error.alertType : 'error',
                                   error.hasOwnProperty('message') ? error.message :
                                         'Gene ' + theGeneName + ' not found. Using alias ' + error.useDifferentGene + ' instead.',
                                   error.useDifferentGene,
@@ -509,7 +520,7 @@ class GeneModel {
                   }, 1000)
                 },1000)
               } else {
-                self.dispatch.alertIssued(error.hasOwnProperty('alertType') ? error.alertType : 'error',
+                self.dispatchEvent("alertIssued", error.hasOwnProperty('alertType') ? error.alertType : 'error',
                               error.hasOwnProperty('message') ? error.message : error,
                               error.useDifferentGene,
                               null,
@@ -528,7 +539,7 @@ class GeneModel {
           // The orginal gene we added isn't present or doesn't have any transcripts
           // for the build and gene source. And none of its aliases have transcripts
           // for the build and gene source. Reject and add an alert.
-          self.dispatch.alertIssued(error.hasOwnProperty('alertType') ? error.alertType : 'error',
+          self.dispatchEvent("alertIssued", error.hasOwnProperty('alertType') ? error.alertType : 'error',
             error.hasOwnProperty('message') ? error.message :
                               'Unable to get gene transcripts for gene ' + theGeneName,
             theGeneName,
@@ -688,15 +699,15 @@ class GeneModel {
 
           if (Object.keys(unknownGeneNames).length > 0) {
             var message = "Bypassing unknown genes: " + Object.keys(unknownGeneNames).join(", ") + ".";
-            me.dispatch.alertIssued("warning", message, Object.keys(unknownGeneNames).join(", "), Object.keys(unknownGeneNames))
+            me.dispatchEvent("alertIssued", "warning", message, Object.keys(unknownGeneNames).join(", "), Object.keys(unknownGeneNames))
           }
 
           if (Object.keys(duplicateGeneNames).length > 0 && options.warnOnDup) {
             var message = "Bypassing duplicate gene name(s): " + Object.keys(duplicateGeneNames).join(", ") + ".";
-            me.dispatch.alertIssued("warning", message, null, Object.keys(duplicateGeneNames))
+            me.dispatchEvent("alertIssued", "warning", message, null, Object.keys(duplicateGeneNames))
           }
 
-          if (me.limitGenes) {
+          if (me.enforceGeneLimit) {
             if (me.globalApp.maxGeneCount && me.geneNames.length > me.globalApp.maxGeneCount) {
               var bypassedCount = me.geneNames.length - me.globalApp.maxGeneCount;
               me.geneNames = me.geneNames.slice(0, me.globalApp.maxGeneCount);
@@ -706,7 +717,7 @@ class GeneModel {
                 + " "
                 + (bypassedCount == 1 ? "gene" : "genes")
                 +  " bypassed.";
-              me.dispatch.alertIssued("warning", msg)
+              me.dispatchEvent("alertIssued", "warning", msg)
             }
 
           }
@@ -732,7 +743,7 @@ class GeneModel {
     }
     delete this.geneDangerSummaries[geneName];
     this.geneDangerSummaries[geneName.toUpperCase()] = dangerSummary;
-    this.dispatch.geneDangerSummarized(dangerSummary);
+    this.dispatchEvent("geneDangerSummarized", dangerSummary);
   }
 
   getDangerSummary(geneName) {
@@ -1159,7 +1170,7 @@ class GeneModel {
       let unknownGeneInfo = {description: ' ', summary: ' '};
 
       if (geneInfo != null && geneInfo.summary != " ") {
-        me.dispatch.alertRetracted("warning", "Unable to get NCBI gene summary", geneName)
+        me.dispatchEvent("alertRetracted", "warning", "Unable to get NCBI gene summary", geneName)
         resolve(geneInfo);
       } else {
         // Search NCBI based on the gene name to obtain the gene ID
@@ -1183,7 +1194,7 @@ class GeneModel {
                     });
                   }
                   me.geneNCBISummaries[geneName] = unknownGeneInfo;
-                  me.dispatch.alertRetracted("warning", "Unable to get NCBI gene summary", geneName)
+                  me.dispatchEvent("alertRetracted", "warning", "Unable to get NCBI gene summary", geneName)
   
                   resolve(unknownGeneInfo);
   
@@ -1193,14 +1204,14 @@ class GeneModel {
                   var geneInfo = sumData.result[uid];
   
                   me.geneNCBISummaries[geneName] = geneInfo;
-                  me.dispatch.alertRetracted("warning", "Unable to get NCBI gene summary", geneName)
+                  me.dispatchEvent("alertRetracted", "warning", "Unable to get NCBI gene summary", geneName)
                   resolve(geneInfo)
                 }
             })
             .fail(function(response) {
               console.log("Error occurred when making http request to NCBI eutils esummary for gene " + geneName);
               console.log(response)
-              me.dispatch.alertIssued("warning",
+              me.dispatchEvent("alertIssued", "warning",
                 "Unable to get NCBI gene summary (esummary) for gene <pre>" + geneName + "</pre>", geneName,
                 ['Error occurred when making http request to NCBI eutils esummary',summaryUrl])
               me.geneNCBISummaries[geneName] = unknownGeneInfo;
@@ -1212,7 +1223,7 @@ class GeneModel {
         })
         .fail(function() {
           console.log("Error occurred when making http request to NCBI eutils esearch for gene " + geneName);
-            me.dispatch.alertIssued("warning",
+            me.dispatchEvent("alertIssued", "warning",
               "Unable to get NCBI gene summary (esearch) for gene <pre>" + geneName + "</pre>", geneName,
               ['Error occurred when making http request to NCBI eutils esearch',url])
           me.geneNCBISummaries[geneName] = unknownGeneInfo;
@@ -1229,7 +1240,7 @@ class GeneModel {
 
       let theCount = me.genePubMedCount[theGeneName];
       if (theCount && options.useCached) {
-        me.dispatch.alertRetracted("warning", "Unable to get PubMed count", theGeneName);
+        me.dispatchEvent("alertRetracted", "warning", "Unable to get PubMed count", theGeneName);
         resolve(theCount)
       }
       else {
@@ -1240,7 +1251,7 @@ class GeneModel {
 
         $.ajax( searchUrl )
          .done(function(data) {
-          me.dispatch.alertRetracted("warning", "Unable to get PubMed count", geneName);
+          me.dispatchEvent("alertRetracted", "warning", "Unable to get PubMed count", geneName);
 
           // Now that we have the gene ID, get the NCBI gene summary
           pubMedCount = data["esearchresult"]["count"]
@@ -1254,7 +1265,7 @@ class GeneModel {
             let msg = "Unable to get PubMed count for " + geneName;
             console.log(msg);
             console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
-            me.dispatch.alertIssued("warning", msg, geneName, [error])
+            me.dispatchEvent("alertIssued", "warning", msg, geneName, [error])
             reject();
          })
       }
@@ -1267,7 +1278,7 @@ class GeneModel {
 
       let theEntry = me.genePubMedEntries[theGeneName];
       if (theEntry && options.useCached) {
-        me.dispatch.alertRetracted("warning", "Unable to get PubMed entries", theGeneName);
+        me.dispatchEvent("alertRetracted", "warning", "Unable to get PubMed entries", theGeneName);
         resolve(theEntry)
       }
       else {
@@ -1299,14 +1310,14 @@ class GeneModel {
                 if (options.useCached) {
                   me.genePubMedEntries[geneName] = theEntry;
                 }
-                me.dispatch.alertRetracted("warning", "Unable to get PubMed entries", geneName);
+                me.dispatchEvent("alertRetracted", "warning", "Unable to get PubMed entries", geneName);
                 resolve(theEntry);
               } else {
                 let theEntry = {geneName: geneName, count: 0, entries: null}
                 if (options.useCached) {
                   me.genePubMedEntries[geneName] = theEntry;
                 }
-                me.dispatch.alertRetracted("warning", "Unable to get PubMed entries", geneName);
+                me.dispatchEvent("alertRetracted", "warning", "Unable to get PubMed entries", geneName);
                 resolve(theEntry)
               }
 
@@ -1316,7 +1327,7 @@ class GeneModel {
               let msg = "Unable to get PubMed entries for <pre>" + geneName + "</pre>";
               console.log(msg)
               console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
-              me.dispatch.alertIssued("warning", msg, geneName, [error])
+              me.dispatchEvent("alertIssued", "warning", msg, geneName, [error])
               reject();
             })
 
@@ -1327,7 +1338,7 @@ class GeneModel {
             let msg = "Unable to get PubMed entries for " + geneName;
             console.log(msg);
             console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
-            me.dispatch.alertIssued("warning", msg, geneName, [error])
+            me.dispatchEvent("alertIssued", "warning", msg, geneName, [error])
             reject();
         })
 
@@ -1365,7 +1376,7 @@ class GeneModel {
 
       let theEntry = self.geneOMIMEntries[theGeneName];
       if (theEntry) {
-        self.dispatch.alertRetracted("warning", "Cannot get OMIM entries", theGeneName);
+        self.dispatchEvent("alertRetracted", "warning", "Cannot get OMIM entries", theGeneName);
         resolve(theEntry)
       } else {
         let geneName = theGeneName;
@@ -1385,13 +1396,13 @@ class GeneModel {
             .then(function() {
               let theEntry = {geneName: geneName, omimEntries: omimEntries};
               self.geneOMIMEntries[geneName] = theEntry;
-              self.dispatch.alertRetracted("warning", "Cannot get OMIM entries", geneName);
+              self.dispatchEvent("alertRetracted", "warning", "Cannot get OMIM entries", geneName);
               resolve(theEntry)
             })
           } else {
             let theEntry = {geneName: geneName, omimEntries: null};
             self.geneOMIMEntries[geneName] = theEntry;
-            self.dispatch.alertRetracted("warning", "Cannot get OMIM entries", geneName);
+            self.dispatchEvent("alertRetracted", "warning", "Cannot get OMIM entries", geneName);
             resolve(theEntry)
           }
         })
@@ -1399,7 +1410,7 @@ class GeneModel {
           let msg = "Cannot get OMIM entries for gene <pre>" + theGeneName + "</pre>."
           console.log(msg)
           console.log(error)
-          self.dispatch.alertIssued('warning', msg, theGeneName)
+          self.dispatchEvent("alertIssued", 'warning', msg, theGeneName)
           reject(error)
         })
 
@@ -1414,29 +1425,29 @@ class GeneModel {
     return new Promise(function(resolve, reject) {
       let hpoTerms = self.geneToHPOTerms[geneName];
       if (hpoTerms) {
-        self.dispatch.alertRetracted("warning", "Cannot get HPO terms for gene", geneName);
+        self.dispatchEvent("alertRetracted", "warning", "Cannot get HPO terms for gene", geneName);
         resolve(hpoTerms)
       } else {
         self.promiseGetNCBIGeneSummary(geneName)
         .then(function(ncbiSummary) {
           if (ncbiSummary && ncbiSummary.uid) {
-            self.dispatch.alertRetracted("warning", "Unable to lookup NCBI id for gene", geneName);
+            self.dispatchEvent("alertRetracted", "warning", "Unable to lookup NCBI id for gene", geneName);
             let url = self.HPO_URL + ncbiSummary.uid;
             $.ajax( url )
             .done(function(data) {
               self.geneToHPOTerms[geneName] = data;
-              self.dispatch.alertRetracted("warning", "Cannot get HPO terms for gene", geneName);
+              self.dispatchEvent("alertRetracted", "warning", "Cannot get HPO terms for gene", geneName);
               resolve(data)
             })
             .fail(function(error) {
               let msg = "Unable to get hpo terms for gene " + geneName;
               console.log(msg);
               console.log(error)
-              self.dispatch.alertIssued("warning", "Cannot get HPO terms for gene <pre>" + geneName + "</pre>", geneName, [error])
+              self.dispatchEvent("alertIssued", "warning", "Cannot get HPO terms for gene <pre>" + geneName + "</pre>", geneName, [error])
               reject(msg + '. Error: ' + error);
             })
           } else {
-            self.dispatch.alertIssued("warning", "Cannot get HPO terms for gene <pre>" + geneName + "</pre>. Unable to lookup NCBI id for gene.", geneName)
+            self.dispatchEvent("alertIssued", "warning", "Cannot get HPO terms for gene <pre>" + geneName + "</pre>. Unable to lookup NCBI id for gene.", geneName)
             reject("Unable to get gene HPO terms because lookup of NCBI gene returned empty results.")
           }
         })
@@ -1452,7 +1463,7 @@ class GeneModel {
       if (apiKey == null || apiKey == "") {
         if (!self.warnedMissingOMIMApiKey) {
           let msg ="Unable to access OMIM.  API key is required in env."
-          self.dispatch.alertIssued("warning", msg, geneName)
+          self.dispatchEvent("alertIssued", "warning", msg, geneName)
           self.warnedMissingOMIMApiKey = true;
         }
         resolve();
@@ -1480,7 +1491,7 @@ class GeneModel {
                   return entry.phenotypeMap;
                 })
               }
-              self.dispatch.alertRetracted("warning", "Unable to get phenotype mim number OMIM", geneName);
+              self.dispatchEvent("alertRetracted", "warning", "Unable to get phenotype mim number OMIM", geneName);
               resolve({geneName: geneName, mimNumber: mimNumber, phenotypes: phenotypes});
             }
             else {
@@ -1493,7 +1504,7 @@ class GeneModel {
               let msg = "Unable to get phenotype mim number OMIM for gene " + geneName;
               console.log(msg);
               console.log(error)
-              self.dispatch.alertIssued("warning", msg, geneName)
+              self.dispatchEvent("alertIssued", "warning", msg, geneName)
               reject(msg + '. Error: ' + error);
           })
 
@@ -2359,7 +2370,7 @@ class GeneModel {
     })
     .catch(function(error) {
       let msg = "Unable to parse phenolyzer output in GeneMode.parsePhenolyzerGenes";
-      me.dispatch.alertIssued('error', msg, null, [error])
+      me.dispatchEvent("alertIssued", 'error', msg, null, [error])
       if (parserCallback) {
         parserCallback(false)
       }
@@ -2431,7 +2442,7 @@ class GeneModel {
         resolve(links)
       })
       .catch(function(error) {
-        me.dispatch.alertIssued('warning', error, theGeneName)
+        me.dispatchEvent("alertIssued", 'warning', error, theGeneName)
         populateLinks()
         resolve(links)
 
@@ -2946,7 +2957,7 @@ class GeneModel {
         let msg = "Problem getting known gene entry for aliases of gene " + theGeneName;
         console.log(msg)
         console.log(error)
-        self.dispatch.alertIssued('error', msg, theGeneName, [error] );
+        self.dispatchEvent("alertIssued", 'error', msg, theGeneName, [error] );
         reject(error)
       })
     })
