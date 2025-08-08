@@ -484,6 +484,11 @@ export default function vcfiobio(theGlobalApp) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
   }
 
+  function isIntegerString(str) {
+    const num = parseInt(str, 10);
+    return !isNaN(num) && num.toString() === str;
+  }
+
   exports.setSamples = function(sampleNames) {
     samples = sampleNames;
   }
@@ -3402,14 +3407,25 @@ exports._parseClinInfoDeprecated = function(rec, clinvarMap) {
         }
 
 
-
+        //
         // Only keep the alt if we have a genotype that matches.
         // For example
-        // A->G    0|1 keep
-        // A->G,C  0|1 keep A->G, but bypass A->C
-        // A->G,C  0|2 bypass A->G, keep A->C
-        // A->G,C  1|2 keep A->G, keep A->C
-        // unknown .   bypass
+        //   A->G    0|1 keep (phased)
+        //   A->G    0/1 keep (unphased)
+        //   A->G    0/0 bypass (homozygous ref for this sample)
+        //
+        // multi-allelic
+        //   A->G,C  0|1 keep A->G, but bypass A->C
+        //   A->G,C  0|2 bypass A->G, keep A->C
+        //   A->G,C  1|2 keep A->G, keep A->C
+        //
+        // non-diploid
+        //   A->G    1   keep (homozygous alt non-diploid)
+        //   A->G    0   bypass (homozygous ref non-diploid)
+        //
+        // unspecified
+        //   A->G    .   bypass (assumed homozygousref)
+        //
         var delim = null;
 
         if (gt.gt.indexOf("|") > 0) {
@@ -3421,6 +3437,20 @@ exports._parseClinInfoDeprecated = function(rec, clinvarMap) {
         } else if (gt.gt == ".") {
           gt.keep = false;
           gt.zygosity = "HOMREF";
+        } else if (isIntegerString(gt.gt) && parseInt(gt.gt, 10) == 0) {
+          // when a single number is present, this is a non-diploid genotype
+          // when set to 0, this is homozygous ref
+          gt.keep = false;
+          gt.zygosity = "HOMREF";
+        } else if (isIntegerString(gt.gt) && parseInt(gt.gt, 10) > 0) {
+          // when a single number is present, this is a non-diploid genotype
+          // when >= to 1 , this is homozygous alt
+          gt.keep = true;
+          gt.zygosity = "HOM";
+          if (isEduMode) {
+            gt.eduGenotype = rec.ref + " " + alt;
+            gt.eduGenotypeReversed = globalApp.utility.switchGenotype(gt.eduGenotype);
+          }
         } else {
           gt.keep = false;
           gt.zygosity = "gt_unknown";
