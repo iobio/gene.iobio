@@ -7,6 +7,7 @@
 // extending Thomas Down's original BAM js work
 
 import { createHoster } from 'fibridge-host';
+import waygateJs from 'waygate-js';
 
 
 export default class Bam {
@@ -17,14 +18,18 @@ export default class Bam {
       this.baiUri = baiUri;
       this.options = options; // *** add options mapper ***
 
+      this.waygateActive = false;
+      this.waygateDirTree = null;
+      this.waygateTunnelDomain = null;
+      this.waygateHandler = null;
+      this.waygateListener = null;
+
       // test if file or url
       if (typeof(this.bamUri) == "object") {
          this.sourceType = "url";
           this.bamFile = null;
           this.baiFile = null;
-         // this.bamFile = this.bamUri;
-         // this.baiFile = this.options.bai;
-         this.makeBamBlob();
+         this.accessFilesWithURLs();
       } else  {
          this.sourceType = "url";
          this.bamFile = null;
@@ -68,51 +73,15 @@ export default class Bam {
     this.baiUri = null;
     this.header = null;
     this.headerStr =  null;
+    
+    // Clean up waygate resources if they exist
+    this.clearWaygate();
    }
 
    isEmpty() {
     return this.bamFile == null && this.bamUri == null;
    }
 
-   makeBamBlob(callback) {
-     var me = this;
-       const proxyAddress = 'lf-proxy.iobio.io';
-       const port = 443;
-       const secure = true;
-       const protocol = secure ? 'https:' : 'http:';
-       // TODO: shouldn't this be going out of scope and eventually garbage
-       // collected, which could lead to race conditions?
-       createHoster({ proxyAddress, port, secure }).then((hoster) => {
-           const bamPath = '/' + me.bamFile.name;
-           hoster.hostFile({ path: bamPath, file: me.bamFile });
-           const baiPath = '/' + me.baiFile.name;
-           hoster.hostFile({ path: baiPath, file: me.baiFile });
-           const portStr = hoster.getPortStr();
-           const baseUrl = `${protocol}//${proxyAddress}${portStr}`;
-           me.bamUri = `${baseUrl}${hoster.getHostedPath(bamPath)}`;
-           me.baiUri = `${baseUrl}${hoster.getHostedPath(baiPath)}`;
-           me.sourceType = "url";
-           me.bamFile = null;
-           me.baiFile = null;
-
-       });
-
-          if (callback) {
-            callback();
-          }
-
-
-     //
-     // this.bamBlob = new BlobFetchable(this.bamFile);
-     // this.baiBlob = new BlobFetchable(this.baiFile); // *** add if statement if here ***
-     // makeBam(this.bamBlob, this.baiBlob, function(bam) {
-     //    me.setHeader(bam.header);
-     //    me.provide(bam);
-     //    if (callback) {
-     //      callback();
-     //    }
-     // });
-   }
 
   checkBamUrl(url, baiUrl, callback) {
     var me = this;
@@ -260,7 +229,7 @@ export default class Bam {
     me.baiFile   = baiFile;
 
     me.sourceType = "file";
-    me.makeBamBlob( function() {
+    me.accessFilesAsURLs( function() {
       callback(true);
     });
     return;
@@ -728,6 +697,94 @@ export default class Bam {
     return results;
   }
 
+
+
+  promiseStartWaygate() {
+    let me = this;
+    return new Promise(function(resolve, reject) {
+      if (!me.waygateActive) {
+        waygateJs.setServerUri('https://waygate.iobio.io');
+        waygateJs.listen({
+          tunnelType: 'websocket',
+        }).then(function(listener) {
+          me.waygateListener = listener;
+          me.waygateTunnelDomain = me.waygateListener.getDomain();
+          me.waygateDirTree = waygateJs.openDirectory();
+          me.waygateHandler = waygateJs.directoryTreeHandler(me.waygateDirTree, {
+              headers: {
+                'Access-Control-Allow-Origin': '*',
+              },
+            });
+          me.waygateActive = true;
+
+          // Start serving - this runs indefinitely and doesn't return a promise
+          waygateJs.serve(me.waygateListener, me.waygateHandler);
+          
+          // Resolve immediately since serve() runs in the background
+          resolve();
+  
+        }).catch(function(error) {
+          reject(error);
+        });
+      } else {
+        resolve();
+      }
+      
+    });
+  }
+
+
+  clearWaygate() {
+    let me = this;
+    // Close the waygate listener if it exists
+    if (me.waygateListener && typeof me.waygateListener.close === 'function') {
+      try {
+        me.waygateListener.close();
+      } catch (error) {
+        console.warn('Error closing waygate listener:', error);
+      }
+    }
+    
+    // Reset waygate state
+    me.waygateActive = false;
+    me.waygateListener = null;
+    me.waygateDirTree = null;
+    me.waygateTunnelDomain = null;
+  };
+
+  /**
+   * @name accessFilesAsURLs
+   * @description
+   * access localfiles as URLs. We use waygate to create a websocket tunnel, 
+   * allowing the local files to be accessed via a public URL. 
+   * When a local file is selected by the user, the file is
+   * added to the waygate directory tree, establishing the websocket tunnel.
+   * 
+   * @param {Callback} callback - Callback function
+   * @callback Callback
+   * @param {Object} result - Result object
+   * @param {boolean} result.success - Whether the operation was successful
+   * @param {string} [result.bam] - bam file URL if successful
+   * @param {string} [result.bai] - bai file URL if successful
+   * @param {string} [result.error] - Error message if operation failed
+   */
+   accessFilesAsURLs(callback){
+    let me = this;
+    me.promiseStartWaygate()
+    .then(function() {
+
+      me.waygateDirTree.addFiles([me.bamFile, me.baiFile]);
+
+      me.bamUri = `https://${me.waygateTunnelDomain}/${me.bamFile.name}`;
+      me.baiUri = `https://${me.waygateTunnelDomain}/${me.baiFile.name}`;
+      me.sourceType = "url";
+      me.bamFile = null;
+      me.baiFile = null;
+       
+      callback({success: true, bam: me.bamUri, bai: me.baiUri });
+    }).catch(function(error) {
+      console.log(error);
+      callback({success: false, error: error});
+    });
+  }
 }
-
-

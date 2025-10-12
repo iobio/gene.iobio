@@ -450,13 +450,10 @@ export default {
         if(sms[i].bam || sms[i].vcf) {
           let bamUrl = sms[i].bam ? sms[i].bam.bamUri : null;
           let baiUrl = sms[i].bam ? sms[i].bam.baiUri : null;
-          let vcfUrl = sms[i].vcf ? sms[i].vcf.vcfURL : null;
-          let tbiUrl = sms[i].vcf ? sms[i].vcf.tbiUrl : null;
+          let vcfUrl = sms[i].vcf ? sms[i].vcf.getVcfURL() : null;
+          let tbiUrl = sms[i].vcf ? sms[i].vcf.getTbiURL() : null;
 
-          if (!vcfUrl) {
-            vcfUrl = sms[i].vcf ? sms[i].vcf.getVcfFile() : null;
-            tbiUrl = sms[i].vcf ? sms[i].vcf.getTbiURL() : null;
-          }
+    
 
           if (bamUrl
               && bamUrl.split('.').pop() !== "bam"

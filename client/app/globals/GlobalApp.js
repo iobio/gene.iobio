@@ -9,7 +9,7 @@ class GlobalApp {
     this.tour                  = "";
     this.completedTour         = "";
 
-    this.version                = "4.11.4";
+    this.version                = "4.11.5";
 
     this.IOBIO_SERVICES         = null;
     this.HTTP_SERVICES          = null;

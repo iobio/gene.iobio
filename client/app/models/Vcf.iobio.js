@@ -10,11 +10,24 @@
 //    2. its corresponding tabix file (.vcf.gz.tbi).
 //
 
-import { createHoster } from 'fibridge-host';
 
+
+import waygateJs from 'waygate-js';
+
+
+/**
+ * @param {Object} theGlobalApp
+ * @returns {VcfIobio}
+ */
 export default function vcfiobio(theGlobalApp) {
 
   var globalApp = theGlobalApp;
+
+  var waygateActive = false;
+  var waygateDirTree = null;
+  var waygateTunnelDomain = null;
+  var waygateHandler = null;
+  var waygateListener = null;
 
   var debug =  false;
 
@@ -53,11 +66,6 @@ export default function vcfiobio(theGlobalApp) {
   var endpoint = null;
   var genericAnnotation = null;
   var genomeBuildHelper = null;
-
-
-
-
-
 
   var CLINVAR_CODES = {
     '0':   'not_provided',
@@ -205,11 +213,16 @@ export default function vcfiobio(theGlobalApp) {
     vcfURL = null;
     tbiUrl = null;
     vcfFile = null;
+    
+    // Clean up waygate resources
+    this.clearWaygate();
   }
-
   exports.clearVcfURL = function() {
     vcfURL = null;
     tbiUrl = null;
+    
+    // Clean up waygate resources
+    this.clearWaygate();
   }
 
   exports.setEndpoint = function(theEndpoint) {
@@ -448,14 +461,20 @@ export default function vcfiobio(theGlobalApp) {
       return;
     }
 
-    this.processVcfFile(vcfFile, tabixFile, function(data) {
-      me.promiseOpenVcfUrl(data.vcf, data.tbi)
-      .then(function() {
-        callback(data)
-      })
-      .catch(function(error) {
-        callback(false, error);
-      })
+
+    this.accessFilesAsURLs(vcfFile, tabixFile, function(data) {
+      if (data.success) { 
+        me.promiseOpenVcfUrl(data.vcf, data.tbi)
+        .then(function() {
+          callback(true, null)
+        })
+        .catch(function(error) {
+          callback(false, error);
+        })
+  
+      } else {
+        callback(false, data.error);
+      }
     })
   }
 
@@ -3935,32 +3954,86 @@ exports._getHighestScore = function(theObject, cullFunction, theTranscriptId) {
 
   };
 
-  exports.processVcfFile = function(vcfFile, tbiFile, callback){
+/**
+ * @name startWaygate
+ * @description
+ * For local files, we need to request the waygate server to create
+ * a websocket tunnel, allowing the local files to be accessed via a public URL.
+ * We establish a tunnel domain so that all of the files can be accessed from
+ * the same URL domain. 
+ * @returns {Promise} - Promise that resolves when the waygate server is started
+ */
+  exports.startWaygate = async function() {
+    if (!waygateActive) {
+      waygateJs.setServerUri('https://waygate.iobio.io');
+      waygateListener = await waygateJs.listen({
+        tunnelType: 'websocket',
+      });
+      waygateTunnelDomain = waygateListener.getDomain();
+      waygateDirTree = waygateJs.openDirectory();
+      waygateHandler = waygateJs.directoryTreeHandler(waygateDirTree, {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+        });
+      waygateJs.serve(waygateListener, waygateHandler);
+      waygateActive = true;
+    }
+  }
 
-    let self = this;
 
-    const proxyAddress = 'lf-proxy.iobio.io';
-    const port = 443;
-    const secure = true;
-    const protocol = secure ? 'https:' : 'http:';
-    // collected, which could lead to race conditions?
-    createHoster({ proxyAddress, port, secure }).then((hoster) => {
-      const vcfPath = '/' + vcfFile.name;
-      hoster.hostFile({ path: vcfPath, file: vcfFile });
-      const tbiPath = '/' + tbiFile.name;
-      hoster.hostFile({ path: tbiPath, file: tbiFile });
-      const portStr = hoster.getPortStr();
-      const baseUrl = `${protocol}//${proxyAddress}${portStr}`;
-      self.vcfURL = `${baseUrl}${hoster.getHostedPath(vcfPath)}`;
-      self.tbiUrl = `${baseUrl}${hoster.getHostedPath(tbiPath)}`;
-      self.sourceType = SOURCE_TYPE_URL;
-      callback({vcf: self.vcfURL, tbi: self.tbiUrl })
+  exports.clearWaygate = function() {
+    // Close the waygate listener if it exists
+    if (waygateListener && typeof waygateListener.close === 'function') {
+      try {
+        waygateListener.close();
+      } catch (error) {
+        console.warn('Error closing waygate listener:', error);
+      }
+    }
+    
+    // Reset waygate state
+    waygateActive = false;
+    waygateListener = null;
+    waygateDirTree = null;
+    waygateTunnelDomain = null;
+  };
+
+  /*
+  * @name accessFilesAsURLs
+  * @description
+  * access localfiles as URLs. We use waygate to create a websocket tunnel, 
+  * allowing the local files to be accessed via a public URL. 
+  * When a local file is selected by the user, the file is
+  * added to the waygate directory tree, establishing the websocket tunnel.
+  * 
+  * @param {File} vcfFile
+  * @param {File} tbiFile
+  * @param {Callback} callback - Callback function
+  * @callback Callback
+  * @param {Object} result - Result object
+  * @param {boolean} result.success - Whether the operation was successful
+  * @param {string} [result.vcf] - vcf file URL if successful
+  * @param {string} [result.tbi] - tbi file URL if successful
+  * @param {string} [result.error] - Error message if operation failed
+  */
+  exports.accessFilesAsURLs = function(vcfFile, tbiFile, callback){
+
+    this.startWaygate()
+    .then(function() {
+      waygateDirTree.addFiles([vcfFile, tbiFile]);
+
+      vcfURL = `https://${waygateTunnelDomain}/${vcfFile.name}`;
+      tbiUrl = `https://${waygateTunnelDomain}/${tbiFile.name}`;
+      sourceType = SOURCE_TYPE_URL;
+
+      callback({success: true, vcf: vcfURL, tbi: tbiUrl });
+    }).catch(function(error) {
+      console.log(error);
+      callback({success: false, error: error});
     });
 
   };
-
-
-
 
 
 
