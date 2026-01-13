@@ -940,11 +940,14 @@ class SampleModel {
         resolve();
       } else {
         me.bam = new Bam(me.globalApp, me.cohort.endpoint);
+        // Open the bam file and access the file and its index file as URLs
+        // using waygate server to create a websocket tunnel
         me.bam.openBamFile(fileSelection, function(success, message) {
           if (success) {
-            me.bamFileOpened = true;
+            me.bamFileOpened = false;
+            me.bamUrlEntered = true;
             me.getBamRefName = me._stripRefName;
-            resolve(me.bam.bamFile.name);
+            resolve();
 
           } else {
             reject(message);
