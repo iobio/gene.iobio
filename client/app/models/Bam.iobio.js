@@ -6,7 +6,7 @@
 
 // extending Thomas Down's original BAM js work
 
-import { createHoster } from 'fibridge-host';
+
 import waygateJs from 'waygate-js';
 
 

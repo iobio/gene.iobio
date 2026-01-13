@@ -9,7 +9,7 @@ class GlobalApp {
     this.tour                  = "";
     this.completedTour         = "";
 
-    this.version                = "4.11.5";
+    this.version                = "4.11.5a";
 
     this.IOBIO_SERVICES         = null;
     this.HTTP_SERVICES          = null;
@@ -101,8 +101,6 @@ class GlobalApp {
   
         this.geneInfoServer            = this.HTTP_SERVICES + "/geneinfo/";
         this.geneToPhenoServer         = this.HTTP_SERVICES + "/gene2pheno/";
-        this.phenolyzerOnlyServer      = this.HTTP_SERVICES + "/phenolyzer/";
-        this.genomeBuildServer         = this.HTTP_SERVICES + "/genomebuild/"
         this.hpoLookupUrl              = this.HTTP_SERVICES + "/hpo/hot/lookup/?term=";
   
   
