@@ -115,6 +115,7 @@ export default function vcfiobio(theGlobalApp) {
         'gg4_AF_nfe'      : ['pop', 'nfe', 'af'],
         'gg4_AF_amr'      : ['pop', 'amr', 'af'],
         'gg4_AF_afr'      : ['pop', 'afr', 'af'],
+        'gg4_AF_ami'      : ['pop', 'ami', 'af'],
         'gg4_AF_asj'      : ['pop', 'asj', 'af'],
         'gg4_AF_eas'      : ['pop', 'eas', 'af'],
         'gg4_AF_sas'      : ['pop', 'sas', 'af'],
@@ -2697,7 +2698,7 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
   // We have ancestry pop af for genomes for both GRCh37 and 38,
   // But we only have ancestry pop af for exomes for build GRCh38
   if (genomeBuildHelper.getCurrentBuildName() == 'GRCh38') {
-    ['fin', 'nfe', 'amr', 'afr', 'asj', 'eas', 'sas', 'mid', 'remaining'].forEach(function(ancestry){
+    ['fin', 'nfe', 'amr', 'afr', 'ami', 'asj', 'eas', 'sas', 'mid', 'remaining'].forEach(function(ancestry){
       annot.gnomAD.genomes.pop[ancestry] = {'af': '.'};
       annot.gnomAD.exomes.pop[ancestry]  = {'af': '.'};
     })
