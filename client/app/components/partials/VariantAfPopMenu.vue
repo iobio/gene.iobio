@@ -93,7 +93,7 @@ export default {
   },
   methods: {
     getAf: function(popAf) {
-      return ((popAf == null || popAf == '' || popAf == 0  || popAf == '.') ? '0' : d3.format(".3n")(popAf))
+      return ((popAf == null || popAf == '' || popAf == 0  || popAf == '.') ? '0' : d3.format(".4g")(popAf))
     }
   },
   created: function() {
