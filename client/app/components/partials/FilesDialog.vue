@@ -612,7 +612,12 @@ export default {
       this.$emit('isDemo', true);
       self.isDemo = true;
 
-      self.buildName = self.cohortModel.genomeBuildHelper.getCurrentBuildName();
+      let buildName = self.buildName || self.cohortModel.genomeBuildHelper.getCurrentBuildName();
+      self.buildName = buildName;
+      self.cohortModel.genomeBuildHelper.setCurrentBuild(buildName);
+      if (self.speciesName) {
+        self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);
+      }
 
       if (self.mode == 'single') {
         self.mode = 'trio';
@@ -625,7 +630,7 @@ export default {
         p = Promise.resolve();
       }
       p.then(function() {
-        self.cohortModel.demoModelInfos[self.demoAction].forEach(function(modelInfo) {
+        self.cohortModel.getDemoModelInfos(buildName, self.demoAction).forEach(function(modelInfo) {
           let rel = modelInfo.relationship;
           self.modelInfoMap[rel] = modelInfo;
         })

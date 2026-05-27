@@ -139,6 +139,21 @@ class CohortModel {
     })
   }
 
+  getDemoModelInfos(buildName, demoKind) {
+    let is37 = buildName === 'GRCh37';
+    let vcfMap = is37 ? this.demoVcf37 : this.demoVcf;
+    let bamMap = is37 ? this.demoBams37 : this.demoBams;
+    let indexSuffix = is37 ? '.bai' : '.crai';
+    let vcf = vcfMap[demoKind];
+    let bams = bamMap[demoKind];
+
+    return [
+      {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', sample: 'NA12878', sex: 'female', vcf: vcf, tbi: vcf + '.tbi', bam: bams.proband, bai: bams.proband + indexSuffix},
+      {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', sample: 'NA12892', sex: 'female', vcf: vcf, tbi: vcf + '.tbi', bam: bams.mother,  bai: bams.mother + indexSuffix},
+      {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', sample: 'NA12891', sex: 'male',   vcf: vcf, tbi: vcf + '.tbi', bam: bams.father,  bai: bams.father + indexSuffix},
+    ];
+  }
+
   promiseInitDemo(demoKind='exome') {
     let self = this;
     return new Promise(function(resolve, reject) {
@@ -150,7 +165,8 @@ class CohortModel {
       }
       promise
       .then(function() {
-        self.promiseInit(self.demoModelInfos[demoKind])
+        let buildName = self.genomeBuildHelper.getCurrentBuildName();
+        self.promiseInit(self.getDemoModelInfos(buildName, demoKind))
         .then(function() {
           resolve();
         })
