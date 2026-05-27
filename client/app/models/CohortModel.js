@@ -55,20 +55,20 @@ class CohortModel {
     this.sfariVariantsViz = 'variants';
 
     this.demoVcf = {
-      'exome': "https://iobio.s3.amazonaws.com/samples/vcf/2021_platinum/2021_platinum_exomes_GRCh38.vcf.gz",
-      'genome': "https://iobio.s3.amazonaws.com/samples/vcf/2021_platinum/2021_platinum_genomes_GRCh38.vcf.gz"
+      'exome': "https://files.iobio.io/samples/vcf/2021_platinum/2021_platinum_exomes_GRCh38.vcf.gz",
+      'genome': "https://files.iobio.io/samples/vcf/2021_platinum/2021_platinum_genomes_GRCh38.vcf.gz"
     }
     this.demoBams = {
       'exome': {
-        'proband': 'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_exomes/NA12878.cram',
-        'mother':  'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_exomes/NA12892.cram',
-        'father':  'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_exomes/NA12891.cram',
-       // 'sibling': 'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_exomes/NA12877.cram'
+        'proband': 'https://files.iobio.io/samples/cram/2021_platinum/GRCh38_exomes/NA12878.cram',
+        'mother':  'https://files.iobio.io/samples/cram/2021_platinum/GRCh38_exomes/NA12892.cram',
+        'father':  'https://files.iobio.io/samples/cram/2021_platinum/GRCh38_exomes/NA12891.cram',
+       // 'sibling': 'https://files.iobio.io/samples/cram/2021_platinum/GRCh38_exomes/NA12877.cram'
       },
       'genome': {
-        'proband': 'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_genomes/NA12878.cram',
-        'mother':  'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_genomes/NA12892.cram',
-        'father':  'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_genomes/NA12891.cram'
+        'proband': 'https://files.iobio.io/samples/cram/2021_platinum/GRCh38_genomes/NA12878.cram',
+        'mother':  'https://files.iobio.io/samples/cram/2021_platinum/GRCh38_genomes/NA12892.cram',
+        'father':  'https://files.iobio.io/samples/cram/2021_platinum/GRCh38_genomes/NA12891.cram'
       }
     }
 
