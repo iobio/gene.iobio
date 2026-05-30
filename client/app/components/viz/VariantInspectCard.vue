@@ -2232,8 +2232,10 @@ export default {
         // We will  show the AF from exomes below the AF from gnomAD genomes so that
         // the user understands that that filtering used this AF rather than the
         // one from the gnomAD genomes
+        // Use cohortModel.globalApp, not this.globalApp: the Vue mixin gives each component its own GlobalApp.
         let afExomes = null;
-        if (this.selectedVariant.gnomAD.exomes) {
+        if (this.cohortModel.globalApp.gnomADExomesIncluded
+            && this.selectedVariant.gnomAD.exomes) {
           afExomes = this.selectedVariant.gnomAD.exomes.af == '.' ? '0.0' : d3.format('.3n')(this.selectedVariant.gnomAD.exomes.af);
         }
 

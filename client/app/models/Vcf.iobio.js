@@ -210,6 +210,12 @@ export default function vcfiobio(theGlobalApp) {
     return vcfURL != null || vcfFile !=null;
   }
 
+  function _clearRefCache() {
+    refData.length = 0;
+    refDensity.length = 0;
+    contigRecords.length = 0;
+  }
+
   exports.clear = function() {
     vcfURL = null;
     tbiUrl = null;
@@ -287,7 +293,7 @@ export default function vcfiobio(theGlobalApp) {
       sourceType = SOURCE_TYPE_URL;
       vcfURL = url;
       tbiUrl = theTbiUrl;
-
+      _clearRefCache();
 
       return me.promiseParseVcfHeader(url, tbiUrl)
       .then(function() {
@@ -652,6 +658,7 @@ export default function vcfiobio(theGlobalApp) {
     var me = this;
 
     return new Promise(function(resolve, reject) {
+      _clearRefCache();
       var buffer = "";
 
       var cmd = me.getEndpoint().getChromosomes(vcfURL, tbiUrl);
@@ -3019,6 +3026,10 @@ exports._parseGnomADAnnot = function(annotTokens, annot) {
       var gnomADTag         = GNOMAD_TAGS[genomeBuildHelper.getCurrentBuildName()][sequencing][annotTag]
 
       if (gnomADTag && annotValue) {
+        if (sequencing === 'exomes' && globalApp) {
+          // globalApp here is cohortModel.globalApp passed into vcfiobio(), not a mixin instance.
+          globalApp.gnomADExomesIncluded = true;
+        }
         if (Array.isArray(gnomADTag)) {
           let idx = 0;
           me._setNestedValue(annot.gnomAD[sequencing], gnomADTag, idx, annotValue);

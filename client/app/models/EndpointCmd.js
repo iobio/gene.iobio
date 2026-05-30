@@ -97,7 +97,7 @@ export default class EndpointCmd {
         const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
         let gnomadMergeAnnots = true;
 
-        const cmd = this.api.streamCommand('getClinvarVariantsV2', {
+        const cmd = this.api.streamCommand('getClinvarVariantsV3', {
             vcfUrl: vcfSource.vcfUrl,
             tbiUrl: vcfSource.tbiUrl,
             refNames,

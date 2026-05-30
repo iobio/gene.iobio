@@ -439,8 +439,12 @@ export default {
         this.buildName = this.cohortModel.genomeBuildHelper.getCurrentBuildName();
       }
     },
-    buildName: function() {
-      this._validateBuild()
+    buildName: function(newBuild, oldBuild) {
+      if (oldBuild != null && newBuild !== oldBuild) {
+        this.onBuildNameChanged();
+      } else {
+        this._validateBuild();
+      }
     }
   },
   methods: {
@@ -552,7 +556,11 @@ export default {
 
       if(self.loadReady) {
         self.inProgress = true;
-        self.cohortModel.promiseAddClinvarSample()
+        self.syncModelsForBuild();
+        self.promiseReloadModelsFromModelInfo()
+        .then(function() {
+          return self.cohortModel.promiseAddClinvarSample();
+        })
         .then(function () {
           return self.setSibsInCohortModel();
         })
@@ -573,6 +581,10 @@ export default {
           self.$emit("on-files-loaded", performAnalyzeAll, clearCache);
           self.showFilesDialog = false;
         })
+        .catch(function(error) {
+          self.inProgress = false;
+          self.$emit("on-files-load-error", error);
+        });
       }
     },
     setSibsInCohortModel: function() {
@@ -607,17 +619,95 @@ export default {
 
       this.validate();
     },
-    onLoadDemoData: function() {
+    isDemoSession: function() {
+      return this.isDemo || this.demoAction || this.launchedFromDemo;
+    },
+    getDemoKind: function() {
+      if (this.demoAction) {
+        return this.demoAction;
+      }
+      return this.inferDemoKindFromCohort();
+    },
+    inferDemoKindFromCohort: function() {
+      let model = this.getModel('proband');
+      let vcfUrl = model && model.vcf ? model.vcf.getVcfURL() : null;
+      if (vcfUrl == null && this.modelInfoMap.proband) {
+        vcfUrl = this.modelInfoMap.proband.vcf;
+      }
+      if (vcfUrl == null) {
+        return null;
+      }
+      if (vcfUrl.indexOf('genomes') >= 0 || vcfUrl.indexOf('wgs_platinum') >= 0) {
+        return 'genome';
+      }
+      if (vcfUrl.indexOf('exomes') >= 0 || vcfUrl.indexOf('platinum-exome') >= 0) {
+        return 'exome';
+      }
+      return null;
+    },
+    applyDemoModelInfos: function(buildName, demoKind) {
       let self = this;
-      this.$emit('isDemo', true);
-      self.isDemo = true;
-
+      self.cohortModel.getDemoModelInfos(buildName, demoKind).forEach(function(demoModelInfo) {
+        let rel = demoModelInfo.relationship;
+        let existing = self.modelInfoMap[rel];
+        demoModelInfo.model = (existing && existing.model) ? existing.model : self.getModel(rel);
+        demoModelInfo.isAffected = demoModelInfo.affectedStatus === 'affected';
+        self.$set(self.modelInfoMap, rel, demoModelInfo);
+      });
+    },
+    syncModelsForBuild: function() {
+      let self = this;
       let buildName = self.buildName || self.cohortModel.genomeBuildHelper.getCurrentBuildName();
-      self.buildName = buildName;
       self.cohortModel.genomeBuildHelper.setCurrentBuild(buildName);
       if (self.speciesName) {
         self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);
       }
+
+      if (self.isDemoSession()) {
+        let demoKind = self.getDemoKind();
+        if (demoKind) {
+          if (!self.demoAction) {
+            self.demoAction = demoKind;
+          }
+          self.applyDemoModelInfos(buildName, demoKind);
+        }
+      }
+    },
+    onBuildNameChanged: function() {
+      this.syncModelsForBuild();
+      this.reloadModelsFromModelInfo();
+    },
+    promiseReloadModelsFromModelInfo: function() {
+      let self = this;
+      let promises = [];
+      self.cohortModel.getCanonicalModels().forEach(function(model) {
+        let modelInfo = self.modelInfoMap[model.relationship];
+        if (modelInfo && (modelInfo.vcf || modelInfo.bam)) {
+          promises.push(self.promiseSetModel(model));
+        }
+      });
+      if (promises.length === 0) {
+        return Promise.resolve();
+      }
+      return Promise.all(promises);
+    },
+    reloadModelsFromModelInfo: function() {
+      let self = this;
+      self.promiseReloadModelsFromModelInfo()
+      .then(function() {
+        self.validate();
+      })
+      .catch(function(error) {
+        self.$emit("on-files-load-error", error);
+      });
+    },
+    reloadDemoDataForBuild: function() {
+      this.onBuildNameChanged();
+    },
+    onLoadDemoData: function() {
+      let self = this;
+      this.$emit('isDemo', true);
+      self.isDemo = true;
 
       if (self.mode == 'single') {
         self.mode = 'trio';
@@ -630,19 +720,14 @@ export default {
         p = Promise.resolve();
       }
       p.then(function() {
-        self.cohortModel.getDemoModelInfos(buildName, self.demoAction).forEach(function(modelInfo) {
-          let rel = modelInfo.relationship;
-          self.modelInfoMap[rel] = modelInfo;
-        })
-        self.cohortModel.getCanonicalModels().forEach(function(model) {
-           self.promiseSetModel(model)
-           .then(function() {
-
-            })
-           .catch(function(error) {
-              self.$emit("on-files-load-error", error)
-            })
-        })
+        let buildName = self.buildName || self.cohortModel.genomeBuildHelper.getCurrentBuildName();
+        self.buildName = buildName;
+        self.applyDemoModelInfos(buildName, self.demoAction);
+        self.cohortModel.genomeBuildHelper.setCurrentBuild(buildName);
+        if (self.speciesName) {
+          self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);
+        }
+        self.reloadModelsFromModelInfo();
       })
       .catch(function(error) {
         self.$emit("on-files-load-error", error)
@@ -657,7 +742,7 @@ export default {
         var theModel = model;
         var theModelInfo = self.modelInfoMap[theModel.relationship];
         theModelInfo.model = theModel;
-        theModel.promiseLoadVcfUrl(theModelInfo.vcf, null)
+        theModel.promiseLoadVcfUrl(theModelInfo.vcf, theModelInfo.tbi)
         .then( function(sampleNames) {
           self.validate();
           theModelInfo.samples = sampleNames;
@@ -791,6 +876,12 @@ export default {
     init: function() {
       let self = this;
       self.buildName = self.cohortModel.genomeBuildHelper.getCurrentBuildName()
+      if (self.launchedFromDemo) {
+        self.isDemo = true;
+        if (!self.demoAction) {
+          self.demoAction = self.inferDemoKindFromCohort();
+        }
+      }
       self.modelInfoMap = {};
       if (self.cohortModel && self.cohortModel.getCanonicalModels().length > 0) {
         self.initModelInfo();

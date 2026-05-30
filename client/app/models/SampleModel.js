@@ -1074,14 +1074,14 @@ class SampleModel {
       } else {
         me.vcfUrlEntered = true;
         me.vcfFileOpened = false;
-        me.getVcfRefName = null;
+        me._clearVcfRefNameCache();
         me.isMultiSample = false;
 
         me.vcf.promiseOpenVcfUrl(vcfUrl, tbiUrl)
         .then( function(headerRecs) {
           me.vcfUrlEntered = true;
           me.vcfFileOpened = false;
-          me.getVcfRefName = null;
+          me._clearVcfRefNameCache();
           // Get the sample names from the vcf header
           me.vcf.promiseGetSampleNames()
           .then( function(sampleNames) {
@@ -1177,7 +1177,12 @@ class SampleModel {
   }
 
 
-  _promiseVcfRefName(ref, sfariMode = false) {
+  _clearVcfRefNameCache() {
+    this.getVcfRefName = null;
+    this.vcfRefNamesMap = {};
+  }
+
+  _promiseVcfRefName(ref, sfariMode = false, isRetry = false) {
     var me = this;
     return new Promise( function(resolve, reject) {
 
@@ -1186,6 +1191,7 @@ class SampleModel {
       if (theRef == null) {
         console.log("_promiseVcfRefName failed b/c ref is blank");
         reject();
+        return;
       }
       
       // The first time through, getVcfRefName is null. We look at the
@@ -1196,7 +1202,12 @@ class SampleModel {
       if (me.getVcfRefName != null) {
         // If we can't find the ref name in the lookup map, show a warning.
         if (me.vcfRefNamesMap[me.getVcfRefName(theRef)] == null) {
-          reject();
+          if (!isRetry) {
+            me._clearVcfRefNameCache();
+            me._promiseVcfRefName(ref, sfariMode, true).then(resolve).catch(reject);
+          } else {
+            reject();
+          }
         } else {
           resolve();
         }
@@ -1215,6 +1226,11 @@ class SampleModel {
           let theRefData = refData.filter(function(refObject) {
             return refObject && refObject.hasOwnProperty('name') && refObject.name && refObject.name != '';
           })
+
+          if (theRefData.length == 0) {
+            reject("No reference sequences found in vcf file.");
+            return;
+          }
           
           theRefData.forEach( function(refObject) {
             var refName = refObject.name;
@@ -2046,7 +2062,7 @@ class SampleModel {
         variantModels.forEach(function(model) {
           var p = model._promiseGetData(CacheHelper.VCF_DATA, theGene.gene_name, theTranscript)
            .then(function(vcfData) {
-            if (vcfData != null && vcfData != '') {
+            if (vcfData != null && vcfData != '' && vcfData.hasOwnProperty('features')) {
               resultMap[model.relationship] = vcfData;
 
               if (!isBackground) {
