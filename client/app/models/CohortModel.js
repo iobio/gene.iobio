@@ -7,7 +7,7 @@ class CohortModel {
   constructor(globalApp, isEduMode, isBasicMode, endpoint, genericAnnotation, translator, geneModel,
     variantExporter, cacheHelper, genomeBuildHelper, launchedFromClin, freebayesSettings) {
 
-    this.globalApp = globalApp;
+    this.globalApp = globalApp;  // authoritative shared instance; not the per-component mixin globalApp
     this.isEduMode = isEduMode;
     this.isBasicMode = isBasicMode;
     this.defaultingToDemoData = false;
@@ -54,81 +54,87 @@ class CohortModel {
     this.knownVariantsViz = 'variants'; // variants, histo, histoExon
     this.sfariVariantsViz = 'variants';
 
-    this.demoVcf = {
-      'exome': "https://iobio.s3.amazonaws.com/samples/vcf/2021_platinum/2021_platinum_exomes_GRCh38.vcf.gz",
-      'genome': "https://iobio.s3.amazonaws.com/samples/vcf/2021_platinum/2021_platinum_genomes_GRCh38.vcf.gz"
-    }
-    this.demoBams = {
-      'exome': {
-        'proband': 'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_exomes/NA12878.cram',
-        'mother':  'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_exomes/NA12892.cram',
-        'father':  'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_exomes/NA12891.cram',
-       // 'sibling': 'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_exomes/NA12877.cram'
+    this.dataSetMap = {
+      'demo': {
+        'GRCh38': {
+          'exome':{
+            'vcf': "https://files.iobio.io/samples/vcf/2021_platinum/2021_platinum_exomes_GRCh38.vcf.gz",
+            'crams': {
+              'proband': 'https://files.iobio.io/samples/cram/2021_platinum/GRCh38_exomes/NA12878.cram',
+              'mother':  'https://files.iobio.io/samples/cram/2021_platinum/GRCh38_exomes/NA12892.cram',
+              'father':  'https://files.iobio.io/samples/cram/2021_platinum/GRCh38_exomes/NA12891.cram'
+            }
+          },
+          'genome':{
+            'vcf': "https://files.iobio.io/samples/vcf/2021_platinum/2021_platinum_genomes_GRCh38.vcf.gz",
+            'crams': {
+              'proband': 'https://files.iobio.io/samples/cram/2021_platinum/GRCh38_genomes/NA12878.cram',
+              'mother':  'https://files.iobio.io/samples/cram/2021_platinum/GRCh38_genomes/NA12892.cram',
+              'father':  'https://files.iobio.io/samples/cram/2021_platinum/GRCh38_genomes/NA12891.cram'
+            }
+          }
+        },
+        'GRCh37': {
+          'exome':{
+            'vcf': "https://files.iobio.io/samples/vcf/2021_platinum/2021_platinum_exomes_GRCh37.vcf.gz",
+            'crams': {
+              'proband': 'https://files.iobio.io/samples/cram/2021_platinum/GRCh37_exomes/NA12878.cram',
+              'mother':  'https://files.iobio.io/samples/cram/2021_platinum/GRCh37_exomes/NA12892.cram',
+              'father':  'https://files.iobio.io/samples/cram/2021_platinum/GRCh37_exomes/NA12891.cram'
+            }
+          },
+          'genome':{
+            'vcf': "https://files.iobio.io/samples/vcf/2021_platinum/2021_platinum_genomes_GRCh37.vcf.gz",
+            'crams': {
+              'proband': 'https://files.iobio.io/samples/cram/2021_platinum/GRCh37_genomes/NA12878.cram',
+              'mother':  'https://files.iobio.io/samples/cram/2021_platinum/GRCh37_genomes/NA12892.cram',
+              'father':  'https://files.iobio.io/samples/cram/2021_platinum/GRCh37_genomes/NA12891.cram'
+            }
+          }
+        }
       },
-      'genome': {
-        'proband': 'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_genomes/NA12878.cram',
-        'mother':  'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_genomes/NA12892.cram',
-        'father':  'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_genomes/NA12891.cram'
+      'eduTour': {
+        'vcf': 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz'
       }
     }
 
 
-    this.demoVcf37 = {
-      'exome': "https://s3.amazonaws.com/iobio/samples/vcf/platinum-exome.vcf.gz",
-      'genome': "https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz"
-    }
-    this.demoBams37 = {
-      'exome': {
-        'proband': 'https://s3.amazonaws.com/iobio/samples/bam/NA12878.exome.bam',
-        'mother':  'https://s3.amazonaws.com/iobio/samples/bam/NA12892.exome.bam',
-        'father':  'https://s3.amazonaws.com/iobio/samples/bam/NA12891.exome.bam',
-        'sibling': 'https://s3.amazonaws.com/iobio/samples/bam/NA12877.exome.bam'
+    this.modelInfoMap = {
+      'demo': {
+        'genes': ['RAI1', 'SCN8A', 'SMARCA2', 'PDHA1', 'PLXNA1', 'ARHGAP8'],
+        'modelInfos': [
+          {'relationship': 'proband', 'affectedStatus': 'affected',   'name': 'NA12878', 'sample': 'NA12878', 'sex': 'female',  'vcf': null, 'tbi': null, 'bam': null, 'bai': null},
+          {'relationship': 'mother',  'affectedStatus': 'unaffected', 'name': 'NA12892', 'sample': 'NA12892', 'sex': 'female',  'vcf': null, 'tbi': null, 'bam': null, 'bai': null },
+          {'relationship': 'father',  'affectedStatus': 'unaffected', 'name': 'NA12891', 'sample': 'NA12891', 'sex': 'male',    'vcf': null, 'tbi': null, 'bam': null, 'bai': null },
+        ],
       },
-      'genome': {
-        'proband': 'https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam',
-        'mother':  'https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12892.bam',
-        'father':  'https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12891.bam'
+      'eduTour': {
+        '1': {
+          'genes': [],
+          'modelInfos': [
+            {relationship: 'proband', affectedStatus: 'affected', name: 'Father', 'sample': 'sample2',  sex: 'male',   vcf: null, 'tbi': null, 'bam': null, 'bai': null},
+            {relationship: 'proband', affectedStatus: 'affected', name: 'Jimmy',  'sample': 'sample3',  sex: 'male',   vcf: null, 'tbi': null, 'bam': null, 'bai': null},
+            {relationship: 'proband', affectedStatus: 'affected', name: 'Bobby',  'sample': 'sample4',  sex: 'male',   vcf: null, 'tbi': null, 'bam': null, 'bai': null},
+            {relationship: 'proband', affectedStatus: 'affected', name: 'Sarah',  'sample': 'sample5',  sex: 'female', vcf: null, 'tbi': null, 'bam': null, 'bai': null}
+          ],
+        },
+        '2': {
+          'genes': ['VKORC1'],
+          'modelInfos': [
+            {relationship: 'proband', affectedStatus: 'affected', name: 'John',   'sample': 'sample1',  sex: 'male',   vcf: null, 'tbi': null, 'bam': null, 'bai': null},
+            {relationship: 'proband', affectedStatus: 'affected', name: 'Diego',  'sample': 'sample3',  sex: 'male',   vcf: null, 'tbi': null, 'bam': null, 'bai': null},
+            {relationship: 'proband', affectedStatus: 'affected', name: 'Anna',   'sample': 'sample2',  sex: 'female', vcf: null, 'tbi': null, 'bam': null, 'bai': null}
+          ],
+        }
+      }, 
+      'myGene2': {
+        'genes': ['KDM1A'],
+        'modelInfos': [
+        ],
       }
     }
-
-
-
-    this.demoGenes = ['RAI1', 'SCN8A', 'SMARCA2', 'PDHA1', 'PLXNA1', 'ARHGAP8'];
-
-
-    this.demoModelInfos = {
-      'exome': [
-        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['proband'], 'bai': this.demoBams.exome['proband'] + '.crai' },
-        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['mother'], 'bai': this.demoBams.exome['mother'] + '.crai'  },
-        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['father'], 'bai': this.demoBams.exome['father'] + '.crai' },
-      //  {relationship: 'sibling', affectedStatus: 'unaffected', name: 'NA12877', 'sample': 'NA12877', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['sibling'], 'bai': this.demoBams.exome['sibling'] + '.crai' },
-      ],
-      'genome': [
-        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': this.demoVcf.genome + '.tbi', 'bam': this.demoBams.genome['proband'], 'bai': this.demoBams.genome['proband'] + '.crai'  },
-        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': this.demoVcf.genome + '.tbi', 'bam': this.demoBams.genome['mother'],  'bai': this.demoBams.genome['mother'] + '.crai'  },
-        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',   'vcf': this.demoVcf.genome, 'tbi': this.demoVcf.genome + '.tbi', 'bam': this.demoBams.genome['father'],  'bai': this.demoBams.genome['father'] + '.crai'  },
-      ]
-    }
-    this.eduTourModelInfos = {
-      "1": [
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Father', 'sample': 'sample2',  sex: 'male',   vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Jimmy',  'sample': 'sample3',  sex: 'male',   vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Bobby',  'sample': 'sample4',  sex: 'male',   vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Sarah',  'sample': 'sample5',  sex: 'female', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null}
-      ],
-      "2": [
-        {relationship: 'proband', affectedStatus: 'affected', name: 'John',   'sample': 'sample1',  sex: 'male',   vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Diego',  'sample': 'sample3',  sex: 'male',   vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Anna',   'sample': 'sample2',  sex: 'female', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null}
-      ]
-
-    };
-    this.eduTourGeneNames = {
-      "1": null,
-      "2": ['VKORC1']
-    };
-    this.myGene2GeneNames = ['KDM1A'];
-
+    this.demoGenes = this.modelInfoMap['demo'].genes;
+    
     this.dispatch = d3.dispatch("alertIssued");
     d3.rebind(this, this.dispatch, "on");
   }
@@ -138,11 +144,97 @@ class CohortModel {
         return sampleModel.getModelInfo()
     })
   }
+  getDemoModelInfos(buildName, demoKind) {
+    let self = this;
+    return self.lookupModelInfos('demo', buildName, demoKind);
+  }
 
-  promiseInitDemo(demoKind='exome') {
+  getEduTourModelInfos(tourNumber) {
+    let self = this;
+    return self.lookupModelInfos('eduTour', tourNumber);
+  }
+
+  getEduTourModelInfo(tourNumber, sampleIdx) {
+    let self = this;
+    let modelInfos = self.getEduTourModelInfos(tourNumber);
+    if (!modelInfos || modelInfos.length <= sampleIdx) {
+      return null;
+    }
+    return Object.assign({}, modelInfos[sampleIdx]);
+  }
+
+  lookupModelInfos(runSet, key1, key2) {
+    let self = this;
+    if (runSet === 'demo') {
+      return self._lookupDemoModelInfos(key1, key2);
+    }
+    if (runSet === 'eduTour') {
+      return self._lookupEduTourModelInfos(key1);
+    }
+    return [];
+  }
+
+  _lookupDemoModelInfos(buildName, seqScope) {
+    let self = this;
+    let modelInfos = [];
+    if (self.modelInfoMap['demo'] && self.modelInfoMap['demo'].modelInfos) {
+      modelInfos = self.modelInfoMap['demo'].modelInfos;
+      let vcf = null;
+      let crams = null;
+      if (self.dataSetMap['demo'] && self.dataSetMap['demo'][buildName]) {
+        vcf   = self.dataSetMap['demo'][buildName][seqScope] ? self.dataSetMap['demo'][buildName][seqScope].vcf : null;
+        crams = self.dataSetMap['demo'][buildName][seqScope] ? self.dataSetMap['demo'][buildName][seqScope].crams : null;
+      }
+      modelInfos.forEach(function(modelInfo) {
+        modelInfo.vcf = vcf;
+        modelInfo.tbi = vcf + '.tbi';
+        if (crams && crams[modelInfo.relationship]) {
+          modelInfo.bam = crams[modelInfo.relationship];
+          modelInfo.bai = crams[modelInfo.relationship] + '.crai';
+        }
+      });
+    }
+    return modelInfos;
+  }
+
+  _lookupEduTourModelInfos(tourNumber) { 
+    let self = this;
+    let tourKey = String(tourNumber);
+    let tourInfo = self.modelInfoMap['eduTour'] && self.modelInfoMap['eduTour'][tourKey] ? self.modelInfoMap['eduTour'][tourKey] : null;
+    if (!tourInfo) {
+      return [];
+    }
+    let modelInfos = tourInfo.modelInfos;
+    let vcf = self.dataSetMap['eduTour'] ? self.dataSetMap['eduTour'].vcf : null;
+    modelInfos.forEach(function(modelInfo) {
+      modelInfo.vcf = vcf;
+      modelInfo.tbi = null;
+    });
+    return modelInfos;
+  }
+
+  lookupGenes(runSet, tourNumber) {
+    let self = this;
+    if (runSet === 'demo') {
+      return self.modelInfoMap['demo'] ? self.modelInfoMap['demo'].genes : null;
+    }
+    if (runSet === 'eduTour') {
+      let tourKey = String(tourNumber);
+      let tourInfo = self.modelInfoMap['eduTour'] && self.modelInfoMap['eduTour'][tourKey];
+      if (!tourInfo || !tourInfo.genes || tourInfo.genes.length === 0) {
+        return null;
+      }
+      return tourInfo.genes;
+    }
+    return self.modelInfoMap[runSet] ? self.modelInfoMap[runSet].genes : null;
+  }
+
+  promiseInitDemo(sequencingScope='exome') {
     let self = this;
     return new Promise(function(resolve, reject) {
       var promise = null;
+      let buildName = self.genomeBuildHelper.getCurrentBuildName();
+      self.demoGenes = self.lookupGenes('demo');
       if (self.demoGenes) {
         promise = self.geneModel.promiseCopyPasteGenes(self.demoGenes.join(","));
       } else {
@@ -150,7 +242,8 @@ class CohortModel {
       }
       promise
       .then(function() {
-        self.promiseInit(self.demoModelInfos[demoKind])
+        let buildName = self.genomeBuildHelper.getCurrentBuildName();
+        self.promiseInit(self.getDemoModelInfos(buildName, sequencingScope))
         .then(function() {
           resolve();
         })
@@ -161,26 +254,39 @@ class CohortModel {
     })
   }
 
-  promiseInitEduTour(tourNumber, idx) {
+  promiseInitEduTour(tourNumber, sampleIdx) {
     let self = this;
     return new Promise(function(resolve, reject) {
-      var promise = null;
-      if (self.eduTourGeneNames[tourNumber]) {
-        promise = self.geneModel.promiseCopyPasteGenes(self.eduTourGeneNames[tourNumber].join(","));
+      let tourKey = String(tourNumber);
+      let eduTourInfo = self.modelInfoMap['eduTour'] && self.modelInfoMap['eduTour'][tourKey] ? self.modelInfoMap['eduTour'][tourKey] : null;
+      if (!eduTourInfo) {
+        reject("No model information found for edu tour " + tourNumber + "." );
+        return;
+      }
+
+      let modelInfo = self.getEduTourModelInfo(tourKey, sampleIdx);
+      if (!modelInfo) {
+        reject("No model information found for edu tour " + tourNumber + " sample " + sampleIdx + "." );
+        return;
+      }
+
+      let eduTourGenes = self.lookupGenes('eduTour', tourKey);
+      let promise = null;
+      if (eduTourGenes && eduTourGenes.length > 0) {
+        promise = self.geneModel.promiseCopyPasteGenes(eduTourGenes.join(","));
       } else {
         promise = Promise.resolve();
       }
       promise
       .then(function() {
-        self.promiseInit([self.eduTourModelInfos[tourNumber][idx]])
-        .then(function() {
-          resolve();
-        })
-        .catch(function(error) {
-          reject(error)
-        })
+        return self.promiseInit([modelInfo]);
       })
-
+      .then(function() {
+        resolve();
+      })
+      .catch(function(error) {
+        reject(error)
+      })
     })
   }
 
@@ -240,8 +346,8 @@ class CohortModel {
               var modelInfo = {relationship: 'proband', affectedStatus: 'affected', name: 'Proband', 'sample': '', vcf: vcfUrl, 'tbi': null, 'bam': null, 'bai': null};
 
               var genePromise = null;
-              if (self.geneModel.geneNames.length == 0 && self.myGene2GeneNames) {
-                genePromise = self.geneModel.promiseCopyPasteGenes(self.myGene2GeneNames.join(","));
+              if (self.geneModel.geneNames.length == 0 && self.modelInfoMap['myGene2'] && self.modelInfoMap['myGene2'].genes) {
+                genePromise = self.geneModel.promiseCopyPasteGenes(self.modelInfoMap['myGene2'].genes.join(","));
               } else {
                 genePromise = Promise.resolve();
               }

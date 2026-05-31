@@ -96,12 +96,30 @@ export class GenomeBuildHelper {
     return this.currentBuild ? this.currentBuild.name : null;
   }
 
+  _referencesMatch(ref, reference) {
+    if (reference.name == ref || reference.alias == ref) {
+      return true;
+    }
+    if (ref == null) {
+      return false;
+    }
+    let stripped = ref.indexOf('chr') === 0 ? ref.substring(3) : ref;
+    let refLower = stripped.toLowerCase();
+    if (refLower === 'm' || refLower === 'mt') {
+      let nameLower = reference.name ? reference.name.toLowerCase() : '';
+      let aliasLower = reference.alias ? reference.alias.toLowerCase() : '';
+      return nameLower === 'm' || nameLower === 'mt'
+        || aliasLower === 'chrm' || aliasLower === 'chrmt';
+    }
+    return false;
+  }
+
   getFastaPath(ref) {
     var fastaPath = null;
     if (this.currentBuild) {
       this.currentBuild.references.forEach(function(theReference) {
         if (!fastaPath) {
-          if (theReference.name == ref || theReference.alias == ref) {
+          if (this._referencesMatch(ref, theReference)) {
             if (ref.indexOf('chr') == 0) {
               fastaPath = theReference.fastaPathUCSC;
             } else {
@@ -109,7 +127,7 @@ export class GenomeBuildHelper {
             }
           }
         }
-      });
+      }, this);
     }
     return fastaPath;
   }
@@ -124,11 +142,11 @@ export class GenomeBuildHelper {
     if (this.currentBuild) {
       this.currentBuild.references.forEach(function(reference) {
         if (!theRef) {
-          if (reference.name == ref || reference.alias == ref) {
+          if (this._referencesMatch(ref, reference)) {
             theRef = reference;
           }
         }
-      });
+      }, this);
     }
     return theRef;
   }

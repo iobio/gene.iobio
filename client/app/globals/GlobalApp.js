@@ -1,6 +1,11 @@
 /*  These app.global variables determine which iobio servers the gene.iobio app with interact
     with for a local deployment.  This entire .js can be replaced or modified to suit the
     specific iobio deployment environment.
+
+    IMPORTANT: Vue's global mixin (routes.js) instantiates a separate GlobalApp on every
+    component. Only cohortModel.globalApp (the instance passed from GeneHome into CohortModel
+    and down into models like Vcf.iobio) is authoritative for shared app state. Components
+    must read/write cohortModel.globalApp, not this.globalApp from the mixin.
 */
 class GlobalApp {
   constructor() {
@@ -9,7 +14,7 @@ class GlobalApp {
     this.tour                  = "";
     this.completedTour         = "";
 
-    this.version                = "4.11.6";
+    this.version                = "4.12.0";
 
     this.IOBIO_SERVICES         = null;
     this.HTTP_SERVICES          = null;
@@ -30,6 +35,11 @@ class GlobalApp {
     this.phenolyzerOnlyServer  = null;
 
     this.isDirty               = false;
+
+    // Set true when gnomAD exome annot tags are parsed from variant annotations.
+    // When false, gnomAD exome frequencies are omitted from the UI (backend no longer provides them).
+    // Updated on cohortModel.globalApp only; do not read from a component's mixin globalApp.
+    this.gnomADExomesIncluded  = false;
 
 
     // config files
@@ -86,6 +96,8 @@ class GlobalApp {
   }
 
   initServices(iobioSource) {
+      this.gnomADExomesIncluded = false;
+
       if (process.env.USE_SSL) {
         this.useSSL = process.env.USE_SSL === 'true' ? true : false;
       }
@@ -110,7 +122,6 @@ class GlobalApp {
       }
     
   }
-
 
   getCloseMessage() {
     if (this.isDirty) {
@@ -184,15 +195,32 @@ class GlobalApp {
   getGnomADFields(build, sequencingScope="genomes") {
     var gnomADFields = {
       genomes: {
-        'GRCh37': 'AF,AN,AC,nhomalt_raw,AF_popmax,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas',
-        'GRCh38': 'AF,AN,AC,nhomalt-raw,AF_popmax,faf95_popmax,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas'
+        'GRCh37': 'AF,AN,AC,nhomalt_raw,AF_popmax,AF_fin,AF_nfe,AF_oth,AF_amr,AF_afr,AF_asj,AF_eas,AF_sas,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas',
+        'GRCh38': 'AF,AN,AC,nhomalt-raw,AF_popmax,faf95_popmax,AF_fin,AF_nfe,AF_oth,AF_amr,AF_afr,AF_asj,AF_eas,AF_sas,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas'
       },
       exomes: {
-        'GRCh37': 'AF,AN,AC,nhomalt_raw,AF_popmax,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas',
-        'GRCh38': 'AF,AN,AC,nhomalt_raw,AF_popmax,AF_fin,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas'
+        'GRCh37': 'AF,AN,AC,nhomalt_raw,AF_popmax,AF_fin,AF_nfe,AF_oth,AF_amr,AF_afr,AF_asj,AF_eas,AF_sas,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas',
+        'GRCh38': 'AF,AN,AC,nhomalt_raw,AF_popmax,AF_fin,AF_nfe,AF_oth,AF_amr,AF_afr,AF_asj,AF_eas,AF_sas,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas'
       }
     }
     return gnomADFields[sequencingScope][build];
+  }
+
+  getGnomADPopDisplayName(popKey) {
+    var popNames = {
+      'ami':       'Amish',
+      'mid':       'Middle Eastern',
+      'eas':       'East Asian',
+      'asj':       'Ashkenazi Jewish',
+      'amr':       'Admixed American',
+      'sas':       'South Asian',
+      'remaining': 'Remaining individuals',
+      'oth':       'Remaining individuals',
+      'fin':       'European (Finnish)',
+      'afr':       'African/African American',
+      'nfe':       'European (non-Finnish)'
+    };
+    return popNames[popKey] || popKey;
   }
 
   getGnomADRenameChr(build, sequencingScope="genomes", refName) {
