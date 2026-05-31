@@ -1180,6 +1180,136 @@ class SampleModel {
   _clearVcfRefNameCache() {
     this.getVcfRefName = null;
     this.vcfRefNamesMap = {};
+    this._useStripRefForVcf = null;
+  }
+
+  _stripRefNameOnly(refName) {
+    if (refName == null) {
+      return refName;
+    }
+    var tokens = refName.split("chr");
+    var strippedName = refName;
+    if (tokens.length > 1) {
+      strippedName = tokens[1];
+    } else {
+      tokens = refName.split("ch");
+      if (tokens.length > 1) {
+        strippedName = tokens[1];
+      }
+    }
+    return strippedName;
+  }
+
+  _setVcfRefTranslator(useStrip) {
+    let me = this;
+    me._useStripRefForVcf = useStrip;
+    me.getVcfRefName = function(ref) {
+      return me._resolveVcfRefName(ref);
+    };
+  }
+
+  _vcfRefLookupKey(refName) {
+    if (this._useStripRefForVcf === true) {
+      return this._stripRefNameOnly(refName);
+    }
+    return refName;
+  }
+
+  _isMitochondrialContigName(refName) {
+    if (refName == null) {
+      return false;
+    }
+    let stripped = this._stripRefNameOnly(refName).toLowerCase();
+    return stripped === 'm' || stripped === 'mt';
+  }
+
+  _isMitochondrialRef(refName) {
+    return this._isMitochondrialContigName(refName);
+  }
+
+  _getMitochondrialContigFromMap() {
+    let me = this;
+    let contigNames = {};
+    Object.keys(me.vcfRefNamesMap).forEach(function(key) {
+      contigNames[me.vcfRefNamesMap[key]] = true;
+    });
+    return Object.keys(contigNames).find(function(name) {
+      return me._isMitochondrialContigName(name);
+    }) || null;
+  }
+
+  _mitochondrialRefNames() {
+    let names = ['M', 'MT', 'chrM', 'chrMT'];
+    if (this.cohort && this.cohort.genomeBuildHelper) {
+      let buildRef = this.cohort.genomeBuildHelper.getReference('MT')
+        || this.cohort.genomeBuildHelper.getReference('M')
+        || this.cohort.genomeBuildHelper.getReference('chrMT')
+        || this.cohort.genomeBuildHelper.getReference('chrM');
+      if (buildRef) {
+        if (buildRef.name) {
+          names.push(buildRef.name);
+        }
+        if (buildRef.alias) {
+          names.push(buildRef.alias);
+        }
+      }
+    }
+    return names;
+  }
+
+  _addMitochondrialRefAliases(vcfContigName) {
+    let me = this;
+    if (!me._isMitochondrialContigName(vcfContigName)) {
+      return;
+    }
+    me._mitochondrialRefNames().forEach(function(name) {
+      me.vcfRefNamesMap[me._vcfRefLookupKey(name)] = vcfContigName;
+      me.vcfRefNamesMap[name] = vcfContigName;
+    });
+  }
+
+  _resolveVcfRefName(refName) {
+    let me = this;
+    if (refName == null) {
+      return refName;
+    }
+    let key = me._vcfRefLookupKey(refName);
+    if (me.vcfRefNamesMap[key] != null) {
+      return me.vcfRefNamesMap[key];
+    }
+    if (me._isMitochondrialContigName(refName)) {
+      let mitoContig = me._getMitochondrialContigFromMap();
+      if (mitoContig != null) {
+        return mitoContig;
+      }
+      let mitoNames = me._mitochondrialRefNames();
+      for (let i = 0; i < mitoNames.length; i++) {
+        let mitoKey = me._vcfRefLookupKey(mitoNames[i]);
+        if (me.vcfRefNamesMap[mitoKey] != null) {
+          return me.vcfRefNamesMap[mitoKey];
+        }
+      }
+    }
+    return refName;
+  }
+
+  _geneRefInVcfMap(refName) {
+    let me = this;
+    if (me.vcfRefNamesMap[me._vcfRefLookupKey(refName)] != null) {
+      return true;
+    }
+    if (me._isMitochondrialContigName(refName) && me._getMitochondrialContigFromMap() != null) {
+      return true;
+    }
+    if (me._isMitochondrialContigName(refName)) {
+      let mitoNames = me._mitochondrialRefNames();
+      for (let i = 0; i < mitoNames.length; i++) {
+        if (me.vcfRefNamesMap[me._vcfRefLookupKey(mitoNames[i])] != null) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   _promiseVcfRefName(ref, sfariMode = false, isRetry = false) {
@@ -1201,10 +1331,16 @@ class SampleModel {
       // depending on the vcf.
       if (me.getVcfRefName != null) {
         // If we can't find the ref name in the lookup map, show a warning.
-        if (me.vcfRefNamesMap[me.getVcfRefName(theRef)] == null) {
+        if (!me._geneRefInVcfMap(theRef)) {
           if (!isRetry) {
             me._clearVcfRefNameCache();
             me._promiseVcfRefName(ref, sfariMode, true).then(resolve).catch(reject);
+          } else if (me._isMitochondrialContigName(theRef)) {
+            me._setVcfRefTranslator(theRef.indexOf('chr') !== 0);
+            me.vcfRefNamesMap[me._vcfRefLookupKey(theRef)] = theRef;
+            me.vcfRefNamesMap[theRef] = theRef;
+            me._addMitochondrialRefAliases(theRef);
+            resolve();
           } else {
             reject();
           }
@@ -1243,10 +1379,10 @@ class SampleModel {
               }
             }
             if (refName == theRef) {
-              me.getVcfRefName = me._getRefName;
+              me._setVcfRefTranslator(false);
               foundRef = true;
-            } else if (refName == me._stripRefName(theRef)) {
-              me.getVcfRefName = me._stripRefName;
+            } else if (refName == me._stripRefNameOnly(theRef)) {
+              me._setVcfRefTranslator(true);
               foundRef = true;
             } 
           });
@@ -1254,9 +1390,9 @@ class SampleModel {
           // a new gene is loaded to make sure the ref exists.
           if (!foundRef) {
             if (chrIsPrefixInGeneModel === true && chrIsPrefixInVcf === true) {
-              me.getVcfRefName = me._getRefName;
+              me._setVcfRefTranslator(false);
             } else {
-              me.getVcfRefName = me._stripRefName;
+              me._setVcfRefTranslator(true);
             }
           }
           
@@ -1265,21 +1401,21 @@ class SampleModel {
           // to the lookup map.
           theRefData.forEach( function(refObject) {
             var refName = refObject.name;
-            var theRefName = me.getVcfRefName(refName);
-            me.vcfRefNamesMap[theRefName] = refName;
-            // Translate from MT to M and vice-versa
-            if (theRefName == 'chrMT' || theRefName == 'MT') {
-              me.vcfRefNamesMap[me.getVcfRefName('M')] = refName;
-              me.vcfRefNamesMap[me.getVcfRefName('chrM')] = refName;
-              
-            } else if (theRefName == 'chrM' || theRefName == 'M') {
-              me.vcfRefNamesMap[me.getVcfRefName('MT')] = refName;
-              me.vcfRefNamesMap[me.getVcfRefName('chrMT')] = refName;
-            }
+            var lookupKey = me._vcfRefLookupKey(refName);
+            me.vcfRefNamesMap[lookupKey] = refName;
+            me.vcfRefNamesMap[refName] = refName;
+            me._addMitochondrialRefAliases(refName);
           });
           // If we can't find the ref name in the lookup map, show a warning.
-          if (me.vcfRefNamesMap[me.getVcfRefName(theRef)] == null) {
-            reject();
+          if (!me._geneRefInVcfMap(theRef)) {
+            if (me._isMitochondrialContigName(theRef)) {
+              me.vcfRefNamesMap[me._vcfRefLookupKey(theRef)] = theRef;
+              me.vcfRefNamesMap[theRef] = theRef;
+              me._addMitochondrialRefAliases(theRef);
+              resolve();
+            } else {
+              reject();
+            }
           } else {
             resolve();
           }

@@ -88,13 +88,29 @@ export default function vcfiobio(theGlobalApp) {
         'gg2_1_1_nhomalt'  : 'homCount',
         'gg2_1_1_AF_popmax': 'afPopMax',
         'gg2_1_1_AF_fin'   : ['pop', 'fin', 'af'],
+        'gg2_1_1_AC_fin'   : ['pop', 'fin', 'altCount'],
+        'gg2_1_1_AN_fin'   : ['pop', 'fin', 'totalCount'],
         'gg2_1_1_AF_nfe'   : ['pop', 'nfe', 'af'],
+        'gg2_1_1_AC_nfe'   : ['pop', 'nfe', 'altCount'],
+        'gg2_1_1_AN_nfe'   : ['pop', 'nfe', 'totalCount'],
         'gg2_1_1_AF_oth'   : ['pop', 'oth', 'af'],
+        'gg2_1_1_AC_oth'   : ['pop', 'oth', 'altCount'],
+        'gg2_1_1_AN_oth'   : ['pop', 'oth', 'totalCount'],
         'gg2_1_1_AF_amr'   : ['pop', 'amr', 'af'],
+        'gg2_1_1_AC_amr'   : ['pop', 'amr', 'altCount'],
+        'gg2_1_1_AN_amr'   : ['pop', 'amr', 'totalCount'],
         'gg2_1_1_AF_afr'   : ['pop', 'afr', 'af'],
+        'gg2_1_1_AC_afr'   : ['pop', 'afr', 'altCount'],
+        'gg2_1_1_AN_afr'   : ['pop', 'afr', 'totalCount'],
         'gg2_1_1_AF_asj'   : ['pop', 'asj', 'af'],
+        'gg2_1_1_AC_asj'   : ['pop', 'asj', 'altCount'],
+        'gg2_1_1_AN_asj'   : ['pop', 'asj', 'totalCount'],
         'gg2_1_1_AF_eas'   : ['pop', 'eas', 'af'],
-        'gg2_1_1_AF_sas'   : ['pop', 'sas', 'af']
+        'gg2_1_1_AC_eas'   : ['pop', 'eas', 'altCount'],
+        'gg2_1_1_AN_eas'   : ['pop', 'eas', 'totalCount'],
+        'gg2_1_1_AF_sas'   : ['pop', 'sas', 'af'],
+        'gg2_1_1_AC_sas'   : ['pop', 'sas', 'altCount'],
+        'gg2_1_1_AN_sas'   : ['pop', 'sas', 'totalCount']
       },
       'exomes': {
         'ge2_1_1_AF'       : 'af',
@@ -112,15 +128,35 @@ export default function vcfiobio(theGlobalApp) {
         'gg4_0_0_nhomalt' : 'homCount',
         'gg4_AF_grpmax'   : 'afPopMax',
         'gg4_AF_fin'      : ['pop', 'fin', 'af'],
+        'gg4_AC_fin'      : ['pop', 'fin', 'altCount'],
+        'gg4_AN_fin'      : ['pop', 'fin', 'totalCount'],
         'gg4_AF_nfe'      : ['pop', 'nfe', 'af'],
+        'gg4_AC_nfe'      : ['pop', 'nfe', 'altCount'],
+        'gg4_AN_nfe'      : ['pop', 'nfe', 'totalCount'],
         'gg4_AF_amr'      : ['pop', 'amr', 'af'],
+        'gg4_AC_amr'      : ['pop', 'amr', 'altCount'],
+        'gg4_AN_amr'      : ['pop', 'amr', 'totalCount'],
         'gg4_AF_afr'      : ['pop', 'afr', 'af'],
+        'gg4_AC_afr'      : ['pop', 'afr', 'altCount'],
+        'gg4_AN_afr'      : ['pop', 'afr', 'totalCount'],
         'gg4_AF_ami'      : ['pop', 'ami', 'af'],
+        'gg4_AC_ami'      : ['pop', 'ami', 'altCount'],
+        'gg4_AN_ami'      : ['pop', 'ami', 'totalCount'],
         'gg4_AF_asj'      : ['pop', 'asj', 'af'],
+        'gg4_AC_asj'      : ['pop', 'asj', 'altCount'],
+        'gg4_AN_asj'      : ['pop', 'asj', 'totalCount'],
         'gg4_AF_eas'      : ['pop', 'eas', 'af'],
+        'gg4_AC_eas'      : ['pop', 'eas', 'altCount'],
+        'gg4_AN_eas'      : ['pop', 'eas', 'totalCount'],
         'gg4_AF_sas'      : ['pop', 'sas', 'af'],
+        'gg4_AC_sas'      : ['pop', 'sas', 'altCount'],
+        'gg4_AN_sas'      : ['pop', 'sas', 'totalCount'],
         'gg4_AF_mid'      : ['pop', 'mid', 'af'],
-        'gg4_AF_remaining': ['pop', 'remaining', 'af']
+        'gg4_AC_mid'      : ['pop', 'mid', 'altCount'],
+        'gg4_AN_mid'      : ['pop', 'mid', 'totalCount'],
+        'gg4_AF_remaining': ['pop', 'remaining', 'af'],
+        'gg4_AC_remaining': ['pop', 'remaining', 'altCount'],
+        'gg4_AN_remaining': ['pop', 'remaining', 'totalCount']
       },
       'exomes':  {
         'ge4_0_0_AF'      : 'af',
@@ -129,14 +165,32 @@ export default function vcfiobio(theGlobalApp) {
         'ge4_0_0_nhomalt' : 'homCount',
         'ge4_AF_grpmax'   : 'afPopMax',
         'ge4_AF_fin'      : ['pop', 'fin', 'af'],
+        'ge4_AC_fin'      : ['pop', 'fin', 'altCount'],
+        'ge4_AN_fin'      : ['pop', 'fin', 'totalCount'],
         'ge4_AF_nfe'      : ['pop', 'nfe', 'af'],
+        'ge4_AC_nfe'      : ['pop', 'nfe', 'altCount'],
+        'ge4_AN_nfe'      : ['pop', 'nfe', 'totalCount'],
         'ge4_AF_amr'      : ['pop', 'amr', 'af'],
+        'ge4_AC_amr'      : ['pop', 'amr', 'altCount'],
+        'ge4_AN_amr'      : ['pop', 'amr', 'totalCount'],
         'ge4_AF_afr'      : ['pop', 'afr', 'af'],
+        'ge4_AC_afr'      : ['pop', 'afr', 'altCount'],
+        'ge4_AN_afr'      : ['pop', 'afr', 'totalCount'],
         'ge4_AF_asj'      : ['pop', 'asj', 'af'],
+        'ge4_AC_asj'      : ['pop', 'asj', 'altCount'],
+        'ge4_AN_asj'      : ['pop', 'asj', 'totalCount'],
         'ge4_AF_eas'      : ['pop', 'eas', 'af'],
+        'ge4_AC_eas'      : ['pop', 'eas', 'altCount'],
+        'ge4_AN_eas'      : ['pop', 'eas', 'totalCount'],
         'ge4_AF_sas'      : ['pop', 'sas', 'af'],
+        'ge4_AC_sas'      : ['pop', 'sas', 'altCount'],
+        'ge4_AN_sas'      : ['pop', 'sas', 'totalCount'],
         'ge4_AF_mid'      : ['pop', 'mid', 'af'],
-        'ge4_AF_remaining': ['pop', 'remaining', 'af']
+        'ge4_AC_mid'      : ['pop', 'mid', 'altCount'],
+        'ge4_AN_mid'      : ['pop', 'mid', 'totalCount'],
+        'ge4_AF_remaining': ['pop', 'remaining', 'af'],
+        'ge4_AC_remaining': ['pop', 'remaining', 'altCount'],
+        'ge4_AN_remaining': ['pop', 'remaining', 'totalCount']
       }
     }
   }
@@ -214,6 +268,11 @@ export default function vcfiobio(theGlobalApp) {
     refData.length = 0;
     refDensity.length = 0;
     contigRecords.length = 0;
+  }
+
+  function _clearRefDataOnly() {
+    refData.length = 0;
+    refDensity.length = 0;
   }
 
   exports.clear = function() {
@@ -577,11 +636,55 @@ export default function vcfiobio(theGlobalApp) {
 
 
   exports.promiseGetReferenceLengths = function() {
+    var me = this;
+    var refsPromise = null;
     if (sourceType.toLowerCase() == SOURCE_TYPE_URL.toLowerCase()) {
-      return this._promiseGetChromosomes();
+      refsPromise = me._ensureHeaderContigs()
+      .then(function() {
+        return me._promiseGetChromosomes();
+      });
     } else {
-      return this._promiseGetLocalReferenceLengths();
+      refsPromise = me._ensureHeaderContigs()
+      .then(function() {
+        return me._promiseGetLocalReferenceLengths();
+      });
     }
+    return refsPromise.then(function(refs) {
+      var merged = me._mergeContigRecords(refs, contigRecords);
+      refData = me.sortRefData(merged);
+      return refData;
+    });
+  }
+
+  exports._ensureHeaderContigs = function() {
+    var me = this;
+    if (contigRecords.length > 0 || vcfURL == null) {
+      return Promise.resolve();
+    }
+    return me.promiseParseVcfHeader(vcfURL, tbiUrl)
+    .then(function() {
+      return;
+    })
+    .catch(function() {
+      return;
+    });
+  }
+
+  exports._mergeContigRecords = function(tabixRefs, headerContigs) {
+    var nameMap = {};
+    (tabixRefs || []).forEach(function(ref) {
+      if (ref && ref.name) {
+        nameMap[ref.name] = ref;
+      }
+    });
+    (headerContigs || []).forEach(function(contig) {
+      if (contig && contig.name && !nameMap[contig.name]) {
+        nameMap[contig.name] = {name: contig.name, length: contig.length};
+      }
+    });
+    return Object.keys(nameMap).map(function(name) {
+      return nameMap[name];
+    });
   }
 
 
@@ -619,6 +722,7 @@ export default function vcfiobio(theGlobalApp) {
     var me = this;
 
     return new Promise(function(resolve, reject) {
+      _clearRefDataOnly();
       vcfReader = new readBinaryVCF(tabixFile, vcfFile, function(tbiR) {
         var tbiIdx = tbiR;
         refDensity.length = 0;
@@ -658,7 +762,7 @@ export default function vcfiobio(theGlobalApp) {
     var me = this;
 
     return new Promise(function(resolve, reject) {
-      _clearRefCache();
+      var chromosomes = [];
       var buffer = "";
 
       var cmd = me.getEndpoint().getChromosomes(vcfURL, tbiUrl);
@@ -678,16 +782,14 @@ export default function vcfiobio(theGlobalApp) {
         var recs = buffer.split("\n");
         if (recs.length > 0) {
           for (var i=0; i < recs.length; i++)  {
-
-            var success = true;
-            refData.push({"name": recs[i].trim()})
+            var refName = recs[i].trim();
+            if (refName !== '') {
+              chromosomes.push({"name": refName});
+            }
           }
         }
 
-        // sort refData so references or ordered numerically
-        refData = me.sortRefData(refData);
-
-        resolve(refData);
+        resolve(chromosomes);
       })
 
       // Catch error event when fired
@@ -2706,14 +2808,14 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
   // But we only have ancestry pop af for exomes for build GRCh38
   if (genomeBuildHelper.getCurrentBuildName() == 'GRCh38') {
     ['fin', 'nfe', 'amr', 'afr', 'ami', 'asj', 'eas', 'sas', 'mid', 'remaining'].forEach(function(ancestry){
-      annot.gnomAD.genomes.pop[ancestry] = {'af': '.'};
-      annot.gnomAD.exomes.pop[ancestry]  = {'af': '.'};
+      annot.gnomAD.genomes.pop[ancestry] = {'af': '.', 'altCount': 0, 'totalCount': 0};
+      annot.gnomAD.exomes.pop[ancestry]  = {'af': '.', 'altCount': 0, 'totalCount': 0};
     })
   } else {
     // For gnomad v.2.1, the ancestry fields are slightly different
     // (add 'oth', remove 'remaining', 'mid')
     ['fin', 'nfe',  'amr', 'afr', 'asj', 'eas', 'sas', 'oth'].forEach(function(ancestry){
-      annot.gnomAD.genomes.pop[ancestry] = {'af': '.'};
+      annot.gnomAD.genomes.pop[ancestry] = {'af': '.', 'altCount': 0, 'totalCount': 0};
     })
   }
 
@@ -2735,7 +2837,7 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
     annot.formatMap[token] = formatValues[i];
   });
 
-  me._parseGnomADAnnot(annotTokens, annot);
+  me._parseGnomADAnnot(annotTokens, annot, altIdx);
 
   annotTokens.forEach(function(annotToken) {
     let equalIdx = annotToken.indexOf('=');
@@ -3001,6 +3103,35 @@ exports._parseVepAnnot = function(altIdx, isMultiAllelic, annotToken, annot, gen
 
 }
 
+exports._formatGnomADPopAf = function(annotValue) {
+  if (annotValue == null || annotValue === '' || annotValue === '.') {
+    return annotValue;
+  }
+  var num = +annotValue;
+  if (isNaN(num)) {
+    return annotValue;
+  }
+  return d3.format(".4g")(num);
+}
+
+exports._deriveGnomADPopAf = function(gnomADSequencing) {
+  if (!gnomADSequencing || !gnomADSequencing.pop) {
+    return;
+  }
+  var me = this;
+  Object.keys(gnomADSequencing.pop).forEach(function(popKey) {
+    var pop = gnomADSequencing.pop[popKey];
+    if (!pop || (pop.af != null && pop.af !== '' && pop.af !== '.')) {
+      return;
+    }
+    var ac = +pop.altCount;
+    var an = +pop.totalCount;
+    if (!isNaN(ac) && !isNaN(an) && an > 0) {
+      pop.af = me._formatGnomADPopAf(ac / an);
+    }
+  });
+}
+
 exports._setNestedValue = function(annotObject, gnomADTags, idx, theValue) {
   let me = this;
   var field = gnomADTags[idx];
@@ -3013,31 +3144,40 @@ exports._setNestedValue = function(annotObject, gnomADTags, idx, theValue) {
   }
 }
 
-exports._parseGnomADAnnot = function(annotTokens, annot) {
+exports._parseGnomADAnnot = function(annotTokens, annot, altIdx) {
 
   var me = this;
+  altIdx = altIdx || 0;
 
   ['genomes', 'exomes'].forEach(function(sequencing) {
     annotTokens.forEach(function(annotToken) {
       var tagValue = annotToken.split("\=");
       var annotTag   = tagValue[0];
-      var annotValue = tagValue[1];
+      var annotValue = tagValue.length > 1 ? tagValue.slice(1).join("=") : null;
 
       var gnomADTag         = GNOMAD_TAGS[genomeBuildHelper.getCurrentBuildName()][sequencing][annotTag]
 
-      if (gnomADTag && annotValue) {
+      if (gnomADTag && annotValue != null && annotValue !== '') {
         if (sequencing === 'exomes' && globalApp) {
           // globalApp here is cohortModel.globalApp passed into vcfiobio(), not a mixin instance.
           globalApp.gnomADExomesIncluded = true;
         }
+        var parsedValue = me._parseAnnotForAlt(annotValue, altIdx);
         if (Array.isArray(gnomADTag)) {
           let idx = 0;
-          me._setNestedValue(annot.gnomAD[sequencing], gnomADTag, idx, annotValue);
+          let value = parsedValue;
+          if (gnomADTag[0] === 'pop' && gnomADTag[gnomADTag.length - 1] === 'af') {
+            value = me._formatGnomADPopAf(parsedValue);
+          } else if (gnomADTag[0] === 'pop') {
+            value = +parsedValue;
+          }
+          me._setNestedValue(annot.gnomAD[sequencing], gnomADTag, idx, value);
         } else {
-          annot.gnomAD[sequencing][gnomADTag] = annotValue;
+          annot.gnomAD[sequencing][gnomADTag] = parsedValue;
         }
       }
     })
+    me._deriveGnomADPopAf(annot.gnomAD[sequencing]);
   })
 
 

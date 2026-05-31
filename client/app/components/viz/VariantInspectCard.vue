@@ -228,6 +228,8 @@
         font-style: normal
         margin-bottom: 5px
         color: $app-color
+        display: flex
+        align-items: center
 
       .variant-column-loading
         font-size: 12px
@@ -851,12 +853,12 @@
         </div>
 
 
-      <div class="variant-inspect-column" v-if="selectedVariant">
+      <div class="variant-inspect-column" v-if="selectedVariant && afGnomAD">
           <div class="variant-column-header">
               Population Frequency
               <v-divider></v-divider>
           </div>
-          <div class="variant-column-hint" v-if="isSimpleMode">
+          <div class="variant-column-hint" v-if="isSimpleMode && !afGnomAD.linkOnly">
             Common variants typically don’t cause diseases.
           </div>
 
@@ -871,10 +873,20 @@
 
           <div class="variant-column-subheader"  v-if="!isSimpleMode">
             <span>{{ afGnomAD.source }}</span>
+            <info-popup v-if="afGnomAD.linkOnly" name="gnomADMitochondrial"></info-popup>
+            <info-popup v-else name="gnomAD" :extraInfo1="afGnomAD.extraInfo1" :extraInfo2="afGnomAD.extraInfo2"></info-popup>
           </div>
+          <variant-inspect-row
+            v-if="afGnomAD.linkOnly"
+            clazz="level-blank"
+            value=""
+            label="link"
+            :link="afGnomAD.link">
+          </variant-inspect-row>
+          <template v-else>
           <variant-inspect-row :clazz="afGnomAD.class" :value="gnomadFreq" :label="afGnomAD.label" :link="afGnomAD.link" >
           </variant-inspect-row>
-          <variant-inspect-row v-if="!isSimpleMode && afGnomAD.freqPopMax" :clazz="afGnomAD.class" :value="gnomadFreqPopMax" :label="`Population max allele frequency`" >
+          <variant-inspect-row v-if="!isSimpleMode && afGnomAD.freqPopMax" :clazz="afGnomAD.class" :value="gnomadFreqPopMax" :label="`Max frequency at ancestry group level`" >
           </variant-inspect-row>
           <div v-if="!isSimpleMode && afGnomAD.totalCount >= 0" class="variant-row no-icon">
             <span>{{ afGnomAD.altCount }} alt of {{ afGnomAD.totalCount }} total</span>
@@ -885,7 +897,8 @@
 
           <variant-af-pop-menu
               v-if="!isSimpleMode && selectedVariant.hasOwnProperty('gnomAD') && selectedVariant.gnomAD.genomes.hasOwnProperty('pop') && selectedVariant.gnomAD.genomes.af != '.'"
-              :selectedVariant="selectedVariant">
+              :selectedVariant="selectedVariant"
+              :sourceLabel="getGnomADSourceLabel()">
           </variant-af-pop-menu>
 
           <div v-if="!isSimpleMode && afGnomAD.hasOwnProperty('freqExomes')"
@@ -896,6 +909,7 @@
             v-if="!isSimpleMode && afGnomAD.hasOwnProperty('freqExomes')"
             clazz="level-blank" :value="afGnomAD.freqExomes" label="Allele frequency" >
           </variant-inspect-row>
+          </template>
 
       </div>
 
@@ -1261,6 +1275,24 @@ export default {
     }
   },
   methods: {
+
+    getGnomADSourceLabel: function() {
+      let source = "gnomAD genomes";
+      if (this.selectedVariant
+          && this.selectedVariant.gnomAD
+          && this.selectedVariant.gnomAD.genomes
+          && this.selectedVariant.gnomAD.genomes.hasOwnProperty('version')) {
+        source += " " + this.selectedVariant.gnomAD.genomes.version;
+      } else if (this.genomeBuildHelper) {
+        let buildName = this.genomeBuildHelper.getCurrentBuildName();
+        if (buildName == 'GRCh38') {
+          source += " v4";
+        } else if (buildName == 'GRCh37') {
+          source += " v2.1.1";
+        }
+      }
+      return source;
+    },
 
     initializeMosaicVariant(mosaicVariant) {
       this.mosaicVariantObject = mosaicVariant
@@ -2209,18 +2241,24 @@ export default {
         return "";
       }
     },
+    showGnomADAnnotations: function() {
+      if (!this.selectedVariant || !this.selectedVariant.chrom) {
+        return true;
+      }
+      return !this.globalApp.utility.isMitochondrialRef(this.selectedVariant.chrom);
+    },
     afGnomAD: function() {
       if (this.selectedVariant) {
-        let source      =  "gnomAD genomes"
-        if (this.selectedVariant.gnomAD.genomes.hasOwnProperty('version')) {
-              source += " " + this.selectedVariant.gnomAD.genomes.version;
-        } else {
-          if (this.genomeBuildHelper.getCurrentBuildName() == 'GRCh38') {
-              source += " v4"
-          } else if (this.genomeBuildHelper.getCurrentBuildName() == 'GRCh37') {
-            source += " v2.1.1"
+        if (!this.showGnomADAnnotations) {
+          return {
+            linkOnly: true,
+            source: this.getGnomADSourceLabel(),
+            link: this.globalApp.utility.getGnomADVariantLink(
+              this.selectedVariant,
+              this.genomeBuildHelper.getCurrentBuildName())
           };
         }
+        let source      =  this.getGnomADSourceLabel();
 
         let infoPopup   =  "gnomAD"
         let extraInfo1  =

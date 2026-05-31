@@ -195,15 +195,32 @@ class GlobalApp {
   getGnomADFields(build, sequencingScope="genomes") {
     var gnomADFields = {
       genomes: {
-        'GRCh37': 'AF,AN,AC,nhomalt_raw,AF_popmax,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas',
-        'GRCh38': 'AF,AN,AC,nhomalt-raw,AF_popmax,faf95_popmax,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas'
+        'GRCh37': 'AF,AN,AC,nhomalt_raw,AF_popmax,AF_fin,AF_nfe,AF_oth,AF_amr,AF_afr,AF_asj,AF_eas,AF_sas,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas',
+        'GRCh38': 'AF,AN,AC,nhomalt-raw,AF_popmax,faf95_popmax,AF_fin,AF_nfe,AF_oth,AF_amr,AF_afr,AF_asj,AF_eas,AF_sas,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas'
       },
       exomes: {
-        'GRCh37': 'AF,AN,AC,nhomalt_raw,AF_popmax,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas',
-        'GRCh38': 'AF,AN,AC,nhomalt_raw,AF_popmax,AF_fin,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas'
+        'GRCh37': 'AF,AN,AC,nhomalt_raw,AF_popmax,AF_fin,AF_nfe,AF_oth,AF_amr,AF_afr,AF_asj,AF_eas,AF_sas,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas',
+        'GRCh38': 'AF,AN,AC,nhomalt_raw,AF_popmax,AF_fin,AF_nfe,AF_oth,AF_amr,AF_afr,AF_asj,AF_eas,AF_sas,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas'
       }
     }
     return gnomADFields[sequencingScope][build];
+  }
+
+  getGnomADPopDisplayName(popKey) {
+    var popNames = {
+      'ami':       'Amish',
+      'mid':       'Middle Eastern',
+      'eas':       'East Asian',
+      'asj':       'Ashkenazi Jewish',
+      'amr':       'Admixed American',
+      'sas':       'South Asian',
+      'remaining': 'Remaining individuals',
+      'oth':       'Remaining individuals',
+      'fin':       'European (Finnish)',
+      'afr':       'African/African American',
+      'nfe':       'European (non-Finnish)'
+    };
+    return popNames[popKey] || popKey;
   }
 
   getGnomADRenameChr(build, sequencingScope="genomes", refName) {
