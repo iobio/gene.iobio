@@ -1052,10 +1052,16 @@ export default function vcfiobio(theGlobalApp) {
 
   /* Retrieves clinvar variants for provided gene/region from backend. */
   exports.promiseGetClinvarVariants = function(refName, geneObject, selectedTranscript, regions, clinvarMap, pathoFilters) {
+    const me = this;
+    return me._promiseGetClinvarVariantsImpl(refName, geneObject, selectedTranscript, regions, clinvarMap, pathoFilters, false);
+  }
+
+  exports._promiseGetClinvarVariantsImpl = function(refName, geneObject, selectedTranscript, regions, clinvarMap, pathoFilters, retried) {
     return new Promise((resolve, reject) => {
       const me = this;
-
-      let theGeneObject = geneObject;
+      const endpoint = me.getEndpoint();
+      const theGeneObject = geneObject;
+      const clinvarCommand = endpoint.getClinvarVariantsCommandName();
 
       // Assemble regions
       if (regions == null || regions.length === 0) {
@@ -1066,8 +1072,7 @@ export default function vcfiobio(theGlobalApp) {
       // Get pathogenicity filters
       let pathogenicityFilterPhrase = me.getPathogenicityFilter(pathoFilters);
 
-      // Call command
-      let cmd = me.getEndpoint().getClinvarVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, pathogenicityFilterPhrase, true);
+      let cmd = endpoint.getClinvarVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, pathogenicityFilterPhrase);
       let annotatedData = "";
       cmd.on('data', function(data) {
         if (data == null) {
@@ -1077,6 +1082,10 @@ export default function vcfiobio(theGlobalApp) {
       });
 
       cmd.on('end', function() {
+        if (clinvarCommand === 'getClinvarVariantsV3') {
+          endpoint.lockClinvarVariantsApiVersion(3);
+        }
+
         let annotatedRecs = annotatedData.split("\n");
         let vcfObjects = [];
 
@@ -1115,6 +1124,13 @@ export default function vcfiobio(theGlobalApp) {
       });
 
       cmd.on('error', function(error){
+        if (!retried && clinvarCommand === 'getClinvarVariantsV3') {
+          endpoint.lockClinvarVariantsApiVersion(2);
+          me._promiseGetClinvarVariantsImpl(refName, geneObject, selectedTranscript, regions, clinvarMap, pathoFilters, true)
+          .then(resolve)
+          .catch(reject);
+          return;
+        }
         let msg = "Could not get clinvar variants for gene " + theGeneObject.gene_name + ". Error: " + error;
         console.log(msg);
         console.log(error)
