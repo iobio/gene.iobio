@@ -45,6 +45,22 @@ export default class EndpointCmd {
 
     
     this.gruBackend = true;
+    // null: prefer getClinvarVariantsV3 until it fails, then lock to V2 for the session
+    this._clinvarVariantsApiVersion = null;
+  }
+
+  getClinvarVariantsCommandName() {
+    if (this._clinvarVariantsApiVersion === 2) {
+      return 'getClinvarVariantsV2';
+    }
+    if (this._clinvarVariantsApiVersion === 3) {
+      return 'getClinvarVariantsV3';
+    }
+    return 'getClinvarVariantsV3';
+  }
+
+  lockClinvarVariantsApiVersion(version) {
+    this._clinvarVariantsApiVersion = version;
   }
 
 
@@ -97,7 +113,7 @@ export default class EndpointCmd {
         const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
         let gnomadMergeAnnots = true;
 
-        const cmd = this.api.streamCommand('getClinvarVariantsV2', {
+        const cmd = this.api.streamCommand(this.getClinvarVariantsCommandName(), {
             vcfUrl: vcfSource.vcfUrl,
             tbiUrl: vcfSource.tbiUrl,
             refNames,

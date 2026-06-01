@@ -190,6 +190,11 @@ Vue.use(VueAnalytics, {
 })
 
 // define a globals mixin object
+//
+// WARNING: this mixin creates a NEW GlobalApp (and Util) per Vue component.
+// Mutations on this.globalApp in one component are NOT visible to other components.
+// For app-wide state (iobio backend, gnomADExomesIncluded, etc.), use the shared
+// instance on cohortModel.globalApp (created in GeneHome and passed into CohortModel).
 Vue.mixin({
   data: function() {
     return {

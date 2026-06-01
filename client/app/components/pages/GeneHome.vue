@@ -2395,6 +2395,10 @@ export default {
                             if(self.analyzedTranscript.gene_name !== self.selectedGene.gene_name){
                               console.log("Unexpected error: the analyzed transcript is for gene " + self.analyzedTranscript.gene_name + " but the selected gene is " + self.selectedGene.gene_name)
                             }
+                            self.geneModel.adjustGeneRegion(self.selectedGene);
+                            self.geneRegionStart = self.selectedGene.start;
+                            self.geneRegionEnd = self.selectedGene.end;
+                            self.cohortModel.setLoadedVariants(self.selectedGene);
                             resolve();
                         })
 

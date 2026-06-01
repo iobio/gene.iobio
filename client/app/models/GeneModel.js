@@ -1775,12 +1775,74 @@ class GeneModel {
    * gene object. 
    * If it isn't in the GeneModel cache, call _promiseGetGeneObject.
    */
+  _getGeneEntry(geneName) {
+    if (!geneName) {
+      return null;
+    }
+    let entry = this.geneEntryMap[geneName.toUpperCase()];
+    return (entry && entry !== false) ? entry : null;
+  }
+
+  _applyGeneCoordsFromEntry(geneObject, buildName, geneSource) {
+    let self = this;
+    if (!geneObject || !buildName || !geneSource) {
+      return geneObject;
+    }
+
+    let entry = self._getGeneEntry(geneObject.gene_name);
+    let applied = false;
+    if (entry && entry.gene_coord && entry.gene_coord[buildName] && entry.gene_coord[buildName][geneSource]) {
+      let coord = entry.gene_coord[buildName][geneSource];
+      if (coord.chr) {
+        geneObject.chr = coord.chr;
+      }
+      if (coord.start != null) {
+        geneObject.start = coord.start;
+      }
+      if (coord.end != null) {
+        geneObject.end = coord.end;
+      }
+      applied = true;
+    }
+
+    if (applied || (!applied && geneObject.transcripts && geneObject.transcripts.length > 0)) {
+      delete geneObject.startOrig;
+      delete geneObject.endOrig;
+    }
+
+    // Some geneinfo backends return GRCh38 gene bounds for a GRCh37 request.
+    // lookupEntries gene_coord and transcript spans are usually build-correct.
+    if (!applied && geneObject.transcripts && geneObject.transcripts.length > 0) {
+      let minStart = null;
+      let maxEnd = null;
+      geneObject.transcripts.forEach(function(transcript) {
+        if (transcript.start != null) {
+          minStart = minStart == null ? transcript.start : Math.min(minStart, transcript.start);
+        }
+        if (transcript.end != null) {
+          maxEnd = maxEnd == null ? transcript.end : Math.max(maxEnd, transcript.end);
+        }
+      });
+      if (minStart != null) {
+        geneObject.start = minStart;
+      }
+      if (maxEnd != null) {
+        geneObject.end = maxEnd;
+      }
+    }
+
+    return geneObject;
+  }
+
   promiseGetCachedGeneObject(geneName, resolveOnError=false, checkAliases=true) {
     var me = this;
     return new Promise( function(resolve, reject) {
       let theGeneName = geneName;
       var theGeneObject = me.geneObjects[theGeneName.toUpperCase()];
       if (theGeneObject) {
+        let buildName = me.genomeBuildHelper.getCurrentBuildName() ? me.genomeBuildHelper.getCurrentBuildName() : "GRCh37";
+        let geneSource = me.geneSource ? me.geneSource : 'gencode';
+        me._applyGeneCoordsFromEntry(theGeneObject, buildName, geneSource);
         resolve(theGeneObject);
       } else {
         me._promiseGetGeneObject(theGeneName, checkAliases).then(function(geneObject) {
@@ -1970,6 +2032,7 @@ class GeneModel {
                 // Apply this number to the coding features (UTR, CDS).
                 // Resolve with the gene object
                 me.determineExons(theGeneObject)
+                me._applyGeneCoordsFromEntry(theGeneObject, result.build, result.geneSource);
                 me.geneObjects[theGeneObject.gene_name.toUpperCase()] = theGeneObject;
                 resolve(theGeneObject);
               }
@@ -2232,8 +2295,16 @@ class GeneModel {
           success: function( response ) {
             if (response.length > 0 && response[0].hasOwnProperty('gene_name')) {
               var theGeneObject = response[0];
-              me.geneObjects[theGeneObject.gene_name.toUpperCase()] = theGeneObject;
-              resolve({'gene': theGeneObject, 'variant': variant});
+              me.promiseGetGeneEntry(theGeneObject.gene_name)
+              .then(function() {
+                me.determineExons(theGeneObject);
+                me._applyGeneCoordsFromEntry(theGeneObject, buildName, defaultGeneSource);
+                me.geneObjects[theGeneObject.gene_name.toUpperCase()] = theGeneObject;
+                resolve({'gene': theGeneObject, 'variant': variant});
+              })
+              .catch(function(error) {
+                reject(error);
+              });
             } else {
               let msg = "Gene model for region " + variant.chrom + ":" + variant.start + " not found.  Empty results returned from " + url;
               console.log(msg);
@@ -2564,9 +2635,13 @@ class GeneModel {
   promiseGetCorrectGeneNames(geneNames) {
     let self = this;
     return new Promise(function(resolve, reject) {
-      let theGeneNames = geneNames;
       let geneNamesToLookup = [];
       let theGeneNameMap = new CaseInsensitiveMap();
+
+      if (!geneNames || geneNames.length === 0) {
+        resolve(theGeneNameMap);
+        return;
+      }
       
       // Figure out which gene names we need to lookup (not cached)
       geneNames.forEach(function(geneName) {
@@ -2621,18 +2696,25 @@ class GeneModel {
                   }             
                 })
               }
-              
-             
+
+              geneNamesToLookup.forEach(function(geneName) {
+                if (!theGeneNameMap.has(geneName)) {
+                  theGeneNameMap.set(geneName, false);
+                  self.validGeneNameMap.set(geneName, false);
+                }
+              })
 
               resolve(theGeneNameMap)
             } else {
-              console.log(msg);
-              reject("Problem in GeneModel.promiseGetCorrectGeneNames() getting response from " + url)
+              let msg = "Unexpected response from geneinfo lookupGenes (missing 'genes' property): " + url;
+              console.log(msg, response);
+              reject(msg);
             }
           },
           error: function( xhr, status, errorThrown ) {
-            console.log(errorThrown)
-            reject(errorThrown)
+            let msg = "Geneinfo lookupGenes request failed: " + url + " (" + status + ": " + errorThrown + ")";
+            console.log(msg);
+            reject(msg);
           }
         })
       }
@@ -2678,13 +2760,15 @@ class GeneModel {
 
               resolve(self.geneEntryMap[geneNameUC])
             } else {
-              console.log(msg);
-              reject("Problem getting response from " + url)
+              let msg = "Unexpected response from geneinfo lookupEntries (missing 'genes' property): " + url;
+              console.log(msg, response);
+              reject(msg);
             }
           },
           error: function( xhr, status, errorThrown ) {
-            console.log(errorThrown)
-            reject(errorThrown)
+            let msg = "Geneinfo lookupEntries request failed: " + url + " (" + status + ": " + errorThrown + ")";
+            console.log(msg);
+            reject(msg);
           }
         })
       }
@@ -2764,8 +2848,9 @@ class GeneModel {
                 resolve();
               }
             } else {
-              console.log(msg);
-              reject("Problem getting response from " + url)
+              let msg = "Unexpected response from geneinfo lookupEntries (missing 'genes' property): " + url;
+              console.log(msg, response);
+              reject(msg);
             }
           },
           error: function( xhr, status, errorThrown ) {
@@ -2812,13 +2897,15 @@ class GeneModel {
               // the method will resolve as boolean false if the gene name provided is not found 
               resolve(matchingLookup)
             } else {
-              console.log(msg);
-              reject("Problem getting response from " + url)
+              let msg = "Unexpected response from geneinfo lookup (missing 'genes' property): " + url;
+              console.log(msg, response);
+              reject(msg);
             }
           },
           error: function( xhr, status, errorThrown ) {
-            console.log(errorThrown)
-            reject(errorThrown)
+            let msg = "Geneinfo lookup request failed: " + url + " (" + status + ": " + errorThrown + ")";
+            console.log(msg);
+            reject(msg);
           }
         })
       }

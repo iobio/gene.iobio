@@ -582,10 +582,13 @@
         <div v-if="isBasicMode" style="min-width:300px">
 
 
-            <v-flex v-if="isBasicMode">
+            <v-flex v-if="isBasicMode && afGnomAD">
               <v-layout  row>
                  <v-flex xs6 class="field-label ">Frequency (gnomAD)</v-flex>
-                 <v-flex xs6 class="field-value">{{ afGnomAD.percent }}</v-flex>
+                 <v-flex xs6 class="field-value">
+                   <a v-if="afGnomAD.linkOnly" :href="afGnomAD.link" target="_blank">View on gnomAD</a>
+                   <span v-else>{{ afGnomAD.percent }}</span>
+                 </v-flex>
               </v-layout>
             </v-flex>
 
@@ -1124,8 +1127,22 @@ export default {
       }
       return refAlt;
     },
+    showGnomADAnnotations: function() {
+      if (!this.selectedVariant || !this.selectedVariant.chrom) {
+        return true;
+      }
+      return !this.globalApp.utility.isMitochondrialRef(this.selectedVariant.chrom);
+    },
     afGnomAD: function() {
       if (this.selectedVariant) {
+        if (!this.showGnomADAnnotations) {
+          return {
+            linkOnly: true,
+            link: this.globalApp.utility.getGnomADVariantLink(
+              this.selectedVariant,
+              this.genomeBuildHelper ? this.genomeBuildHelper.getCurrentBuildName() : null)
+          };
+        }
         if (this.selectedVariant.afHighest == null || this.selectedVariant.afHighest == null) {
           return {percent: "?", link: null, class: ""};
         } else if (this.selectedVariant.afHighest  == '.') {
