@@ -1347,7 +1347,7 @@ export default {
             if (popAF.length > 0) {
               popAF += ", ";
             }
-            popAF += label + " " + (afObject[key] == "." ? "0" : d3.format('.3n')(afObject[key]));
+            popAF += label + " " + (afObject[key] == "." ? "0" : d3.format('.4g')(afObject[key]));
           }
         }
       }
@@ -2181,10 +2181,10 @@ export default {
       }
     },
     gnomadFreqPopMax: function() {
-      return this.afGnomAD ? d3.format('.3n')(this.afGnomAD.freqPopMax) : '-';
+      return this.afGnomAD ? d3.format('.4g')(this.afGnomAD.freqPopMax) : '-';
     },
     gnomadFreq: function() {
-      return this.afGnomAD ? d3.format('.3n')(this.afGnomAD.freq) : '-';
+      return this.afGnomAD ? d3.format('.4g')(this.afGnomAD.freq) : '-';
     },
 
       coord: function() {
@@ -2274,7 +2274,7 @@ export default {
         let afExomes = null;
         if (this.cohortModel.globalApp.gnomADExomesIncluded
             && this.selectedVariant.gnomAD.exomes) {
-          afExomes = this.selectedVariant.gnomAD.exomes.af == '.' ? '0.0' : d3.format('.3n')(this.selectedVariant.gnomAD.exomes.af);
+          afExomes = this.selectedVariant.gnomAD.exomes.af == '.' ? '0.0' : d3.format('.4g')(this.selectedVariant.gnomAD.exomes.af);
         }
 
         if (this.selectedVariant.gnomAD.genomes.af  == '.') {
@@ -2312,7 +2312,7 @@ export default {
           };
 
           gnomAD.label = "Allele frequency"
-          gnomAD.freq       = d3.format('.3n')(this.selectedVariant.gnomAD.genomes.af);
+          gnomAD.freq       = d3.format('.4g')(this.selectedVariant.gnomAD.genomes.af);
           gnomAD.class         = this.getAfClass(this.selectedVariant.gnomAD.genomes.af);
           gnomAD.freqPopMax    = this.selectedVariant.gnomAD.genomes.afPopMax != '.' ? this.selectedVariant.gnomAD.genomes.afPopMax : '0.0';
           gnomAD.altCount      = this.selectedVariant.gnomAD.genomes.altCount;
