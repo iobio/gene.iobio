@@ -74,20 +74,20 @@ class CohortModel {
 
 
     this.demoVcf37 = {
-      'exome': "https://s3.amazonaws.com/iobio/samples/vcf/platinum-exome.vcf.gz",
-      'genome': "https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz"
+      'exome': "https://files.iobio.io/samples/vcf/2021_platinum/2021_platinum_exomes_GRCh37.vcf.gz",
+      'genome': "https://files.iobio.io/samples/vcf/2021_platinum/2021_platinum_genomes_GRCh37.vcf.gz"
     }
     this.demoBams37 = {
       'exome': {
-        'proband': 'https://s3.amazonaws.com/iobio/samples/bam/NA12878.exome.bam',
-        'mother':  'https://s3.amazonaws.com/iobio/samples/bam/NA12892.exome.bam',
-        'father':  'https://s3.amazonaws.com/iobio/samples/bam/NA12891.exome.bam',
-        'sibling': 'https://s3.amazonaws.com/iobio/samples/bam/NA12877.exome.bam'
+        'proband': 'https://files.iobio.io/samples/cram/2021_platinum/GRCh37_exomes/NA12878.cram',
+        'mother':  'https://files.iobio.io/samples/cram/2021_platinum/GRCh37_exomes/NA12892.cram',
+        'father':  'https://files.iobio.io/samples/cram/2021_platinum/GRCh37_exomes/NA12891.cram',
+       // 'sibling': 'https://files.iobio.io/samples/cram/2021_platinum/GRCh37_exomes/NA12877.cram'
       },
       'genome': {
-        'proband': 'https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam',
-        'mother':  'https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12892.bam',
-        'father':  'https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12891.bam'
+        'proband': 'https://files.iobio.io/samples/cram/2021_platinum/GRCh37_genomes/NA12878.cram',
+        'mother':  'https://files.iobio.io/samples/cram/2021_platinum/GRCh37_genomes/NA12892.cram',
+        'father':  'https://files.iobio.io/samples/cram/2021_platinum/GRCh37_genomes/NA12891.cram'
       }
     }
 
