@@ -37,7 +37,8 @@ fi
 working_dir=$PWD
 
 # link to files needed for static page
-ln -s $working_dir/server/views/index.html $working_dir/deploy/index.html
+ln -s $working_dir/client/index.html $working_dir/deploy/index.html
+ln -s $working_dir/client/config.json $working_dir/deploy/config.json
 ln -s $working_dir/client/data $working_dir/deploy/data
 ln -s $working_dir/client/assets $working_dir/deploy/assets
 ln -s $working_dir/client/js/thirdparty $working_dir/deploy/js/thirdparty

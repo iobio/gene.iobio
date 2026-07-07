@@ -42,6 +42,8 @@ npm run build
 npm start
 ```
 
+Runtime paths and backend URLs are loaded from `client/config.json` for local development. When gene.iobio is served by GRU, GRU provides `/config.json` at runtime and can override `gene.path`, `gene.origin`, `backend.path`, and `backend.origin` with its `IOBIO_GENE_*` and `IOBIO_BACKEND_*` environment variables.
+
 Launch on your localhost
 @ [http://localhost:4026](http://localhost:4026).
 
