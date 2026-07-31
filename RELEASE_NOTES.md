@@ -1,3 +1,12 @@
+# gene.iobio v4.13.0.0 Release Notes
+
+## Run-time config 
+- Runtime paths and backend URLs are loaded from `client/config.json` for local development. When gene.iobio is served by GRU, GRU provides `/config.json` at runtime and can override `gene.path`, `gene.origin`, `backend.path`, and `backend.origin` with its `IOBIO_GENE_*` and `IOBIO_BACKEND_*` environment variables.
+
+## Better error handling for local bam files
+- When a local bam file is selected, catch any errors and show
+an informative error message. For example, Waygate doesn't handle spaces in the local file name. Before this fix, the error was swallowed and subsequent requests failed because the bam URL wasn't reachable.
+ 
 # gene.iobio v4.12.0.0 Release Notes
 
 Changes since v4.11.6 (`d5412b6c`).
