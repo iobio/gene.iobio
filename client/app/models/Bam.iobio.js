@@ -229,8 +229,12 @@ export default class Bam {
     me.baiFile   = baiFile;
 
     me.sourceType = "file";
-    me.accessFilesAsURLs( function() {
-      callback(true);
+    me.accessFilesAsURLs(function(result) {
+      if (result && result.success) {
+        callback(true);
+      } else {
+        callback(false, result && result.error ? result.error : 'Unable to access local alignment files');
+      }
     });
     return;
   }
@@ -271,48 +275,16 @@ export default class Bam {
        else {
           me.getHeader(function(h) {
              callback(h.toStr + data, e);
-          })
+          },
+         function(error) {
+
+         })
        }
     }, { 'format': format })
    }
 
 
-   getHeaderStr(callback) {
-    var me = this;
-
-    if (me.headerStr) {
-       callback(me.headerStr);
-    }
-    else if (me.sourceType == 'file') {
-      console.log('Error: header not set for local bam file');
-      callback(null);
-    } else {
-
-      var cmd = me.endpoint.getBamHeader(me.bamUri, me.baiUri);
-
-      var success = null;
-      var rawHeader = "";
-      cmd.on('data', function(data) {
-        if (data != undefined) {
-          rawHeader += data;
-        }
-      });
-
-      cmd.on('end', function() {
-        me.setHeader(rawHeader);
-        callback(me.headerStr);
-      });
-
-      cmd.on('error', function(error) {
-        console.log(error);
-      });
-      cmd.run();
-
-
-    }
-  }
-
-  getHeader(callback) {
+  getHeader(callback, errorCallback) {
     var me = this;
 
     if (me.header) {
@@ -336,6 +308,15 @@ export default class Bam {
       cmd.on('end', function() {
         me.setHeader(rawHeader);
         callback( me.header);
+      });
+
+      cmd.on('error', function(error) {
+        console.log(error);
+        if (errorCallback) {
+          errorCallback(error)
+        } else {
+          callback();
+        }
       });
 
       cmd.run();
@@ -385,18 +366,46 @@ export default class Bam {
    }
 
 
+  promiseGetAlignmentHeader() {
+    let me = this;
+    return new Promise(function(resolve, reject) {
 
-  transformRefName(refName, callback) {
-    var found = false;
-    this.getHeader(function(header) {
-      header.sq.forEach(function(seq) {
-        if (seq.name == refName || seq.name.split('chr')[1] == refName || seq.name == refName.split('chr')[1]) {
-          found = true;
-          callback(seq.name);
+      me.getHeader(function(header) {
+        if (header) {
+          resolve(header)
+        } else {
+          reject('Unable to get alignment file header.')
+        }
+      }, function(error) {
+        console.log('Fatal error in promiseGetAlignmentFileHeader.')
+        console.log(error);
+        reject(error);
+      })
+    })
+  }
+
+  promiseTransformRefName(refName) {
+    var me = this;
+    return new Promise(function(resolve, reject) {
+      var found = false;
+      me.promiseGetAlignmentHeader().then(function(header) {
+        header.sq.forEach(function(seq) {
+          if (seq.name == refName || seq.name.split('chr')[1] == refName || seq.name == refName.split('chr')[1]) {
+            found = true;
+            resolve(seq.name)
+          }
+        })
+        if (!found) {
+          resolve(refName)
         }
       })
-      if (!found) callback(refName); // not found
+      .catch(function(error) {
+        console.log('Fatal error in transformRefName. Unable to get alignment file header.')
+        console.log(error);
+        reject(error);
+      })
     })
+
   }
 
   _getServerCacheKey(service, refName, start, end, miscObject) {
@@ -430,22 +439,11 @@ export default class Bam {
     var me = this;
 
     return new Promise(function(resolve, reject) {
-      me.transformRefName(refName, function(trRefName){
-
+      me.promiseTransformRefName(refName)
+      .then(function(trRefName){
         var bamSource = {};
-        if (me.sourceType == 'url') {
-          bamSource.bamUrl = me.bamUri;
-          bamSource.baiUrl = me.baiUri;
-        } else {
-          bamSource.writeStream = function(stream) {
-            stream.write(me.header.toStr);
-            me.convert('sam', trRefName, regionStart, regionEnd, function(data,e) {
-              stream.write(data);
-              stream.end();
-            },
-            {noHeader:true});
-          }
-        }
+        bamSource.bamUrl = me.bamUri;
+        bamSource.baiUrl = me.baiUri;
 
         var serverCacheKey = me._getServerCacheKey("coverage", trRefName, regionStart, regionEnd, {maxPoints: maxPoints});
 
@@ -502,7 +500,10 @@ export default class Bam {
         });
 
         cmd.run();
-      });
+      })
+      .catch(function(error) {
+        reject(msg)
+      })
     })
 
 
@@ -518,7 +519,8 @@ export default class Bam {
       var regionStart = geneObject.start;
       var regionEnd   = geneObject.end;
 
-      me.transformRefName(refName, function(trRefName){
+      me.promiseTransformRefName(refName)
+      .then(function(trRefName){
 
 
         //  Once all bam sources have been established
@@ -563,7 +565,10 @@ export default class Bam {
         })
 
 
-      });
+      })
+      .catch(function(error) {
+        reject(msg)
+      })
 
 
     })
@@ -638,7 +643,8 @@ export default class Bam {
         }
       });
 
-      me.transformRefName(refName, function(trRefName){
+      me.promiseTransformRefName(refName)
+      .then(function(trRefName){
 
         var index = 0;
         var bamSources = [];
@@ -667,12 +673,11 @@ export default class Bam {
           cmd.run();
         });
 
+      })
+      .catch(function(error) {
+        reject(error)
+      })
     })
-
-
-
-    });
-
 
   }
 

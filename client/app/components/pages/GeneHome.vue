@@ -2420,6 +2420,27 @@ export default {
     },
 
 
+    refreshGeneVariantDisplay: function() {
+      let self = this;
+      if (!self.selectedGene || !self.selectedGene.gene_name) {
+        return;
+      }
+      self.geneModel.adjustGeneRegion(self.selectedGene);
+      self.geneRegionStart = self.selectedGene.start;
+      self.geneRegionEnd = self.selectedGene.end;
+      self.filterModel.regionStart = null;
+      self.filterModel.regionEnd = null;
+      self.cardWidth = $('#genes-card').innerWidth() || self.cardWidth;
+      self.cohortModel.setLoadedVariants(self.selectedGene);
+      self.$nextTick(function() {
+        self.getVariantCardRefs().forEach(function(cardRef) {
+          if (cardRef.refreshVariantViz) {
+            cardRef.refreshVariantViz();
+          }
+        });
+      });
+    },
+
     callVariants: function(theGene) {
       let self = this;
       if (theGene == null) {
@@ -2431,6 +2452,9 @@ export default {
             self.selectedTranscript,
             self.cohortModel.getCurrentTrioVcfData(),
             {checkCache: false, isBackground: false, decompose: true})
+        })
+        .then(function() {
+          self.refreshGeneVariantDisplay();
         })
         .catch(function(error) {
           self.addAlert("error", error, theGene)
@@ -2630,6 +2654,9 @@ export default {
         self.setUrlGeneParameters();
       })
       .catch(function(error) {
+        console.log("Error in onGeneNameEntered()")
+        console.log(error)
+        self.addAlert('error', error)
         // No need to add alert as promiseLoadGene has already
         // done this.
       })

@@ -272,11 +272,19 @@ export default {
     onBamUrlEntered: function(bamUrl, baiUrl) {
       let self = this;
       if (self.modelInfo && self.modelInfo.model) {
+        self.modelInfo.bam = bamUrl;
+        self.modelInfo.bai = baiUrl;
         self.modelInfo.model.promiseLoadBamUrl(bamUrl, baiUrl)
-        .then(function() {
+        .then(function(urls) {
+          if (urls) {
+            self.modelInfo.bam = urls.bamUrl;
+            self.modelInfo.bai = urls.baiUrl;
+          }
           self.$emit("sample-data-changed");
         })
         .catch(function(error) {
+          self.modelInfo.bam = bamUrl;
+          self.modelInfo.bai = baiUrl;
           self.$emit("sample-data-changed");
           self.$emit('sample-error', error)
         })
@@ -285,10 +293,20 @@ export default {
     onBamFilesSelected: function(fileSelection) {
       let self = this;
       self.modelInfo.model.promiseBamFilesSelected(fileSelection)
-      .then(function() {
+      .then(function(urls) {
+        if (urls) {
+          self.modelInfo.bam = urls.bamUrl;
+          self.modelInfo.bai = urls.baiUrl;
+          self.modelInfo.sample = null;
+        } else {
+          self.modelInfo.bam = null;
+          self.modelInfo.bai = null;
+        }
         self.$emit("sample-data-changed");
       })
       .catch(function(error) {
+        self.modelInfo.bam = null;
+        self.modelInfo.bai = null;
         self.$emit("sample-data-changed");
         self.$emit("sample-error", error)
 
