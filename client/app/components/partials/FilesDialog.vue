@@ -753,13 +753,20 @@ export default {
           }
           self.$refs.sampleDataRef.forEach(function(ref) {
             if (ref.modelInfo.relationship == theModel.relationship) {
-              theModel.sampleName = theModelInfo.sample;
-              ref.updateSamples(sampleNames, theModelInfo.sample);
-              theModel.name = theModel.sampleName;
+              if (theModel.isAlignmentsOnly()) {
+                theModel.sampleName = null;
+                theModel.name = theModel.getSampleName();
+                theModelInfo.sample = null;
+                ref.updateSamples([], null);
+              } else {
+                theModel.sampleName = theModelInfo.sample;
+                ref.updateSamples(sampleNames, theModelInfo.sample);
+                theModel.name = theModel.sampleName;
+              }
               self.validate();
             }
           })
-          theModel.promiseLoadBamUrl(theModelInfo.bam, null)
+          theModel.promiseLoadBamUrl(theModelInfo.bam, theModelInfo.bai)
           .then(function() {
             self.validate();
             resolve();

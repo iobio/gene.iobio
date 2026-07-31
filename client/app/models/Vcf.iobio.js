@@ -82,50 +82,50 @@ export default function vcfiobio(theGlobalApp) {
   var GNOMAD_TAGS = {
     'GRCh37': {
       'genomes': {
-        'gg2_1_1_AF'       : 'af',
-        'gg2_1_1_AC'       : 'altCount',
-        'gg2_1_1_AN'       : 'totalCount',
-        'gg2_1_1_nhomalt'  : 'homCount',
-        'gg2_1_1_AF_popmax': 'afPopMax',
-        'gg2_1_1_AF_fin'   : ['pop', 'fin', 'af'],
-        'gg2_1_1_AC_fin'   : ['pop', 'fin', 'altCount'],
-        'gg2_1_1_AN_fin'   : ['pop', 'fin', 'totalCount'],
-        'gg2_1_1_AF_nfe'   : ['pop', 'nfe', 'af'],
-        'gg2_1_1_AC_nfe'   : ['pop', 'nfe', 'altCount'],
-        'gg2_1_1_AN_nfe'   : ['pop', 'nfe', 'totalCount'],
-        'gg2_1_1_AF_oth'   : ['pop', 'oth', 'af'],
-        'gg2_1_1_AC_oth'   : ['pop', 'oth', 'altCount'],
-        'gg2_1_1_AN_oth'   : ['pop', 'oth', 'totalCount'],
-        'gg2_1_1_AF_amr'   : ['pop', 'amr', 'af'],
-        'gg2_1_1_AC_amr'   : ['pop', 'amr', 'altCount'],
-        'gg2_1_1_AN_amr'   : ['pop', 'amr', 'totalCount'],
-        'gg2_1_1_AF_afr'   : ['pop', 'afr', 'af'],
-        'gg2_1_1_AC_afr'   : ['pop', 'afr', 'altCount'],
-        'gg2_1_1_AN_afr'   : ['pop', 'afr', 'totalCount'],
-        'gg2_1_1_AF_asj'   : ['pop', 'asj', 'af'],
-        'gg2_1_1_AC_asj'   : ['pop', 'asj', 'altCount'],
-        'gg2_1_1_AN_asj'   : ['pop', 'asj', 'totalCount'],
-        'gg2_1_1_AF_eas'   : ['pop', 'eas', 'af'],
-        'gg2_1_1_AC_eas'   : ['pop', 'eas', 'altCount'],
-        'gg2_1_1_AN_eas'   : ['pop', 'eas', 'totalCount'],
-        'gg2_1_1_AF_sas'   : ['pop', 'sas', 'af'],
-        'gg2_1_1_AC_sas'   : ['pop', 'sas', 'altCount'],
-        'gg2_1_1_AN_sas'   : ['pop', 'sas', 'totalCount']
+        'gg2_AF'       : 'af',
+        'gg2_AC'       : 'altCount',
+        'gg2_AN'       : 'totalCount',
+        'gg2_nhomalt'  : 'homCount',
+        'gg2_AF_popmax': 'afPopMax',
+        'gg2_AF_fin'   : ['pop', 'fin', 'af'],
+        'gg2_AC_fin'   : ['pop', 'fin', 'altCount'],
+        'gg2_AN_fin'   : ['pop', 'fin', 'totalCount'],
+        'gg2_AF_nfe'   : ['pop', 'nfe', 'af'],
+        'gg2_AC_nfe'   : ['pop', 'nfe', 'altCount'],
+        'gg2_AN_nfe'   : ['pop', 'nfe', 'totalCount'],
+        'gg2_AF_oth'   : ['pop', 'oth', 'af'],
+        'gg2_AC_oth'   : ['pop', 'oth', 'altCount'],
+        'gg2_AN_oth'   : ['pop', 'oth', 'totalCount'],
+        'gg2_AF_amr'   : ['pop', 'amr', 'af'],
+        'gg2_AC_amr'   : ['pop', 'amr', 'altCount'],
+        'gg2_AN_amr'   : ['pop', 'amr', 'totalCount'],
+        'gg2_AF_afr'   : ['pop', 'afr', 'af'],
+        'gg2_AC_afr'   : ['pop', 'afr', 'altCount'],
+        'gg2_AN_afr'   : ['pop', 'afr', 'totalCount'],
+        'gg2_AF_asj'   : ['pop', 'asj', 'af'],
+        'gg2_AC_asj'   : ['pop', 'asj', 'altCount'],
+        'gg2_AN_asj'   : ['pop', 'asj', 'totalCount'],
+        'gg2_AF_eas'   : ['pop', 'eas', 'af'],
+        'gg2_AC_eas'   : ['pop', 'eas', 'altCount'],
+        'gg2_AN_eas'   : ['pop', 'eas', 'totalCount'],
+        'gg2_AF_sas'   : ['pop', 'sas', 'af'],
+        'gg2_AC_sas'   : ['pop', 'sas', 'altCount'],
+        'gg2_AN_sas'   : ['pop', 'sas', 'totalCount']
       },
       'exomes': {
-        'ge2_1_1_AF'       : 'af',
-        'ge2_1_1_AC'       : 'altCount',
-        'ge2_1_1_AN'       : 'totalCount',
-        'ge2_1_1_nhomalt'  : 'homCount',
-        'ge2_1_1_AF_popmax': 'afPopMax'
+        'ge2_AF'       : 'af',
+        'ge2_AC'       : 'altCount',
+        'ge2_AN'       : 'totalCount',
+        'ge2_nhomalt'  : 'homCount',
+        'ge2_AF_popmax': 'afPopMax'
       }
     },
     'GRCh38': {
       'genomes':  {
-        'gg4_0_0_AF'      : 'af',
-        'gg4_0_0_AC'      : 'altCount',
-        'gg4_0_0_AN'      : 'totalCount',
-        'gg4_0_0_nhomalt' : 'homCount',
+        'gg4_AF'      : 'af',
+        'gg4_AC'      : 'altCount',
+        'gg4_AN'      : 'totalCount',
+        'gg4_nhomalt' : 'homCount',
         'gg4_AF_grpmax'   : 'afPopMax',
         'gg4_AF_fin'      : ['pop', 'fin', 'af'],
         'gg4_AC_fin'      : ['pop', 'fin', 'altCount'],
@@ -159,10 +159,10 @@ export default function vcfiobio(theGlobalApp) {
         'gg4_AN_remaining': ['pop', 'remaining', 'totalCount']
       },
       'exomes':  {
-        'ge4_0_0_AF'      : 'af',
-        'ge4_0_0_AC'      : 'altCount',
-        'ge4_0_0_AN'      : 'totalCount',
-        'ge4_0_0_nhomalt' : 'homCount',
+        'ge4_AF'      : 'af',
+        'ge4_AC'      : 'altCount',
+        'ge4_AN'      : 'totalCount',
+        'ge4_nhomalt' : 'homCount',
         'ge4_AF_grpmax'   : 'afPopMax',
         'ge4_AF_fin'      : ['pop', 'fin', 'af'],
         'ge4_AC_fin'      : ['pop', 'fin', 'altCount'],
@@ -3160,6 +3160,20 @@ exports._setNestedValue = function(annotObject, gnomADTags, idx, theValue) {
   }
 }
 
+// Normalize gnomAD INFO tag from old versioned prefix (e.g. gg4_0_0_AF) or new prefix (gg4_AF).
+exports._normalizeGnomADAnnotTag = function(annotTag) {
+  var normalizedTag = annotTag
+    .replace(/^gg2_1_1_/, 'gg2_')
+    .replace(/^gg4_0_0_/, 'gg4_')
+    .replace(/^ge2_1_1_/, 'ge2_')
+    .replace(/^ge4_0_0_/, 'ge4_');
+  // gnomAD v4 renamed AF_popmax to AF_grpmax; accept old field name from legacy backends.
+  if (/^(gg4|ge4)_AF_popmax$/.test(normalizedTag)) {
+    normalizedTag = normalizedTag.replace('_AF_popmax', '_AF_grpmax');
+  }
+  return normalizedTag;
+}
+
 exports._parseGnomADAnnot = function(annotTokens, annot, altIdx) {
 
   var me = this;
@@ -3171,7 +3185,8 @@ exports._parseGnomADAnnot = function(annotTokens, annot, altIdx) {
       var annotTag   = tagValue[0];
       var annotValue = tagValue.length > 1 ? tagValue.slice(1).join("=") : null;
 
-      var gnomADTag         = GNOMAD_TAGS[genomeBuildHelper.getCurrentBuildName()][sequencing][annotTag]
+      var normalizedTag = me._normalizeGnomADAnnotTag(annotTag);
+      var gnomADTag         = GNOMAD_TAGS[genomeBuildHelper.getCurrentBuildName()][sequencing][normalizedTag]
 
       if (gnomADTag && annotValue != null && annotValue !== '') {
         if (sequencing === 'exomes' && globalApp) {

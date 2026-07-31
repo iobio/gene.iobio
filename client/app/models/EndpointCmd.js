@@ -35,10 +35,9 @@ export default class EndpointCmd {
       this.api = new Client(globalApp.IOBIO_SERVICES);
     }
     else {
-      // NOTE:  To point to a different (for example, a dev.backend.iobio.io:9002),
-      // avoid making a hardcoded change here. Instead, a cleaner approach is to edit the .env file, 
-      // setting IOBIO_BACKEND to the dev server. Example in .env:
-      //    IOBIO_BACKEND=mosaic.chpc.utah.edu/gru-dev-9005
+      // NOTE:  To point to a different backend, avoid making a hardcoded change
+      // here. Instead, edit client/config.json for local development or GRU's
+      // runtime config/env overrides for hosted deployments.
       
       this.api = new Client(globalApp.IOBIO_SERVICES);
     }
@@ -377,5 +376,4 @@ export default class EndpointCmd {
         }
     }
 }
-
 

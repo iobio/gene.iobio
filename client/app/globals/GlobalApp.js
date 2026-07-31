@@ -14,7 +14,7 @@ class GlobalApp {
     this.tour                  = "";
     this.completedTour         = "";
 
-    this.version                = "4.12.0";
+    this.version                = "4.13.0";
 
     this.IOBIO_SERVICES         = null;
     this.HTTP_SERVICES          = null;
@@ -107,8 +107,14 @@ class GlobalApp {
       }
       
       if (iobioSource) {
-        this.IOBIO_SERVICES = (this.useSSL ? "https://" : "http://") + iobioSource;
-        this.HTTP_SERVICES  = (this.useSSL ? "https://" : "http://") + iobioSource;
+        let serviceUrl = iobioSource;
+        if (!/^https?:\/\//.test(serviceUrl)) {
+          serviceUrl = (this.useSSL ? "https://" : "http://") + serviceUrl;
+        }
+        serviceUrl = serviceUrl.replace(/\/+$/, '');
+
+        this.IOBIO_SERVICES = serviceUrl;
+        this.HTTP_SERVICES  = serviceUrl;
   
   
         this.geneInfoServer            = this.HTTP_SERVICES + "/geneinfo/";
@@ -116,7 +122,7 @@ class GlobalApp {
         this.hpoLookupUrl              = this.HTTP_SERVICES + "/hpo/hot/lookup/?term=";
   
   
-        this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   iobioSource + "email/";
+        this.emailServer           = serviceUrl.replace(/^http/, 'ws') + "/email/";
       } else {
         throw new Error("Unable to initialize backend services. IOBIO server not specified.")
       }
@@ -298,4 +304,3 @@ class GlobalApp {
 }
 
 export default GlobalApp
-

@@ -1289,6 +1289,9 @@ class CohortModel {
               results = data.vcfData;
             }
             resultMap[model.relationship] = results;
+            if (options != null && !options.isBackground) {
+              model.vcfData = results;
+            }
           })
           promises.push(p);
         });
@@ -1300,7 +1303,40 @@ class CohortModel {
             }
           }
 
-          resolve({'resultMap': resultMap, 'gene': theGene, 'transcript': theTranscript});
+          let probandVcf = resultMap.proband;
+          let calledCount = self.getProbandModel()._countCalledVariantsInVcfData(probandVcf);
+          let geneAnalysisInProgress = self.cacheHelper && self.cacheHelper.isGeneInProgress(theGene.gene_name);
+
+          if (calledCount == 0 && !geneAnalysisInProgress) {
+            return self.promiseJointCallVariants(theGene, theTranscript, null, {
+              checkCache: true,
+              isBackground: options != null && options.isBackground,
+              decompose: true
+            })
+            .then(function(data) {
+              if (data.trioVcfData) {
+                self.getCanonicalModels().forEach(function(model) {
+                  let rel = model.getRelationship();
+                  if (data.trioVcfData[rel]) {
+                    resultMap[rel] = data.trioVcfData[rel];
+                    if (options == null || !options.isBackground) {
+                      model.vcfData = data.trioVcfData[rel];
+                      model.fbData = data.trioFbData ? data.trioFbData[rel] : null;
+                    }
+                  }
+                });
+              }
+              return {'resultMap': resultMap, 'gene': theGene, 'transcript': theTranscript};
+            });
+          }
+
+          return {'resultMap': resultMap, 'gene': theGene, 'transcript': theTranscript};
+        })
+        .then(function(data) {
+          resolve(data);
+        })
+        .catch(function(error) {
+          reject(error);
         })
 
       } else {
@@ -2359,24 +2395,26 @@ class CohortModel {
                 theVcfData = makeDummyVcfData();
               }
 
-              // When only alignments provided, only the called variants were cached as "fbData".
-              // So initialize the vcfData to 0 features.
-              var promise = null;
-              if (theFbData && theFbData.features.length > 0 && theVcfData.features.length == 0) {
-                promise = theModel.promiseCacheDummyVcfDataAlignmentsOnly(theFbData, geneObject, theTranscript );
-              } else {
-                Promise.resolve();
+              if (theFbData && theFbData.features && theFbData.features.length > 0) {
+                theModel.addCalledVariantsToVcfData(theVcfData, theFbData);
+                theModel.loadCalledTrioGenotypes(theVcfData, theFbData);
+                return theModel._promiseCacheData(theVcfData, CacheHelper.VCF_DATA, geneObject.gene_name, theTranscript)
+                .then(function() {
+                  if (!options.isBackground) {
+                    theModel.vcfData = theVcfData;
+                    theModel.fbData  = theFbData;
+                  }
+                  trioFbData[model.getRelationship()] = theFbData;
+                  trioVcfData[model.getRelationship()] = theVcfData;
+                });
               }
 
-              promise.then(function() {
-                if (!options.isBackground) {
-                  theModel.vcfData = theVcfData;
-                  theModel.fbData  = theFbData;
-                }
-                trioFbData[model.getRelationship()] = theFbData;
-                trioVcfData[model.getRelationship()] = theVcfData;
-              })
-
+              if (!options.isBackground) {
+                theModel.vcfData = theVcfData;
+                theModel.fbData  = theFbData;
+              }
+              trioFbData[model.getRelationship()] = theFbData;
+              trioVcfData[model.getRelationship()] = theVcfData;
             })
             .catch(function(error) {
               me.endGeneProgress(geneObject.gene_name);
@@ -2390,7 +2428,14 @@ class CohortModel {
           })
           Promise.all(promises)
           .then(function() {
-            showCalledVariants();
+            if (options.isBackground) {
+              return me.promiseSummarizeDanger(geneObject, theTranscript, trioVcfData.proband, {'CALLED': true});
+            } else {
+              showCalledVariants();
+              return Promise.resolve();
+            }
+          })
+          .then(function() {
               resolve({
                 'gene': geneObject,
                 'transcript': theTranscript,

@@ -863,6 +863,20 @@ export default {
       }
     },
 
+    refreshVariantViz: function() {
+      if (this.$refs.calledVariantVizRef) {
+        this.$refs.calledVariantVizRef.update();
+      }
+      if (this.$refs.variantVizRef) {
+        this.$refs.variantVizRef.update();
+      }
+      if (this.$refs.otherVariantVizRef) {
+        this.$refs.otherVariantVizRef.forEach(function(vizRef) {
+          vizRef.update();
+        });
+      }
+    },
+
     onShowFilter(showFilter){
       this.showFilter = showFilter;
     },
