@@ -790,6 +790,7 @@ import SaveAnalysisPopup from '../partials/SaveAnalysisPopup.vue'
 import VuePileup from 'vue-pileup'
 import GeneViz from "../viz/GeneViz.vue"
 import TranscriptsMenu from "../partials/TranscriptsMenu.vue"
+import { getServiceUrl } from '../../../js/appConfig'
 
 
 export default {
@@ -835,6 +836,7 @@ export default {
     paramSampleUuid:       null,
     paramIsPedigree:       null,
     paramSource:           null,
+    paramBackend:          null,
     paramAnalysisId:       null,
     paramGeneSetId:        null,
     paramClientApplicationId: null,
@@ -3710,18 +3712,17 @@ export default {
       }
     },
     
-    /* Determine the iobio backend server. 
-     *  1. If the app is standalone, we use the property IOBIO_BACKEND in the .env file
-     *  2. If the app is launched from Mosaic and gene.iobio is served from a production
-     *     site, we use the URL parameter 'source' to lookup the iobio backend server. 
-     *     If there is not a mapping from the Mosaic source to the iobio backend server, 
-     *     the app throw an error.
-     *  3. If the app is launched from Mosaic and gene.iobio is served from localhost
-     *     or staging, use the .env property IOBIO_BACKEND.
+    /* Determine the iobio backend server from runtime config.json.
+     * Standalone launches use backend/backend_map.default. Mosaic launches use
+     * the source URL to look up the allowed backend in backend_map.
     */
     promisePointToIobioBackend() {
       let self = this;
       return new Promise(function(resolve, reject) {
+        let appConfig = self.$appConfig || {};
+        let map = appConfig.backend_map || {};
+        let backendUrl = null;
+
         if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0
               && self.sampleId && self.paramSource) {
           self.launchedFromHub = true;
@@ -3730,28 +3731,44 @@ export default {
             self.launchedFromSFARI = true;
           }
 
-          if (window.document.URL.indexOf("localhost") > 0) {
-            self.addAlert('warning', 
-              "Using .env property <pre>IOBIO_SOURCE</pre> instead of mapping from Mosaic source to iobio backend.",
-              null, ['iobio backend set to ' +  process.env.IOBIO_BACKEND], {showAlertPanel: true})
-              self.globalApp.IOBIO_SOURCE = process.env.IOBIO_BACKEND;
-          } else {
-            if (self.hubToIobioSources[self.paramSource] && self.hubToIobioSources[self.paramSource].iobio && self.hubToIobioSources[self.paramSource].iobio.length > 0) {
-              self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource].iobio;
-              self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[self.paramSource].batchSize;
-            } else  {
-              self.addAlert('error', 
-                "Unable to lookup iobio backend server for this Mosaic instance. There is no mapping from " +
-                "the <pre>source</pre> URL parameter to a iobio backend server URL.",
+          let sourceKey = self.getSourceKey(self.paramSource);
+          backendUrl = self.getBackendMapValue(map, sourceKey) || self.getBackendMapValue(map, self.paramSource);
+
+          if (!backendUrl) {
+            self.addAlert('error',
+              "Unable to lookup iobio backend server for this Mosaic instance. There is no mapping from " +
+              "the <pre>source</pre> URL parameter to a iobio backend server URL.",
+              null, null, {showAlertPanel: true})
+            reject();
+            return;
+          }
+
+          if (self.paramBackend && self.normalizeBackendUrl(self.paramBackend) !== backendUrl) {
+            self.addAlert('error', "Backend is not allowed for source " + sourceKey + ": " + self.paramBackend,
+              null, null, {showAlertPanel: true})
+            reject();
+            return;
+          }
+
+          self.isHubDeprecated = !self.projectId;
+        } else {
+          backendUrl = self.getConfiguredBackendUrl(appConfig);
+
+          if (self.paramBackend) {
+            let paramBackend = self.normalizeBackendUrl(self.paramBackend);
+            if (paramBackend === backendUrl || paramBackend === self.getBackendMapValue(map, 'default')) {
+              backendUrl = paramBackend;
+            }
+            else {
+              self.addAlert('error', "Backend is not allowed: " + self.paramBackend,
                 null, null, {showAlertPanel: true})
               reject();
-            } 
-            self.isHubDeprecated = !self.projectId;
+              return;
+            }
           }
-        } else {
-          // Standalone gene.iobio. Initialize the iobio backend server from the .env property IOBIO_BACKEND.
-          self.globalApp.IOBIO_SOURCE = process.env.IOBIO_BACKEND;
         }
+
+        self.globalApp.IOBIO_SOURCE = backendUrl;
         
         if (self.globalApp.IOBIO_SOURCE) {
           try {
@@ -3763,9 +3780,35 @@ export default {
             self.$nextTick(function() {
               self.addAlert('error', error, null, null, {showAlertPanel: true})
             })
+            reject(error);
           }    
-        }    
+        } else {
+          self.addAlert('error', "Unable to initialize backend services. IOBIO server not specified.",
+            null, null, {showAlertPanel: true})
+          reject();
+        }
       })
+    },
+    getConfiguredBackendUrl: function(appConfig) {
+      let map = appConfig.backend_map || {};
+      return this.normalizeBackendUrl(getServiceUrl(appConfig, 'backend')) || this.getBackendMapValue(map, 'default');
+    },
+    getBackendMapValue: function(map, key) {
+      let value = map[key];
+      value = map[value] || value;
+      return this.normalizeBackendUrl(value);
+    },
+    getSourceKey: function(source) {
+      let decoded = decodeURIComponent(source);
+      try {
+        return new URL(decoded).origin;
+      }
+      catch (e) {
+        return decoded;
+      }
+    },
+    normalizeBackendUrl: function(url) {
+      return url ? url.replace(/\/+$/, '') : url;
     },
     promiseInitFromUrl: function() {
       let self = this;
@@ -4971,15 +5014,10 @@ export default {
       } else if (clinObject.type === 'set-data') {
         // Set the iobio backend
         if (clinObject.iobioSource && clinObject.iobioSource.length > 0) {
-          if (self.hubToIobioSources[clinObject.iobioSource]) {
-            self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[clinObject.iobioSource].iobio;
-            self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[clinObject.iobioSource].batchSize;
-            self.globalApp.initBackendSource(self.globalApp.IOBIO_SOURCE)
-          } else {
-            self.addAlert("error", "Launch error. Unable to set IOBIO_SOURCE")
-          }
-        } else {
-          self.globalApp.initServices(false);
+          let map = (self.$appConfig && self.$appConfig.backend_map) || {};
+          let backendUrl = self.getBackendMapValue(map, clinObject.iobioSource) || self.normalizeBackendUrl(clinObject.iobioSource);
+          self.globalApp.IOBIO_SOURCE = backendUrl;
+          self.globalApp.initServices(backendUrl);
         }
 
         if (self.cohortModel == null || !self.cohortModel.isLoaded) {
@@ -5298,8 +5336,10 @@ export default {
 
 
       if (clinObject.iobioSource) {
-        self.globalApp.IOBIO_SOURCE = clinObject.iobioSource;
-        self.globalApp.initServices(self.launchedFromHub );
+        let map = (self.$appConfig && self.$appConfig.backend_map) || {};
+        let backendUrl = self.getBackendMapValue(map, clinObject.iobioSource) || self.normalizeBackendUrl(clinObject.iobioSource);
+        self.globalApp.IOBIO_SOURCE = backendUrl;
+        self.globalApp.initServices(backendUrl);
       }
 
       self.cohortModel.endpoint = new EndpointCmd(self.globalApp,
@@ -5715,4 +5755,3 @@ export default {
   }
 }
 </script>
-

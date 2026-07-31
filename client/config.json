@@ -1,0 +1,22 @@
+{
+  "gene": {
+    "path": "/"
+  },
+  "backend": {
+    "#origin": "https://backend.iobio.io",
+    "origin": "https://mosaic.chpc.utah.edu",
+    "path": "/gru/api/v1"
+  },
+  "backend_map": {
+    "default": "https://backend.iobio.io",
+    "mosaic": "https://mosaic.chpc.utah.edu/gru/api/v1",
+    "https://mosaic.chpc.utah.edu": "mosaic",
+    "https://mosaic-dev.genetics.utah.edu": "mosaic",
+    "http://mosaic-dev.genetics.utah.edu": "mosaic",
+    "mosaic.chpc.utah.edu": "mosaic",
+    "nv-prod.iobio.io": "mosaic",
+    "https://udni.utah.edu": "mosaic",
+    "https://staging.frameshift.io": "default",
+    "https://mosaic.frameshift.io": "default"
+  }
+}
