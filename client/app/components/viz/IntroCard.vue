@@ -148,6 +148,9 @@ export default {
     }
   },
   methods: {
+    formatIntroParagraph: function(paragraph) {
+      return paragraph ? paragraph.replace(/ClinVar/g, this.clinvarLink) : "";
+    },
     onAdvancedMode: function() {
       this.$emit("on-advanced-mode");
     },
@@ -165,37 +168,23 @@ export default {
     siteName: function() {
       if (this.forMyGene2) {
         return " on MyGene2"
-      } else {
-        return " for " + process.env.SITE_NAME
-      }
-    },
-    introParagraph1: function() {
-      if (process.env.INTRO_PARAGRAPH_1) {
-        return process.env.INTRO_PARAGRAPH_1.replace(/ClinVar/g, this.clinvarLink );
-      } else {
-        return "";
-      }
-    },
-    introParagraph2: function() {
-      if (process.env.INTRO_PARAGRAPH_2) {
-        return process.env.INTRO_PARAGRAPH_2.replace(/ClinVar/g, this.clinvarLink );
-      } else {
-        return "";
-      }
-    },
-    introParagraph3: function() {
-      if (process.env.INTRO_PARAGRAPH_3) {
-        return process.env.INTRO_PARAGRAPH_3.replace(/ClinVar/g, this.clinvarLink );
+      } else if (this.$appConfig.gene.site_name) {
+        return " for " + this.$appConfig.gene.site_name
       } else {
         return ""
       }
     },
+    introParagraph1: function() {
+      return this.formatIntroParagraph(this.$appConfig.gene.intro_paragraph_1);
+    },
+    introParagraph2: function() {
+      return this.formatIntroParagraph(this.$appConfig.gene.intro_paragraph_2);
+    },
+    introParagraph3: function() {
+      return this.formatIntroParagraph(this.$appConfig.gene.intro_paragraph_3);
+    },
     introParagraph4: function() {
-      if (process.env.INTRO_PARAGRAPH_4) {
-        return process.env.INTRO_PARAGRAPH_4.replace(/ClinVar/g, this.clinvarLink );
-      } else {
-        return "";
-      }
+      return this.formatIntroParagraph(this.$appConfig.gene.intro_paragraph_4);
     },
   }
 }
