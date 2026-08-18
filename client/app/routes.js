@@ -35,7 +35,7 @@ Vue.use(Vuetify)
 
 import VTooltip from 'v-tooltip'
 import                           '../assets/css/v-tooltip.css'
-import { loadAppConfig } from '../js/appConfig'
+import { applyAppConfigDefaults, loadAppConfig } from '../js/appConfig'
 Vue.use(VTooltip)
 
 import vmodal from 'vue-js-modal'
@@ -210,13 +210,13 @@ Vue.filter('to-firstCharacterUppercase', function(value){
 
 loadAppConfig()
 .then(appConfig => {
-  appConfig.gene = appConfig.gene || {};
-  appConfig.gene.path = (appConfig.gene.path || '/').replace(/\/?$/, '/');
+  applyAppConfigDefaults(appConfig);
+  appConfig.gene.path_prefix = appConfig.gene.path_prefix.replace(/\/?$/, '/');
 
   const router = new VueRouter({
     'mode':  'history',
     'hashbang': false,
-    'base': appConfig.gene.path,
+    'base': appConfig.gene.path_prefix,
     'routes': routes
   })
 

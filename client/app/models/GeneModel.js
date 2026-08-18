@@ -1,11 +1,12 @@
 import CaseInsensitiveMap      from './CaseInsensitiveMap.js'
 
 class GeneModel {
-  constructor(globalApp, limitGenes, launchedFromHub, genePanels) {
+  constructor(globalApp, limitGenes, launchedFromHub, genePanels, geneConfig) {
 
     this.globalApp                 = globalApp;
     this.limitGenes                = limitGenes;
-    this.launchedFromHub = launchedFromHub;
+    this.launchedFromHub           = launchedFromHub;
+    this.geneConfig                = geneConfig || {};
     this.phenolyzerServer          = "https://services.backend.iobio.io/phenolyzer/";
 
     this.NCBI_GENE_SEARCH_URL      = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&usehistory=y&retmode=json";
@@ -107,7 +108,7 @@ class GeneModel {
 
   getGenePanelNames() {
     let self = this;
-    let siteName = process.env.SITE_NAME;
+    let siteName = this.geneConfig.site_name;
     let filteredGenePanelNames = Object.keys(this.genePanels).filter(function(name) {
       let gp = self.genePanels[name];
       if (gp.sites == null || (siteName != null && siteName.length > 0 && gp.sites.indexOf(siteName) >= 0)) {
@@ -1447,7 +1448,7 @@ class GeneModel {
   _promiseGetOMIMGene(geneName) {
     let self = this;
     return new Promise(function(resolve, reject) {
-      let apiKey = process.env.OMIM_API_KEY;
+      let apiKey = self.geneConfig.omim_api_key;
 
       if (apiKey == null || apiKey == "") {
         if (!self.warnedMissingOMIMApiKey) {
@@ -1505,7 +1506,7 @@ class GeneModel {
   _promiseGetOMIMClinicalSynopsis(geneName, phenotype) {
     let self = this;
     return new Promise(function(resolve, reject) {
-      let apiKey = process.env.OMIM_API_KEY;
+      let apiKey = self.geneConfig.omim_api_key;
 
       let url = self.OMIM_URL  + 'clinicalSynopsis'
         + '?apiKey=' + apiKey

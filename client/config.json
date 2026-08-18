@@ -1,11 +1,22 @@
 {
   "gene": {
-    "path": "/"
+    "path_prefix": "/",
+    "site_name": "",
+    "default_mode": "advanced",
+    "show_intro": false,
+    "show_files_button": true,
+    "show_blogs_and_tutorials": true,
+    "phenolyzer_permitted": true,
+    "omim_api_key": "",
+    "intro_paragraph_1": "",
+    "intro_paragraph_2": "",
+    "intro_paragraph_3": "",
+    "intro_paragraph_4": ""
   },
   "backend": {
     "#origin": "https://backend.iobio.io",
     "origin": "https://mosaic.chpc.utah.edu",
-    "path": "/gru/api/v1"
+    "path_prefix": "/gru/api/v1"
   },
   "backend_map": {
     "default": "https://backend.iobio.io",

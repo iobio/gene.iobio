@@ -861,6 +861,7 @@ export default {
   },
   data() {
     let self = this;
+    let geneConfig = self.$appConfig.gene;
     return {
       hasVariantAssessment: false,
       geneVizMargin: {
@@ -1027,14 +1028,14 @@ export default {
       /*
       * This variable controls if gene should show a "simplified" view
       */
-      isSimpleMode: process.env.DEFAULT_MODE === 'simple',
-      isPhenolyzerPermitted: process.env.PHENOLYZER_PERMITTED && process.env.PHENOLYZER_PERMITTED === 'true',
-      isOMIMPermitted: process.env.OMIM_API_KEY && process.env.OMIM_API_KEY.length > 0,
+      isSimpleMode: geneConfig.default_mode === 'simple',
+      isPhenolyzerPermitted: geneConfig.phenolyzer_permitted,
+      isOMIMPermitted: geneConfig.omim_api_key.length > 0,
 
       showIntro: false,
-      showFilesButton: true,  // does the files 'upload' button appear in the nav bar?
+      showFilesButton: geneConfig.show_files_button,  // does the files 'upload' button appear in the nav bar?
 
-      showBlogsAndTutorials: (process.env.SHOW_BLOGS_AND_TUTORIALS && process.env.SHOW_BLOGS_AND_TUTORIALS === 'true') || !process.env.SHOW_BLOGS_AND_TUTORIALS,
+      showBlogsAndTutorials: geneConfig.show_blogs_and_tutorials,
 
 
       closeIntro: false,
@@ -1282,7 +1283,7 @@ export default {
           let genericAnnotation = new GenericAnnotation(glyph);
 
           self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage,
-            self.launchedFromHub, self.genePanels);
+            self.launchedFromHub, self.genePanels, self.$appConfig.gene);
           self.geneModel.geneSource = self.forMyGene2 ? "refseq" : "gencode";
           self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
           self.geneModel.translator = translator;
@@ -3689,10 +3690,8 @@ export default {
         self.isSimpleMode = true;
       }
 
-      self.showIntro = self.forMyGene2 || process.env.SHOW_INTRO;
-      if (process.env.SHOW_FILES_BUTTON && process.env.SHOW_FILES_BUTTON == 'false') {
-        self.showFilesButton =  false;
-      } else if (self.forMyGene2) {
+      self.showIntro = self.forMyGene2 || self.$appConfig.gene.show_intro;
+      if (self.forMyGene2) {
         self.showFilesButton = false;
       }
 
