@@ -668,15 +668,16 @@ class CohortModel {
 
   promiseAddClinvarSample() {
     let self = this;
+    var clinvarUrl = self.globalApp.getClinvarUrl(self.genomeBuildHelper.getCurrentBuildName());
+
     if (self.sampleMap['known-variants']) {
-      return Promise.resolve();
+      return self.sampleMap['known-variants'].model.promiseLoadVcfUrl(clinvarUrl, null);
     } else {
       return new Promise(function(resolve,reject) {
         var vm = new SampleModel(self.globalApp);
         vm.init(self);
         vm.setRelationship('known-variants');
         vm.setName('Clinvar')
-        var clinvarUrl  = self.globalApp.getClinvarUrl(self.genomeBuildHelper.getCurrentBuildName());
 
         vm.promiseLoadVcfUrl(clinvarUrl, null)
         .then(function() {
