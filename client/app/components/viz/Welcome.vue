@@ -1097,7 +1097,7 @@ export default {
       this.$emit('show-welcome-changed', false);
     },
     onNew: function(){
-      let genePath = this.$appConfig && this.$appConfig.gene && this.$appConfig.gene.path || '/';
+      let genePath = this.$appConfig && this.$appConfig.gene && this.$appConfig.gene.path_prefix || '/';
       window.location.href = genePath.replace(/\/?$/, '/');
     },
 

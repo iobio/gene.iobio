@@ -12,7 +12,7 @@ try {
 }
 catch (e) {}
 
-var appPath = config.gene && config.gene.path || '/';
+var appPath = config.gene && config.gene.path_prefix || '/';
 var mountPath = appPath === '/' ? '/' : appPath.replace(/\/+$/, '');
 
 function sendIndex(req, res) {

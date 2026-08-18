@@ -1,7 +1,9 @@
-# gene.iobio v4.13.0.0 Release Notes
+# gene.iobio v4.13.1 Release Notes
 
 ## Run-time config 
-- Runtime paths and backend URLs are loaded from `client/config.json` for local development. When gene.iobio is served by GRU, GRU provides `/config.json` at runtime and can override `gene.path`, `gene.origin`, `backend.path`, and `backend.origin` with its `IOBIO_GENE_*` and `IOBIO_BACKEND_*` environment variables.
+- Runtime paths, backend URLs, and gene.iobio deployment settings are loaded from `client/config.json` for local development. Routing now uses the snake_case `path_prefix` property.
+- Nebula settings such as `gene.default_mode`, `gene.site_name`, `gene.show_intro`, and the intro paragraphs are runtime configuration rather than webpack `.env` values.
+- When served by GRU, `IOBIO_GENE_*`, `IOBIO_BAM_*`, and `IOBIO_BACKEND_*` environment variables are mapped generically to snake_case runtime properties. Exact `true` and `false` values become JSON booleans.
 
 ## Better error handling for local bam files
 - When a local bam file is selected, catch any errors and show
