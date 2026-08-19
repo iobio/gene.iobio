@@ -110,11 +110,12 @@ export default class EndpointCmd {
         const refNames = this.getHumanRefNames(refName).split(" ");
         const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
         const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
+        const clinvarUrl = this.globalApp.getClinvarUrl(genomeBuildName);
         let gnomadMergeAnnots = true;
 
         const cmd = this.api.streamCommand(this.getClinvarVariantsCommandName(), {
-            vcfUrl: vcfSource.vcfUrl,
-            tbiUrl: vcfSource.tbiUrl,
+            vcfUrl: clinvarUrl,
+            tbiUrl: null,
             refNames,
             regions,
             refFastaFile,
