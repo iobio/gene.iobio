@@ -1,42 +1,69 @@
-# gene.iobio v4.13.1.0 Release Notes
+# gene.iobio v4.13 Release Notes
 
 ## Backward and forward compatibility with iobio gru backend v2.0
+
 - iobio gru backend v2.0 revamped the gnomAD data directory structure and annotated INFO field names  to be more consistent and easier to maintain.
 - annotateVariantsV3 annotates variants with gnomAD population allele frequencies for GRCh37 (gnomAD v2.1.1) and GRCh38 (upgraded from v4.0 to v4.1). gnomAD INFO fields from annotateVariantsV3 and getClinvarVariantsV2/V3 use uniform prefixes of gg4 or gg2 (gnomad genomes v4 or v2 for GRCh37 and GRCh38 respectively).
 - We postponed adoption of the combined  allele frequencies for genomes and exomes now supported in gnomAD v4.1 for a few reasons: 
   - the vcf files lack the key fields such as the NONPARS flag and warning flags when the distribution across population groups diverges between gnomad exomes and genomes
   - The HAIL tables have the comprehensive set of fields, but this  will require considerable effort to port from vcfanno to a python library or c application supporting HAIL.
 
+
+
 ## Upgraded dependencies
+
 - Upgraded Node.js (v13 -> v20)
 - Upgraded webpack (v2.7 -> v3.12)
 - Replace node-gyp and node-sass with pure-js package sass (1.89.2). Upgraded sass-loader (v6.0.7 -> v7.3.1).
 - Downgraded css-loader (1.0.1 -> 0.28.11
 
-## Run-time config 
+
+
+## Run-time config
+
 - Runtime paths, backend URLs, and gene.iobio deployment settings are loaded from `client/config.json` for local development. Routing now uses the snake_case `path_prefix` property.
 - Nebula settings such as `gene.default_mode`, `gene.site_name`, `gene.show_intro`, and the intro paragraphs are runtime configuration rather than webpack `.env` values.
 - When served by GRU, `IOBIO_GENE_*`, `IOBIO_BAM_*`, and `IOBIO_BACKEND_*` environment variables are mapped generically to snake_case runtime properties. Exact `true` and `false` values become JSON booleans.
 
+
+
 ## Better error handling for local bam files
+
 - When a local bam file is selected, catch any errors and show
 an informative error message. For example, Waygate doesn't handle spaces in the local file name. Before this fix, the error was swallowed and subsequent requests failed because the bam URL wasn't reachable.
 
+
+
 ## ClinVar variants track loads from vcf of active genome build. (bug fix)
+
 - ClinVar track was using wrong build VCF after genome build switch. This bug only showed up when switching from GRCh38 to GRCh37 or vice versa in the same session.
- 
- ---
+
+## Minor releases
+- 4.13.0 
+  - initial release of gene.iobio v4.13.0
+- 4.13.1
+   - Nebula runtime config support
+   - Bug fix: prevent stale clinvar vcf url from being used after genome build switch.
+- 4.13.2 
+   - Standalone prod gene.iobio runtime config points to backend.iobio.io.
+
+---
+
+
 
 # gene.iobio v4.12.0.0 Release Notes
 
 Changes since v4.11.6 (`d5412b6c`).
 
 ## gnomAD population frequencies
+
 - **Ancestry group popup** — Renamed and restyled to align with the gnomAD browser: "Ancestry group frequencies," human-readable population names (e.g. "European (non-Finnish)"), source caption (e.g. "gnomAD genomes v4"), and clearer row layout.
-- **Per-ancestry parsing** — Restored parsing of population AC/AN tags for gnomAD v2.1.1 (GRCh37) and v4 (GRCh38). When direct `AF_*` tags are missing, ancestry AF is derived from AC/AN.
+- **Per-ancestry parsing** — Restored parsing of population AC/AN tags for gnomAD v2.1.1 (GRCh37) and v4 (GRCh38). When direct `AF_`* tags are missing, ancestry AF is derived from AC/AN.
 - **Display precision** — Genome, exome, population-max, and per-population allele frequencies now use **4 significant digits** (`.4g`), matching the gnomAD website.
 - **Exome frequencies** — gnomAD exome AF is shown only when the backend actually provides exome annotations (`gnomADExomesIncluded`). Avoids showing misleading `0.0` on backends without exome data.
 - **Mitochondrial variants** — In-app gnomAD AF is not shown for mitochondrial variants; users get an external "View on gnomAD" link and an explanatory info popup (full and basic inspect views).
+
+
 
 ## Demo, education tour, and sample data
 
@@ -46,34 +73,55 @@ Changes since v4.11.6 (`d5412b6c`).
 - **Sample file hosting** — Demo sample URLs moved from `iobio.s3.amazonaws.com` to `files.iobio.io`.
 
 
+
 ## Variant visualization
+
 - **Trio first-load alignment** — Fixed variants appearing at the wrong x-position on initial trio load. Variant track redraws when width and gene region become valid, and gene region is re-synced after coding regions are marked.
 
+
+
 ## Gene lookup and coordinates
+
 - **GeneModel robustness** — Safer gene entry lookup and coordinate application from geneinfo; handles missing entries and build-specific coords more reliably.
 - **Build mismatch handling** — When geneinfo returns incorrect build bounds, falls back to transcript spans for coordinate assignment.
 
 
+
 ## Mitochondrial and reference contigs
+
 - **M/MT alias resolution** — Improved mapping between gene coordinates and VCF contigs for `M`, `MT`, `chrM`, and `chrMT`.
 - **GenomeBuildHelper** — Better reference/FASTA lookup for mitochondrial contigs.
 - **Backend queries** — `chrM`/`chrMT` included in human reference name lists sent to the backend.
 
+
+
 ## VCF reference caching
+
 - **Header contigs** — Merges tabix chromosome list with `##contig` lines from the VCF header so contigs present only in the header are available for lookups.
 - **Cache behavior** — Parses header contigs before fetching reference lengths; avoids clearing unrelated reference cache on local VCF open.
 
+
+
 ## ClinVar and backend
+
 - **ClinVar track** — Tries `getClinvarVariantsV3` first and falls back to `getClinvarVariantsV2` if the backend does not support V3 yet; locks the working API version for the session. Automatically uses V3 once gru 2.0 is deployed.
 
 
+
 ## Internal / developer notes
+
 - Documented that Vue's `globalApp` mixin creates per-component instances; shared state (e.g. `gnomADExomesIncluded`) must use `cohortModel.globalApp`.
 - Version bumped to **4.12.0** in `package.json` and `GlobalApp`.
 
+
+
 ## Bug fixes
+
 - Fixed duplicated `</span>` in variant inspect panel HTML.
 - Minor template/layout fixes in gnomAD inspect column.
 
+
+
 ## Known limitation
+
 Genome-level **AC / AN counts** (e.g. "564 alt of N total") require aggregate `gg4_0_0_AC` / `gg4_0_0_AN` tags from the gru annotation backend. Some gru v2.0 deployments merge sex-stratified fields instead; count display depends on a backend fix to restore aggregate AC/AN in the merged VCF INFO.

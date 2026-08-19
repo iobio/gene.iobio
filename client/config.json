@@ -14,10 +14,9 @@
     "intro_paragraph_4": ""
   },
   "backend": {
-    "#origin": "https://backend.iobio.io",
-    "origin": "https://mosaic.chpc.utah.edu",
-    "path_prefix": "/gru/api/v1"
-  },
+    "origin": "https://backend.iobio.io",
+    "path_prefix": "/"
+  }, 
   "backend_map": {
     "default": "https://backend.iobio.io",
     "mosaic": "https://mosaic.chpc.utah.edu/gru/api/v1",
