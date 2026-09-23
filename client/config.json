@@ -1,0 +1,32 @@
+{
+  "gene": {
+    "path_prefix": "/",
+    "site_name": "",
+    "default_mode": "advanced",
+    "show_intro": false,
+    "show_files_button": true,
+    "show_blogs_and_tutorials": true,
+    "phenolyzer_permitted": true,
+    "omim_api_key": "",
+    "intro_paragraph_1": "",
+    "intro_paragraph_2": "",
+    "intro_paragraph_3": "",
+    "intro_paragraph_4": ""
+  },
+  "backend": {
+    "origin": "https://backend.iobio.io",
+    "path_prefix": "/"
+  }, 
+  "backend_map": {
+    "default": "https://backend.iobio.io",
+    "mosaic": "https://mosaic.chpc.utah.edu/gru/api/v1",
+    "https://mosaic.chpc.utah.edu": "mosaic",
+    "https://mosaic-dev.genetics.utah.edu": "mosaic",
+    "http://mosaic-dev.genetics.utah.edu": "mosaic",
+    "mosaic.chpc.utah.edu": "mosaic",
+    "nv-prod.iobio.io": "mosaic",
+    "https://udni.utah.edu": "mosaic",
+    "https://staging.frameshift.io": "default",
+    "https://mosaic.frameshift.io": "default"
+  }
+}

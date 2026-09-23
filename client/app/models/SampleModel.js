@@ -195,12 +195,85 @@ class SampleModel {
 
 
 
+  _countCalledVariantsInVcfData(theVcfData) {
+    if (theVcfData == null || theVcfData.features == null) {
+      return 0;
+    }
+    return theVcfData.features.filter(function(d) {
+      return d.hasOwnProperty('fbCalled') && d.fbCalled == 'Y';
+    }).length;
+  }
+
+  _promiseBuildVcfDataFromFbCache(geneObject, selectedTranscript) {
+    const me = this;
+    return me.promiseGetFbData(geneObject, selectedTranscript)
+    .then(function(data) {
+      const theFbData = data.fbData;
+      if (theFbData == null || theFbData.features == null || theFbData.features.length == 0) {
+        return null;
+      }
+      let theVcfData = $.extend({}, theFbData);
+      theVcfData.features = [];
+      return me.promiseSetLoadState(theVcfData, 'clinvar')
+      .then(function() {
+        return me.promiseSetLoadState(theVcfData, 'coverage');
+      })
+      .then(function() {
+        return me.promiseSetLoadState(theVcfData, 'inheritance');
+      })
+      .then(function() {
+        me.addCalledVariantsToVcfData(theVcfData, theFbData);
+        return theVcfData;
+      });
+    });
+  }
+
+  _normalizeAlignmentsOnlyCalledVariants(theVcfData) {
+    const me = this;
+    if (theVcfData == null || !me.isAlignmentsOnly()) {
+      return theVcfData;
+    }
+    if (me._countCalledVariantsInVcfData(theVcfData) > 0) {
+      return theVcfData;
+    }
+    if (theVcfData.features && theVcfData.features.length > 0) {
+      theVcfData.features.forEach(function(v) {
+        v.fbCalled = 'Y';
+        v.extraAnnot = true;
+      });
+    }
+    return theVcfData;
+  }
+
+  _promiseEnsureCalledVariantsInVcfData(theVcfData, geneObject, selectedTranscript, whenEmptyUseFbData=true) {
+    const me = this;
+    if (!whenEmptyUseFbData || !me.isAlignmentsOnly() || theVcfData == null) {
+      return Promise.resolve(theVcfData);
+    }
+    if (me._countCalledVariantsInVcfData(theVcfData) > 0) {
+      return Promise.resolve(theVcfData);
+    }
+    return me.promiseGetFbData(geneObject, selectedTranscript)
+    .then(function(data) {
+      const theFbData = data.fbData;
+      if (theFbData == null || theFbData.features == null || theFbData.features.length == 0) {
+        return me._normalizeAlignmentsOnlyCalledVariants(theVcfData);
+      }
+      if (theVcfData.features == null) {
+        theVcfData.features = [];
+      }
+      me.addCalledVariantsToVcfData(theVcfData, theFbData);
+      return theVcfData;
+    });
+  }
+
   promiseGetVcfData(geneObject, selectedTranscript, whenEmptyUseFbData=true) {
     const me = this;
     var dataKind = CacheHelper.VCF_DATA;
     return new Promise(function(resolve, reject) {
       if (geneObject == null) {
         reject("Empty geneObject in SampleModel.promiseGetVcfData()");
+        return;
       }
       let theGeneObject = geneObject;
       let theTranscript = selectedTranscript;
@@ -215,75 +288,53 @@ class SampleModel {
         var msg = "No function defined to parse ref name from file";
         console.log(msg);
         reject(msg);
+        return;
       }
 
-      var theVcfData = null;
+      const finish = function(theVcfData) {
+        me._promiseEnsureCalledVariantsInVcfData(theVcfData, theGeneObject, theTranscript, whenEmptyUseFbData)
+        .then(function(vcfData) {
+          if (vcfData != null) {
+            me[dataKind] = vcfData;
+          }
+          resolve({model: me, vcfData: vcfData, 'gene': theGeneObject, 'transcript': theTranscript});
+        })
+        .catch(function(error) {
+          reject(error);
+        });
+      };
 
-
-      if (me[dataKind] != null && me[dataKind].features && me[dataKind].features.length > 0) {
-        if (theGetRefNameFunction.apply(me, [geneObject.chr]) == me[dataKind].ref &&
+      if (me[dataKind] != null &&
+          theGetRefNameFunction.apply(me, [geneObject.chr]) == me[dataKind].ref &&
           geneObject.start == me[dataKind].start &&
           geneObject.end == me[dataKind].end &&
           geneObject.strand == me[dataKind].strand) {
-          theVcfData = me[dataKind];
-          resolve({model: me, vcfData: theVcfData, 'gene': theGeneObject, 'transcript': theTranscript});
+        finish(me[dataKind]);
+        return;
+      }
+
+      // Find vcf data in cache
+      me._promiseGetData(dataKind, theGeneObject.gene_name, theTranscript)
+      .then(function(data) {
+        if (data != null && data != '') {
+          finish(data);
+        } else if (whenEmptyUseFbData && me.isAlignmentsOnly()) {
+          me._promiseBuildVcfDataFromFbCache(theGeneObject, theTranscript)
+          .then(function(vcfData) {
+            finish(vcfData);
+          })
+          .catch(function(error) {
+            let msg = "Problem getting fb data in SampleModel.promiseGetVcfData().";
+            console.log(msg);
+            reject(error);
+          });
+        } else {
+          finish(null);
         }
-      }
-
-
-      if (theVcfData == null) {
-        // Find vcf data in cache
-        me._promiseGetData(dataKind, theGeneObject.gene_name, theTranscript)
-         .then(function(data) {
-          if (data != null && data != '') {
-            me[dataKind] = data;
-            theVcfData = data;
-            resolve({model: me, vcfData: theVcfData, 'gene': theGeneObject, 'transcript': theTranscript});
-          } else {
-            // If the vcf data is null, see if there are called variants in the cache.  If so,
-            // copy the called variants into the vcf data.
-            if (whenEmptyUseFbData && me.isAlignmentsOnly()) {
-              me.promiseGetFbData(theGeneObject, theTranscript)
-              .then(function(theFbData) {
-                // If no variants are loaded, create a dummy vcfData with 0 features
-                if (theFbData && theFbData.features) {
-                  theVcfData = $.extend({}, theFbData);
-                  theVcfData.features = [];
-                  me.promiseSetLoadState(theVcfData, 'clinvar')
-                   .then(function() {
-                    return me.promiseSetLoadState(theVcfData, 'coverage');
-                   })
-                   .then(function() {
-                    return me.promiseSetLoadState(theVcfData, 'inheritance');
-                   })
-                   .then(function() {
-                    me.addCalledVariantsToVcfData(theVcfData, theFbData);
-                   })
-                   .catch(function(error) {
-                     reject(error)
-                   })
-
-
-                }
-                resolve({model: me, vcfData: theVcfData, 'gene': theGeneObject, 'transcript': theTranscript});
-
-               })
-               .catch(function (error) {
-                 let msg = "Problem getting fb data in SampleModel.promiseGetVcfData()."
-                 console.log(msg);
-                 reject(error);
-               });
-            } else {
-              resolve({model: me, vcfData: theVcfData, 'gene': theGeneObject, 'transcript': theTranscript});
-            }
-
-          }
-
-         })
-      }
-
-
-
+      })
+      .catch(function(error) {
+        reject(error);
+      });
     });
   }
 
@@ -872,14 +923,14 @@ class SampleModel {
 
   getSampleName() {
     let self = this;
-    if (this.sampleName) {
-      return this.sampleName;
-    } else if (this.isAlignmentsOnly()) {
+    if (this.isAlignmentsOnly()) {
       let sampleName = self.bam.getHeaderSample();
       if (sampleName == null || sampleName.length == 0) {
         sampleName = self.relationship;
       }
       return sampleName;
+    } else if (this.sampleName) {
+      return this.sampleName;
     } else {
       return self.relationship;
     }
@@ -926,6 +977,28 @@ class SampleModel {
       }
   }
 
+  _promiseVerifyBamHeader(bamInstance) {
+    return new Promise(function(resolve, reject) {
+      if (!bamInstance || !bamInstance.bamUri) {
+        reject("No alignment file URL available to verify");
+        return;
+      }
+      bamInstance.getHeader(function(header) {
+        if (!header || !header.toStr) {
+          reject("Backend unable to read alignment file");
+        } else {
+          resolve({ bamUrl: bamInstance.bamUri, baiUrl: bamInstance.baiUri });
+        }
+      }, function(error) {
+        var errorMsg = error;
+        if (bamInstance.translateErrorMessage) {
+          errorMsg = bamInstance.translateErrorMessage(error);
+        }
+        reject(errorMsg || "Backend unable to read alignment file");
+      });
+    });
+  }
+
   promiseBamFilesSelected(fileSelection) {
     var me = this;
     return new Promise(function(resolve, reject) {
@@ -936,22 +1009,31 @@ class SampleModel {
       if (fileSelection == null) {
         me.bam = new Bam(me.globalApp);
         me.bamFileOpened = false;
+        me.bamUrlEntered = false;
         me.bamRefName = null;
-        resolve();
+        resolve(null);
       } else {
         me.bam = new Bam(me.globalApp, me.cohort.endpoint);
         // Open the bam file and access the file and its index file as URLs
         // using waygate server to create a websocket tunnel
         me.bam.openBamFile(fileSelection, function(success, message) {
-          if (success) {
+          if (!success) {
+            me.bam = null;
+            reject(message);
+            return;
+          }
+          me._promiseVerifyBamHeader(me.bam)
+          .then(function(urls) {
             me.bamFileOpened = false;
             me.bamUrlEntered = true;
             me.getBamRefName = me._stripRefName;
-            resolve();
-
-          } else {
-            reject(message);
-          }
+            resolve(urls);
+          })
+          .catch(function(error) {
+            me.bamUrlEntered = false;
+            me.bam = null;
+            reject(error);
+          });
         });
       }
     });
@@ -972,19 +1054,31 @@ class SampleModel {
         me.bam = null;
         reject("No URL provided for bam")
       } else {
+        var effectiveBaiUrl = baiUrl;
+        if ((effectiveBaiUrl == null || effectiveBaiUrl === '') && me.bam && me.bam.baiUri && me.bam.bamUri === bamUrl) {
+          effectiveBaiUrl = me.bam.baiUri;
+        }
 
-        me.bamUrlEntered = true;
-        me.bam = new Bam(me.globalApp, me.cohort.endpoint, bamUrl, baiUrl);
+        // Keep an already-verified local bam (e.g. after waygate file selection).
+        if (me.bam && me.bamUrlEntered && me.bam.bamUri === bamUrl &&
+            me.bam.baiUri && (!effectiveBaiUrl || effectiveBaiUrl === me.bam.baiUri)) {
+          me.getBamRefName = me.getBamRefName || me._stripRefName;
+          resolve({ bamUrl: me.bam.bamUri, baiUrl: me.bam.baiUri });
+          return;
+        }
 
-        me.bam.checkBamUrl(bamUrl, baiUrl, function(success, errorMsg) {
-          if (!success) {
-            me.bamUrlEntered = false;
-            me.bam = null;
-            reject(errorMsg)
-          } else {
-            me.getBamRefName = me._stripRefName;
-            resolve();
-          }
+        me.bam = new Bam(me.globalApp, me.cohort.endpoint, bamUrl, effectiveBaiUrl);
+
+        me._promiseVerifyBamHeader(me.bam)
+        .then(function(urls) {
+          me.bamUrlEntered = true;
+          me.getBamRefName = me._stripRefName;
+          resolve(urls);
+        })
+        .catch(function(error) {
+          me.bamUrlEntered = false;
+          me.bam = null;
+          reject(error);
         });
 
       }
@@ -1074,14 +1168,14 @@ class SampleModel {
       } else {
         me.vcfUrlEntered = true;
         me.vcfFileOpened = false;
-        me.getVcfRefName = null;
+        me._clearVcfRefNameCache();
         me.isMultiSample = false;
 
         me.vcf.promiseOpenVcfUrl(vcfUrl, tbiUrl)
         .then( function(headerRecs) {
           me.vcfUrlEntered = true;
           me.vcfFileOpened = false;
-          me.getVcfRefName = null;
+          me._clearVcfRefNameCache();
           // Get the sample names from the vcf header
           me.vcf.promiseGetSampleNames()
           .then( function(sampleNames) {
@@ -1177,7 +1271,142 @@ class SampleModel {
   }
 
 
-  _promiseVcfRefName(ref, sfariMode = false) {
+  _clearVcfRefNameCache() {
+    this.getVcfRefName = null;
+    this.vcfRefNamesMap = {};
+    this._useStripRefForVcf = null;
+  }
+
+  _stripRefNameOnly(refName) {
+    if (refName == null) {
+      return refName;
+    }
+    var tokens = refName.split("chr");
+    var strippedName = refName;
+    if (tokens.length > 1) {
+      strippedName = tokens[1];
+    } else {
+      tokens = refName.split("ch");
+      if (tokens.length > 1) {
+        strippedName = tokens[1];
+      }
+    }
+    return strippedName;
+  }
+
+  _setVcfRefTranslator(useStrip) {
+    let me = this;
+    me._useStripRefForVcf = useStrip;
+    me.getVcfRefName = function(ref) {
+      return me._resolveVcfRefName(ref);
+    };
+  }
+
+  _vcfRefLookupKey(refName) {
+    if (this._useStripRefForVcf === true) {
+      return this._stripRefNameOnly(refName);
+    }
+    return refName;
+  }
+
+  _isMitochondrialContigName(refName) {
+    if (refName == null) {
+      return false;
+    }
+    let stripped = this._stripRefNameOnly(refName).toLowerCase();
+    return stripped === 'm' || stripped === 'mt';
+  }
+
+  _isMitochondrialRef(refName) {
+    return this._isMitochondrialContigName(refName);
+  }
+
+  _getMitochondrialContigFromMap() {
+    let me = this;
+    let contigNames = {};
+    Object.keys(me.vcfRefNamesMap).forEach(function(key) {
+      contigNames[me.vcfRefNamesMap[key]] = true;
+    });
+    return Object.keys(contigNames).find(function(name) {
+      return me._isMitochondrialContigName(name);
+    }) || null;
+  }
+
+  _mitochondrialRefNames() {
+    let names = ['M', 'MT', 'chrM', 'chrMT'];
+    if (this.cohort && this.cohort.genomeBuildHelper) {
+      let buildRef = this.cohort.genomeBuildHelper.getReference('MT')
+        || this.cohort.genomeBuildHelper.getReference('M')
+        || this.cohort.genomeBuildHelper.getReference('chrMT')
+        || this.cohort.genomeBuildHelper.getReference('chrM');
+      if (buildRef) {
+        if (buildRef.name) {
+          names.push(buildRef.name);
+        }
+        if (buildRef.alias) {
+          names.push(buildRef.alias);
+        }
+      }
+    }
+    return names;
+  }
+
+  _addMitochondrialRefAliases(vcfContigName) {
+    let me = this;
+    if (!me._isMitochondrialContigName(vcfContigName)) {
+      return;
+    }
+    me._mitochondrialRefNames().forEach(function(name) {
+      me.vcfRefNamesMap[me._vcfRefLookupKey(name)] = vcfContigName;
+      me.vcfRefNamesMap[name] = vcfContigName;
+    });
+  }
+
+  _resolveVcfRefName(refName) {
+    let me = this;
+    if (refName == null) {
+      return refName;
+    }
+    let key = me._vcfRefLookupKey(refName);
+    if (me.vcfRefNamesMap[key] != null) {
+      return me.vcfRefNamesMap[key];
+    }
+    if (me._isMitochondrialContigName(refName)) {
+      let mitoContig = me._getMitochondrialContigFromMap();
+      if (mitoContig != null) {
+        return mitoContig;
+      }
+      let mitoNames = me._mitochondrialRefNames();
+      for (let i = 0; i < mitoNames.length; i++) {
+        let mitoKey = me._vcfRefLookupKey(mitoNames[i]);
+        if (me.vcfRefNamesMap[mitoKey] != null) {
+          return me.vcfRefNamesMap[mitoKey];
+        }
+      }
+    }
+    return refName;
+  }
+
+  _geneRefInVcfMap(refName) {
+    let me = this;
+    if (me.vcfRefNamesMap[me._vcfRefLookupKey(refName)] != null) {
+      return true;
+    }
+    if (me._isMitochondrialContigName(refName) && me._getMitochondrialContigFromMap() != null) {
+      return true;
+    }
+    if (me._isMitochondrialContigName(refName)) {
+      let mitoNames = me._mitochondrialRefNames();
+      for (let i = 0; i < mitoNames.length; i++) {
+        if (me.vcfRefNamesMap[me._vcfRefLookupKey(mitoNames[i])] != null) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  _promiseVcfRefName(ref, sfariMode = false, isRetry = false) {
     var me = this;
     return new Promise( function(resolve, reject) {
 
@@ -1186,6 +1415,7 @@ class SampleModel {
       if (theRef == null) {
         console.log("_promiseVcfRefName failed b/c ref is blank");
         reject();
+        return;
       }
       
       // The first time through, getVcfRefName is null. We look at the
@@ -1195,8 +1425,19 @@ class SampleModel {
       // depending on the vcf.
       if (me.getVcfRefName != null) {
         // If we can't find the ref name in the lookup map, show a warning.
-        if (me.vcfRefNamesMap[me.getVcfRefName(theRef)] == null) {
-          reject();
+        if (!me._geneRefInVcfMap(theRef)) {
+          if (!isRetry) {
+            me._clearVcfRefNameCache();
+            me._promiseVcfRefName(ref, sfariMode, true).then(resolve).catch(reject);
+          } else if (me._isMitochondrialContigName(theRef)) {
+            me._setVcfRefTranslator(theRef.indexOf('chr') !== 0);
+            me.vcfRefNamesMap[me._vcfRefLookupKey(theRef)] = theRef;
+            me.vcfRefNamesMap[theRef] = theRef;
+            me._addMitochondrialRefAliases(theRef);
+            resolve();
+          } else {
+            reject();
+          }
         } else {
           resolve();
         }
@@ -1215,6 +1456,11 @@ class SampleModel {
           let theRefData = refData.filter(function(refObject) {
             return refObject && refObject.hasOwnProperty('name') && refObject.name && refObject.name != '';
           })
+
+          if (theRefData.length == 0) {
+            reject("No reference sequences found in vcf file.");
+            return;
+          }
           
           theRefData.forEach( function(refObject) {
             var refName = refObject.name;
@@ -1227,10 +1473,10 @@ class SampleModel {
               }
             }
             if (refName == theRef) {
-              me.getVcfRefName = me._getRefName;
+              me._setVcfRefTranslator(false);
               foundRef = true;
-            } else if (refName == me._stripRefName(theRef)) {
-              me.getVcfRefName = me._stripRefName;
+            } else if (refName == me._stripRefNameOnly(theRef)) {
+              me._setVcfRefTranslator(true);
               foundRef = true;
             } 
           });
@@ -1238,9 +1484,9 @@ class SampleModel {
           // a new gene is loaded to make sure the ref exists.
           if (!foundRef) {
             if (chrIsPrefixInGeneModel === true && chrIsPrefixInVcf === true) {
-              me.getVcfRefName = me._getRefName;
+              me._setVcfRefTranslator(false);
             } else {
-              me.getVcfRefName = me._stripRefName;
+              me._setVcfRefTranslator(true);
             }
           }
           
@@ -1249,21 +1495,21 @@ class SampleModel {
           // to the lookup map.
           theRefData.forEach( function(refObject) {
             var refName = refObject.name;
-            var theRefName = me.getVcfRefName(refName);
-            me.vcfRefNamesMap[theRefName] = refName;
-            // Translate from MT to M and vice-versa
-            if (theRefName == 'chrMT' || theRefName == 'MT') {
-              me.vcfRefNamesMap[me.getVcfRefName('M')] = refName;
-              me.vcfRefNamesMap[me.getVcfRefName('chrM')] = refName;
-              
-            } else if (theRefName == 'chrM' || theRefName == 'M') {
-              me.vcfRefNamesMap[me.getVcfRefName('MT')] = refName;
-              me.vcfRefNamesMap[me.getVcfRefName('chrMT')] = refName;
-            }
+            var lookupKey = me._vcfRefLookupKey(refName);
+            me.vcfRefNamesMap[lookupKey] = refName;
+            me.vcfRefNamesMap[refName] = refName;
+            me._addMitochondrialRefAliases(refName);
           });
           // If we can't find the ref name in the lookup map, show a warning.
-          if (me.vcfRefNamesMap[me.getVcfRefName(theRef)] == null) {
-            reject();
+          if (!me._geneRefInVcfMap(theRef)) {
+            if (me._isMitochondrialContigName(theRef)) {
+              me.vcfRefNamesMap[me._vcfRefLookupKey(theRef)] = theRef;
+              me.vcfRefNamesMap[theRef] = theRef;
+              me._addMitochondrialRefAliases(theRef);
+              resolve();
+            } else {
+              reject();
+            }
           } else {
             resolve();
           }
@@ -2046,7 +2292,7 @@ class SampleModel {
         variantModels.forEach(function(model) {
           var p = model._promiseGetData(CacheHelper.VCF_DATA, theGene.gene_name, theTranscript)
            .then(function(vcfData) {
-            if (vcfData != null && vcfData != '') {
+            if (vcfData != null && vcfData != '' && vcfData.hasOwnProperty('features')) {
               resultMap[model.relationship] = vcfData;
 
               if (!isBackground) {

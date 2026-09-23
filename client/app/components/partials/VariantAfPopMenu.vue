@@ -29,17 +29,39 @@
       color: $link-color
       vertical-align: top
       padding-right: 3px
+.gnomad-pop-title
+   font-size: 15px
+   font-weight: 500
+   color: $app-color
+   margin-bottom: 1px
+.gnomad-pop-title-caption
+   font-size: 13px
+   font-weight: 500
+   color: $app-color
+   margin-bottom: 12px   
+
+.gnomad-pop-info
+   padding: 20px
+
+.gnomad-pop-entry
+   padding: 1px 0
+   border-bottom: .5px solid $cell-border-color
+
+   &:last-child
+     border-bottom: none
+     padding-bottom: 0
+
 .gnomad-pop-entry-label
    display: inline-block
-   width: 70px
+   width: 190px
    color: $app-color
-   font-size: 13px
+   font-size: 11px
 
 .gnomad-pop-entry-value
     display: inline-block
     margin-left: 5px
     width: 60px
-    font-size: 13px
+    font-size: 11px
 
 </style>
 
@@ -57,13 +79,15 @@
        slot="activator"
        v-tooltip.top-center="`Show gnomAD population allele frequencies`"
       >
-        Population frequencies
+      Ancestry group frequencies
       </v-btn>
 
-      <div class="gnomad-pop-info" style="padding: 20px;"  >
+      <div class="gnomad-pop-info">
+        <div class="gnomad-pop-title" v-if="sourceLabel">Genetic Ancestry Group Frequencies</div>
+        <div class="gnomad-pop-title-caption" v-if="sourceLabel">{{ sourceLabel }}</div>
         <div class="gnomad-pop-entry"  v-for="(pop, popKey) in selectedVariant.gnomAD.genomes.pop">
             <span class="gnomad-pop-entry-label">
-                {{ popKey }}</span>
+                {{ getPopDisplayName(popKey) }}</span>
             <span class="gnomad-pop-entry-value">
                 {{ getAf(pop.af) }}
             </span>
@@ -85,6 +109,7 @@ export default {
   },
   props: {
     selectedVariant: null,
+    sourceLabel: null,
   },
   data () {
     return {
@@ -92,8 +117,11 @@ export default {
     }
   },
   methods: {
+    getPopDisplayName: function(popKey) {
+      return this.globalApp.getGnomADPopDisplayName(popKey);
+    },
     getAf: function(popAf) {
-      return ((popAf == null || popAf == '' || popAf == 0  || popAf == '.') ? '0' : d3.format(".4g")(popAf))
+      return ((popAf == null || popAf == '' || popAf == 0  || popAf == '.') ? '0' : popAf)
     }
   },
   created: function() {

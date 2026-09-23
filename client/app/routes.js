@@ -35,6 +35,7 @@ Vue.use(Vuetify)
 
 import VTooltip from 'v-tooltip'
 import                           '../assets/css/v-tooltip.css'
+import { applyAppConfigDefaults, loadAppConfig } from '../js/appConfig'
 Vue.use(VTooltip)
 
 import vmodal from 'vue-js-modal'
@@ -115,6 +116,7 @@ const routes = [
         paramSampleUuid:       route.query.sample_uuid,
         paramIsPedigree:       route.query.is_pedigree,
         paramSource:           route.query.source,
+        paramBackend:          route.query.backend,
         paramAnalysisId:       route.query.analysis_id,
         paramFrameSource:      route.query.frame_source,
         paramGeneSetId:        route.query.gene_set_id,
@@ -176,20 +178,12 @@ const routes = [
   }
 ]
 
-const router = new VueRouter({
-  'mode':  'history',
-  'hashbang': false,
-  'base': '/',
-  'routes': routes
-})
-
-// Google analytics
-Vue.use(VueAnalytics, {
-  id: 'UA-47481907-5',
-  router
-})
-
 // define a globals mixin object
+//
+// WARNING: this mixin creates a NEW GlobalApp (and Util) per Vue component.
+// Mutations on this.globalApp in one component are NOT visible to other components.
+// For app-wide state (iobio backend, gnomADExomesIncluded, etc.), use the shared
+// instance on cohortModel.globalApp (created in GeneHome and passed into CohortModel).
 Vue.mixin({
   data: function() {
     return {
@@ -214,11 +208,39 @@ Vue.filter('to-firstCharacterUppercase', function(value){
 
 
 
-window.vm = new Vue({
-  el: '#app',
-  created: function() {
+loadAppConfig()
+.then(appConfig => {
+  applyAppConfigDefaults(appConfig);
+  appConfig.gene.path_prefix = appConfig.gene.path_prefix.replace(/\/?$/, '/');
 
-  },
-  render: h => h(App),
-  router
+  const router = new VueRouter({
+    'mode':  'history',
+    'hashbang': false,
+    'base': appConfig.gene.path_prefix,
+    'routes': routes
+  })
+
+  Vue.prototype.$appConfig = appConfig;
+
+  // Google analytics
+  Vue.use(VueAnalytics, {
+    id: 'UA-47481907-5',
+    router
+  })
+
+  window.vm = new Vue({
+    el: '#app',
+    created: function() {
+
+    },
+    render: h => h(App),
+    router
+  })
 })
+.catch(error => {
+  console.error(error);
+  const appEl = document.getElementById('app');
+  if (appEl) {
+    appEl.innerHTML = '<div style="margin: 40px; font-family: sans-serif; color: #900;">Unable to load gene.iobio configuration.</div>';
+  }
+});

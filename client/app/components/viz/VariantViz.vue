@@ -222,6 +222,9 @@ export default {
       },
       update: function() {
         var self = this;
+        if (!self.width || self.regionStart == null || self.regionEnd == null) {
+          return;
+        }
         if (self.variants && self.data.features) {
             // Set the vertical layer count so that the height of the chart can be recalculated
           if (self.variants.maxLevel == null) {
@@ -328,12 +331,12 @@ export default {
     },
     watch: {
       variants: function(oldVar, newVar) {
-        if (this.model.relationship === 'known-variants') {
+        if (this.model && this.model.relationship === 'known-variants') {
           this.update();
           return;
         }
-        if(oldVar && oldVar.features && newVar && newVar.features){
-          if(! this.isEqual(oldVar.features, newVar.features)){
+        if (newVar && newVar.features) {
+          if (!oldVar || !oldVar.features || !this.isEqual(oldVar.features, newVar.features)) {
             this.update();
           }
         }
@@ -373,7 +376,12 @@ export default {
             else{
                 this.variants = this.data;
             }
+            this.update();
         },
+
+      width: function() {
+        this.update();
+      },
 
       regionStart(){
         this.update();

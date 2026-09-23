@@ -35,16 +35,31 @@ export default class EndpointCmd {
       this.api = new Client(globalApp.IOBIO_SERVICES);
     }
     else {
-      // NOTE:  To point to a different (for example, a dev.backend.iobio.io:9002),
-      // avoid making a hardcoded change here. Instead, a cleaner approach is to edit the .env file, 
-      // setting IOBIO_BACKEND to the dev server. Example in .env:
-      //    IOBIO_BACKEND=mosaic.chpc.utah.edu/gru-dev-9005
+      // NOTE:  To point to a different backend, avoid making a hardcoded change
+      // here. Instead, edit client/config.json for local development or GRU's
+      // runtime config/env overrides for hosted deployments.
       
       this.api = new Client(globalApp.IOBIO_SERVICES);
     }
 
     
     this.gruBackend = true;
+    // null: prefer getClinvarVariantsV3 until it fails, then lock to V2 for the session
+    this._clinvarVariantsApiVersion = null;
+  }
+
+  getClinvarVariantsCommandName() {
+    if (this._clinvarVariantsApiVersion === 2) {
+      return 'getClinvarVariantsV2';
+    }
+    if (this._clinvarVariantsApiVersion === 3) {
+      return 'getClinvarVariantsV3';
+    }
+    return 'getClinvarVariantsV3';
+  }
+
+  lockClinvarVariantsApiVersion(version) {
+    this._clinvarVariantsApiVersion = version;
   }
 
 
@@ -95,11 +110,12 @@ export default class EndpointCmd {
         const refNames = this.getHumanRefNames(refName).split(" ");
         const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
         const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
+        const clinvarUrl = this.globalApp.getClinvarUrl(genomeBuildName);
         let gnomadMergeAnnots = true;
 
-        const cmd = this.api.streamCommand('getClinvarVariantsV2', {
-            vcfUrl: vcfSource.vcfUrl,
-            tbiUrl: vcfSource.tbiUrl,
+        const cmd = this.api.streamCommand(this.getClinvarVariantsCommandName(), {
+            vcfUrl: clinvarUrl,
+            tbiUrl: null,
             refNames,
             regions,
             refFastaFile,
@@ -361,5 +377,4 @@ export default class EndpointCmd {
         }
     }
 }
-
 

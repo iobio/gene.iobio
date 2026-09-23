@@ -135,6 +135,13 @@ export default {
                 publicationUrl: 'https://gnomad.broadinstitute.org/'
 
             },
+            'gnomADMitochondrial': {
+                title: 'Allele frequency from gnomAD (mitochondrial)',
+                description: 'gene.iobio does not display gnomAD allele frequencies for mitochondrial variants. Use the external link to open this variant on the gnomAD website, where mitochondrial allele frequencies (homoplasmic and heteroplasmic) are available.',
+                publication: 'gnomAD site',
+                publicationUrl: 'https://gnomad.broadinstitute.org/'
+
+            },
             'filterAfGenomesOnly': {
                 title: 'Filtering variants by allele frequency',
                 description: 'For GRCh37, filter variants using the gnomAD 2.1.1 genomes max population allele frequency (the maximum frequency in any subpopulation). For GRCh38, filter variants using gnomAD v4 genomes max population allele frequency (the maximum frequency in any subpopulation). Values must be 0-1.',

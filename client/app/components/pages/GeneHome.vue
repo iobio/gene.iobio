@@ -790,6 +790,7 @@ import SaveAnalysisPopup from '../partials/SaveAnalysisPopup.vue'
 import VuePileup from 'vue-pileup'
 import GeneViz from "../viz/GeneViz.vue"
 import TranscriptsMenu from "../partials/TranscriptsMenu.vue"
+import { getServiceUrl } from '../../../js/appConfig'
 
 
 export default {
@@ -835,6 +836,7 @@ export default {
     paramSampleUuid:       null,
     paramIsPedigree:       null,
     paramSource:           null,
+    paramBackend:          null,
     paramAnalysisId:       null,
     paramGeneSetId:        null,
     paramClientApplicationId: null,
@@ -859,6 +861,7 @@ export default {
   },
   data() {
     let self = this;
+    let geneConfig = self.$appConfig.gene;
     return {
       hasVariantAssessment: false,
       geneVizMargin: {
@@ -1025,14 +1028,14 @@ export default {
       /*
       * This variable controls if gene should show a "simplified" view
       */
-      isSimpleMode: process.env.DEFAULT_MODE === 'simple',
-      isPhenolyzerPermitted: process.env.PHENOLYZER_PERMITTED && process.env.PHENOLYZER_PERMITTED === 'true',
-      isOMIMPermitted: process.env.OMIM_API_KEY && process.env.OMIM_API_KEY.length > 0,
+      isSimpleMode: geneConfig.default_mode === 'simple',
+      isPhenolyzerPermitted: geneConfig.phenolyzer_permitted,
+      isOMIMPermitted: geneConfig.omim_api_key.length > 0,
 
       showIntro: false,
-      showFilesButton: true,  // does the files 'upload' button appear in the nav bar?
+      showFilesButton: geneConfig.show_files_button,  // does the files 'upload' button appear in the nav bar?
 
-      showBlogsAndTutorials: (process.env.SHOW_BLOGS_AND_TUTORIALS && process.env.SHOW_BLOGS_AND_TUTORIALS === 'true') || !process.env.SHOW_BLOGS_AND_TUTORIALS,
+      showBlogsAndTutorials: geneConfig.show_blogs_and_tutorials,
 
 
       closeIntro: false,
@@ -1267,7 +1270,7 @@ export default {
         self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp, self.launchedFromHub,
           { DEFAULT_BUILD: self.isEduMode ? 'GRCh37' : 'GRCh38' });
 
-        self.promiseAddCacheHelperListeners()
+        return self.promiseAddCacheHelperListeners()
         .then(function() {
           return self.cacheHelper.promiseClearOlderCache();
         })
@@ -1280,7 +1283,7 @@ export default {
           let genericAnnotation = new GenericAnnotation(glyph);
 
           self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage,
-            self.launchedFromHub, self.genePanels);
+            self.launchedFromHub, self.genePanels, self.$appConfig.gene);
           self.geneModel.geneSource = self.forMyGene2 ? "refseq" : "gencode";
           self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
           self.geneModel.translator = translator;
@@ -1479,16 +1482,16 @@ export default {
 
           })
 
-        },
-        function() {
-          if (callback) {
-            callback();
-          }
-
         })
       })
       .catch(function(error) {
-        
+        self.showAppLoader = false;
+        let message = self.formatInitError(error);
+        self.addAlert('error', message, null, null, {showAlertPanel: true});
+        self.onShowSnackbar({message: message, timeout: 0, close: true});
+        if (callback) {
+          callback(error || message);
+        }
       })
 
     },
@@ -2395,6 +2398,10 @@ export default {
                             if(self.analyzedTranscript.gene_name !== self.selectedGene.gene_name){
                               console.log("Unexpected error: the analyzed transcript is for gene " + self.analyzedTranscript.gene_name + " but the selected gene is " + self.selectedGene.gene_name)
                             }
+                            self.geneModel.adjustGeneRegion(self.selectedGene);
+                            self.geneRegionStart = self.selectedGene.start;
+                            self.geneRegionEnd = self.selectedGene.end;
+                            self.cohortModel.setLoadedVariants(self.selectedGene);
                             resolve();
                         })
 
@@ -2416,6 +2423,27 @@ export default {
     },
 
 
+    refreshGeneVariantDisplay: function() {
+      let self = this;
+      if (!self.selectedGene || !self.selectedGene.gene_name) {
+        return;
+      }
+      self.geneModel.adjustGeneRegion(self.selectedGene);
+      self.geneRegionStart = self.selectedGene.start;
+      self.geneRegionEnd = self.selectedGene.end;
+      self.filterModel.regionStart = null;
+      self.filterModel.regionEnd = null;
+      self.cardWidth = $('#genes-card').innerWidth() || self.cardWidth;
+      self.cohortModel.setLoadedVariants(self.selectedGene);
+      self.$nextTick(function() {
+        self.getVariantCardRefs().forEach(function(cardRef) {
+          if (cardRef.refreshVariantViz) {
+            cardRef.refreshVariantViz();
+          }
+        });
+      });
+    },
+
     callVariants: function(theGene) {
       let self = this;
       if (theGene == null) {
@@ -2427,6 +2455,9 @@ export default {
             self.selectedTranscript,
             self.cohortModel.getCurrentTrioVcfData(),
             {checkCache: false, isBackground: false, decompose: true})
+        })
+        .then(function() {
+          self.refreshGeneVariantDisplay();
         })
         .catch(function(error) {
           self.addAlert("error", error, theGene)
@@ -2466,7 +2497,9 @@ export default {
 
       getClearCachePromise()
       .then(function() {
-        self.featureMatrixModel.init();
+        if (self.featureMatrixModel) {
+          self.featureMatrixModel.init();
+        }
         return getClearGenesPromise();
       })
       .then(function() {
@@ -2626,6 +2659,9 @@ export default {
         self.setUrlGeneParameters();
       })
       .catch(function(error) {
+        console.log("Error in onGeneNameEntered()")
+        console.log(error)
+        self.addAlert('error', error)
         // No need to add alert as promiseLoadGene has already
         // done this.
       })
@@ -3656,10 +3692,8 @@ export default {
         self.isSimpleMode = true;
       }
 
-      self.showIntro = self.forMyGene2 || process.env.SHOW_INTRO;
-      if (process.env.SHOW_FILES_BUTTON && process.env.SHOW_FILES_BUTTON == 'false') {
-        self.showFilesButton =  false;
-      } else if (self.forMyGene2) {
+      self.showIntro = self.forMyGene2 || self.$appConfig.gene.show_intro;
+      if (self.forMyGene2) {
         self.showFilesButton = false;
       }
 
@@ -3677,50 +3711,76 @@ export default {
       if (self.paramTour) {
         self.tourNumber = self.paramTour;
       }
+
+      // Mosaic files come from HubSession (source + /api/v1), not from URL vcf/bam
+      // params. Set this before promiseInitFromUrl so simple mode does not offer
+      // demo data while Mosaic init is still pending.
+      // The token alone is not enough: hub-iobio-tkn persists in localStorage from a
+      // previous Mosaic session. sampleId and paramSource must be on this URL to
+      // treat the current page load as a Mosaic launch.
+      if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0
+            && self.sampleId && self.paramSource) {
+        self.launchedFromHub = true;
+      }
     },
     
-    /* Determine the iobio backend server. 
-     *  1. If the app is standalone, we use the property IOBIO_BACKEND in the .env file
-     *  2. If the app is launched from Mosaic and gene.iobio is served from a production
-     *     site, we use the URL parameter 'source' to lookup the iobio backend server. 
-     *     If there is not a mapping from the Mosaic source to the iobio backend server, 
-     *     the app throw an error.
-     *  3. If the app is launched from Mosaic and gene.iobio is served from localhost
-     *     or staging, use the .env property IOBIO_BACKEND.
+    formatInitError: function(error) {
+      if (!error) {
+        return "Unable to initialize gene.iobio.";
+      }
+      if (typeof error === 'string') {
+        return error;
+      }
+      return error.message || error.toString() || "Unable to initialize gene.iobio.";
+    },
+    /* Determine the iobio backend server from runtime config.json.
+     * Standalone launches use backend/backend_map.default. Mosaic launches use
+     * the source URL to look up the allowed backend in backend_map.
     */
     promisePointToIobioBackend() {
       let self = this;
       return new Promise(function(resolve, reject) {
-        if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0
-              && self.sampleId && self.paramSource) {
-          self.launchedFromHub = true;
+        let appConfig = self.$appConfig || {};
+        let map = appConfig.backend_map || {};
+        let backendUrl = null;
+
+        if (self.launchedFromHub) {
 
           if (self.paramSource === self.sfariSource) {
             self.launchedFromSFARI = true;
           }
 
-          if (window.document.URL.indexOf("localhost") > 0) {
-            self.addAlert('warning', 
-              "Using .env property <pre>IOBIO_SOURCE</pre> instead of mapping from Mosaic source to iobio backend.",
-              null, ['iobio backend set to ' +  process.env.IOBIO_BACKEND], {showAlertPanel: true})
-              self.globalApp.IOBIO_SOURCE = process.env.IOBIO_BACKEND;
-          } else {
-            if (self.hubToIobioSources[self.paramSource] && self.hubToIobioSources[self.paramSource].iobio && self.hubToIobioSources[self.paramSource].iobio.length > 0) {
-              self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource].iobio;
-              self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[self.paramSource].batchSize;
-            } else  {
-              self.addAlert('error', 
-                "Unable to lookup iobio backend server for this Mosaic instance. There is no mapping from " +
-                "the <pre>source</pre> URL parameter to a iobio backend server URL.",
-                null, null, {showAlertPanel: true})
-              reject();
-            } 
-            self.isHubDeprecated = !self.projectId;
+          let sourceKey = self.getSourceKey(self.paramSource);
+          backendUrl = self.getBackendMapValue(map, sourceKey) || self.getBackendMapValue(map, self.paramSource);
+
+          if (!backendUrl) {
+            reject("Unable to lookup iobio backend server for this Mosaic instance. There is no mapping from " +
+              "the source URL parameter <pre>" + (sourceKey || self.paramSource) + "</pre> to an iobio backend server URL.");
+            return;
           }
+
+          if (self.paramBackend && self.normalizeBackendUrl(self.paramBackend) !== backendUrl) {
+            reject("Backend is not allowed for source " + sourceKey + ": " + self.paramBackend);
+            return;
+          }
+
+          self.isHubDeprecated = !self.projectId;
         } else {
-          // Standalone gene.iobio. Initialize the iobio backend server from the .env property IOBIO_BACKEND.
-          self.globalApp.IOBIO_SOURCE = process.env.IOBIO_BACKEND;
+          backendUrl = self.getConfiguredBackendUrl(appConfig);
+
+          if (self.paramBackend) {
+            let paramBackend = self.normalizeBackendUrl(self.paramBackend);
+            if (paramBackend === backendUrl || paramBackend === self.getBackendMapValue(map, 'default')) {
+              backendUrl = paramBackend;
+            }
+            else {
+              reject("Backend is not allowed: " + self.paramBackend);
+              return;
+            }
+          }
         }
+
+        self.globalApp.IOBIO_SOURCE = backendUrl;
         
         if (self.globalApp.IOBIO_SOURCE) {
           try {
@@ -3729,12 +3789,33 @@ export default {
 
             resolve();
           } catch(error) {
-            self.$nextTick(function() {
-              self.addAlert('error', error, null, null, {showAlertPanel: true})
-            })
+            reject(error);
           }    
-        }    
+        } else {
+          reject("Unable to initialize backend services. IOBIO server not specified.");
+        }
       })
+    },
+    getConfiguredBackendUrl: function(appConfig) {
+      let map = appConfig.backend_map || {};
+      return this.normalizeBackendUrl(getServiceUrl(appConfig, 'backend')) || this.getBackendMapValue(map, 'default');
+    },
+    getBackendMapValue: function(map, key) {
+      let value = map[key];
+      value = map[value] || value;
+      return this.normalizeBackendUrl(value);
+    },
+    getSourceKey: function(source) {
+      let decoded = decodeURIComponent(source);
+      try {
+        return new URL(decoded).origin;
+      }
+      catch (e) {
+        return decoded;
+      }
+    },
+    normalizeBackendUrl: function(url) {
+      return url ? url.replace(/\/+$/, '') : url;
     },
     promiseInitFromUrl: function() {
       let self = this;
@@ -3849,7 +3930,7 @@ export default {
           .catch(function(error) {
             self.addAlert('error', error)
           })
-        } else if (self.isSimpleMode) {
+        } else if (self.isSimpleMode && !self.launchedFromHub) {
           alertify.confirm("", "No data files specified",
                function(){
                   self.cohortModel.promiseInitDemo()
@@ -4940,15 +5021,10 @@ export default {
       } else if (clinObject.type === 'set-data') {
         // Set the iobio backend
         if (clinObject.iobioSource && clinObject.iobioSource.length > 0) {
-          if (self.hubToIobioSources[clinObject.iobioSource]) {
-            self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[clinObject.iobioSource].iobio;
-            self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[clinObject.iobioSource].batchSize;
-            self.globalApp.initBackendSource(self.globalApp.IOBIO_SOURCE)
-          } else {
-            self.addAlert("error", "Launch error. Unable to set IOBIO_SOURCE")
-          }
-        } else {
-          self.globalApp.initServices(false);
+          let map = (self.$appConfig && self.$appConfig.backend_map) || {};
+          let backendUrl = self.getBackendMapValue(map, clinObject.iobioSource) || self.normalizeBackendUrl(clinObject.iobioSource);
+          self.globalApp.IOBIO_SOURCE = backendUrl;
+          self.globalApp.initServices(backendUrl);
         }
 
         if (self.cohortModel == null || !self.cohortModel.isLoaded) {
@@ -4961,7 +5037,10 @@ export default {
           }
 
           console.log("gene.iobio set-data cohort model not yet loaded")
-          self.init(function() {
+          self.init(function(error) {
+            if (error) {
+              return;
+            }
             self.analysis = clinObject.analysis;
             self.user     = clinObject.user;
 
@@ -5267,8 +5346,10 @@ export default {
 
 
       if (clinObject.iobioSource) {
-        self.globalApp.IOBIO_SOURCE = clinObject.iobioSource;
-        self.globalApp.initServices(self.launchedFromHub );
+        let map = (self.$appConfig && self.$appConfig.backend_map) || {};
+        let backendUrl = self.getBackendMapValue(map, clinObject.iobioSource) || self.normalizeBackendUrl(clinObject.iobioSource);
+        self.globalApp.IOBIO_SOURCE = backendUrl;
+        self.globalApp.initServices(backendUrl);
       }
 
       self.cohortModel.endpoint = new EndpointCmd(self.globalApp,
@@ -5684,4 +5765,3 @@ export default {
   }
 }
 </script>
-

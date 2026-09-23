@@ -1,37 +1,51 @@
 var express = require('express');
 var app = express();
-var port = process.env.PORT || 3001;
 var path = require('path');
+var fs = require('fs');
 
+var clientDir = path.join(__dirname, '..', 'client');
+var indexPath = path.join(clientDir, 'index.html');
+var config = {};
 
-const staticFileMiddleware = express.static(path.join(__dirname, '..', 'client'));
-app.use(staticFileMiddleware);
+try {
+  config = JSON.parse(fs.readFileSync(path.join(clientDir, 'config.json'), 'utf8'));
+}
+catch (e) {}
 
-app.get('/#', function(req, res){
-  res.sendFile(path.join(__dirname, 'views', 'index.html'));
-});
+var appPath = config.gene && config.gene.path_prefix || '/';
+var mountPath = appPath === '/' ? '/' : appPath.replace(/\/+$/, '');
 
-app.get('/backward', function(req, res){
-  res.sendFile(path.join(__dirname, 'views', 'index.html'));
-});
+function sendIndex(req, res) {
+  res.sendFile(indexPath);
+}
 
-app.get('/exhibit*', function(req, res){
-  res.sendFile(path.join(__dirname, 'views', 'index.html'));
-});
+function addAppRoutes(prefix) {
+  app.get(prefix + '/', sendIndex);
+  app.get(prefix + '/#', sendIndex);
+  app.get(prefix + '/backward', sendIndex);
+  app.get(prefix + '/exhibit*', sendIndex);
+  app.get(prefix + '/tutorial*', sendIndex);
+  app.get(prefix + '/use-cases*', sendIndex);
+}
 
-app.get('/tutorial*', function(req, res){
-  res.sendFile(path.join(__dirname, 'views', 'index.html'));
-});
+if (mountPath === '/') {
+  app.use(express.static(clientDir));
+  addAppRoutes('');
+}
+else {
+  app.get(mountPath, function(req, res) {
+    var queryIndex = req.originalUrl.indexOf('?');
+    var query = queryIndex === -1 ? '' : req.originalUrl.slice(queryIndex);
+    res.redirect(301, mountPath + '/' + query);
+  });
 
+  app.use(mountPath, express.static(clientDir));
+  addAppRoutes(mountPath);
 
-app.get('/use-cases*', function(req, res){
-  res.sendFile(path.join(__dirname, 'views', 'index.html'));
-});
-
-app.get('/', function(req, res){
-  res.sendFile(path.join(__dirname, 'views', 'index.html'));
-});
-
+  app.get('/', function(req, res) {
+    res.redirect(302, mountPath + '/');
+  });
+}
 
 
 module.exports = app;

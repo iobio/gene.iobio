@@ -42,6 +42,12 @@ npm run build
 npm start
 ```
 
+Runtime settings are loaded from `client/config.json` for local development. When gene.iobio is served by GRU, GRU provides `/config.json` at runtime. Gene-specific settings use snake_case properties under `gene`, including `path_prefix`, `default_mode`, `site_name`, `show_intro`, `show_files_button`, `show_blogs_and_tutorials`, `phenolyzer_permitted`, `omim_api_key`, and `intro_paragraph_1` through `intro_paragraph_4`.
+
+GRU maps environment variables in the public `IOBIO_GENE_*` namespace to the corresponding runtime properties. For example, `IOBIO_GENE_DEFAULT_MODE=simple` becomes `gene.default_mode`, and `IOBIO_GENE_SHOW_INTRO=true` becomes the boolean `gene.show_intro`. GRU applies the same convention to `IOBIO_BAM_*` and `IOBIO_BACKEND_*`; `IOBIO_GENE_PATH_PREFIX` and `IOBIO_BACKEND_PATH_PREFIX` map directly to `path_prefix`.
+
+Nebula mode no longer depends on webpack `.env` settings. Static Nebula builds (`./build.sh stage.nebula`) publish `client/config.nebula.json` as their runtime `config.json`. GRU-hosted deployments can supply the equivalent settings with variables such as `IOBIO_GENE_SITE_NAME`, `IOBIO_GENE_DEFAULT_MODE`, `IOBIO_GENE_SHOW_INTRO`, `IOBIO_GENE_SHOW_FILES_BUTTON`, and `IOBIO_GENE_INTRO_PARAGRAPH_1`.
+
 Launch on your localhost
 @ [http://localhost:4026](http://localhost:4026).
 

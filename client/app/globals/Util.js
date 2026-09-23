@@ -251,9 +251,9 @@ class Util {
 
   getHumanRefNames(refName) {
       if (refName.indexOf("chr") == 0) {
-        return "chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr20 chr21 chr22 chrX chrY";
+        return "chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr20 chr21 chr22 chrX chrY chrM chrMT";
       } else {
-        return "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 X Y";
+        return "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 X Y M MT";
       }
   }
 
@@ -321,6 +321,31 @@ class Util {
       }
     }
     return strippedName;
+  }
+
+  isMitochondrialRef(refName) {
+    if (refName == null) {
+      return false;
+    }
+    var stripped = this.stripRefName(refName).toLowerCase();
+    return stripped === 'm' || stripped === 'mt';
+  }
+
+  getGnomADVariantLink(variant, buildName) {
+    if (variant == null || variant.chrom == null) {
+      return null;
+    }
+    var link = "http://gnomad.broadinstitute.org/variant/"
+      + variant.chrom + "-"
+      + variant.start + "-"
+      + variant.ref + "-"
+      + variant.alt;
+    if (buildName === 'GRCh38') {
+      link += "?dataset=gnomad_r4";
+    } else if (buildName === 'GRCh37') {
+      link += "?dataset=gnomad_r2_1";
+    }
+    return link;
   }
 
 
