@@ -1270,7 +1270,7 @@ export default {
         self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp, self.launchedFromHub,
           { DEFAULT_BUILD: self.isEduMode ? 'GRCh37' : 'GRCh38' });
 
-        self.promiseAddCacheHelperListeners()
+        return self.promiseAddCacheHelperListeners()
         .then(function() {
           return self.cacheHelper.promiseClearOlderCache();
         })
@@ -1482,16 +1482,16 @@ export default {
 
           })
 
-        },
-        function() {
-          if (callback) {
-            callback();
-          }
-
         })
       })
       .catch(function(error) {
-        
+        self.showAppLoader = false;
+        let message = self.formatInitError(error);
+        self.addAlert('error', message, null, null, {showAlertPanel: true});
+        self.onShowSnackbar({message: message, timeout: 0, close: true});
+        if (callback) {
+          callback(error || message);
+        }
       })
 
     },
@@ -2497,7 +2497,9 @@ export default {
 
       getClearCachePromise()
       .then(function() {
-        self.featureMatrixModel.init();
+        if (self.featureMatrixModel) {
+          self.featureMatrixModel.init();
+        }
         return getClearGenesPromise();
       })
       .then(function() {
@@ -3709,8 +3711,28 @@ export default {
       if (self.paramTour) {
         self.tourNumber = self.paramTour;
       }
+
+      // Mosaic files come from HubSession (source + /api/v1), not from URL vcf/bam
+      // params. Set this before promiseInitFromUrl so simple mode does not offer
+      // demo data while Mosaic init is still pending.
+      // The token alone is not enough: hub-iobio-tkn persists in localStorage from a
+      // previous Mosaic session. sampleId and paramSource must be on this URL to
+      // treat the current page load as a Mosaic launch.
+      if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0
+            && self.sampleId && self.paramSource) {
+        self.launchedFromHub = true;
+      }
     },
     
+    formatInitError: function(error) {
+      if (!error) {
+        return "Unable to initialize gene.iobio.";
+      }
+      if (typeof error === 'string') {
+        return error;
+      }
+      return error.message || error.toString() || "Unable to initialize gene.iobio.";
+    },
     /* Determine the iobio backend server from runtime config.json.
      * Standalone launches use backend/backend_map.default. Mosaic launches use
      * the source URL to look up the allowed backend in backend_map.
@@ -3722,9 +3744,7 @@ export default {
         let map = appConfig.backend_map || {};
         let backendUrl = null;
 
-        if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0
-              && self.sampleId && self.paramSource) {
-          self.launchedFromHub = true;
+        if (self.launchedFromHub) {
 
           if (self.paramSource === self.sfariSource) {
             self.launchedFromSFARI = true;
@@ -3734,18 +3754,13 @@ export default {
           backendUrl = self.getBackendMapValue(map, sourceKey) || self.getBackendMapValue(map, self.paramSource);
 
           if (!backendUrl) {
-            self.addAlert('error',
-              "Unable to lookup iobio backend server for this Mosaic instance. There is no mapping from " +
-              "the <pre>source</pre> URL parameter to a iobio backend server URL.",
-              null, null, {showAlertPanel: true})
-            reject();
+            reject("Unable to lookup iobio backend server for this Mosaic instance. There is no mapping from " +
+              "the source URL parameter <pre>" + (sourceKey || self.paramSource) + "</pre> to an iobio backend server URL.");
             return;
           }
 
           if (self.paramBackend && self.normalizeBackendUrl(self.paramBackend) !== backendUrl) {
-            self.addAlert('error', "Backend is not allowed for source " + sourceKey + ": " + self.paramBackend,
-              null, null, {showAlertPanel: true})
-            reject();
+            reject("Backend is not allowed for source " + sourceKey + ": " + self.paramBackend);
             return;
           }
 
@@ -3759,9 +3774,7 @@ export default {
               backendUrl = paramBackend;
             }
             else {
-              self.addAlert('error', "Backend is not allowed: " + self.paramBackend,
-                null, null, {showAlertPanel: true})
-              reject();
+              reject("Backend is not allowed: " + self.paramBackend);
               return;
             }
           }
@@ -3776,15 +3789,10 @@ export default {
 
             resolve();
           } catch(error) {
-            self.$nextTick(function() {
-              self.addAlert('error', error, null, null, {showAlertPanel: true})
-            })
             reject(error);
           }    
         } else {
-          self.addAlert('error', "Unable to initialize backend services. IOBIO server not specified.",
-            null, null, {showAlertPanel: true})
-          reject();
+          reject("Unable to initialize backend services. IOBIO server not specified.");
         }
       })
     },
@@ -3922,7 +3930,7 @@ export default {
           .catch(function(error) {
             self.addAlert('error', error)
           })
-        } else if (self.isSimpleMode) {
+        } else if (self.isSimpleMode && !self.launchedFromHub) {
           alertify.confirm("", "No data files specified",
                function(){
                   self.cohortModel.promiseInitDemo()
@@ -5029,7 +5037,10 @@ export default {
           }
 
           console.log("gene.iobio set-data cohort model not yet loaded")
-          self.init(function() {
+          self.init(function(error) {
+            if (error) {
+              return;
+            }
             self.analysis = clinObject.analysis;
             self.user     = clinObject.user;
 

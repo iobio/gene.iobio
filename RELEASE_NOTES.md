@@ -46,7 +46,10 @@ an informative error message. For example, Waygate doesn't handle spaces in the 
    - Bug fix: prevent stale clinvar vcf url from being used after genome build switch.
 - 4.13.2 
    - Standalone prod gene.iobio runtime config points to backend.iobio.io.
-
+- 4.13.3
+   - Mosaic-hosted deployments (e.g. UDN Mosaic) select the iobio GRU backend from runtime `config.json` `backend_map` using the Mosaic `source` URL parameter.
+   - If that `source` has no backend mapping, initialization stops and the error is shown instead of continuing with an uninitialized app.
+   - Mosaic launches in simple mode no longer prompt to load demo data. Variant/alignment files come from the Mosaic API, not URL file parameters.
 ---
 
 
